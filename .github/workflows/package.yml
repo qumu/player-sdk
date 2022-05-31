@@ -1,0 +1,47 @@
+name: New tag deployed actions
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    name: Create new release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        uses: scottbrenner/generate-changelog-action@master
+        id: generate_changelog
+        env:
+          REPO: ${{ github.repository }}
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          body: |
+            ${{ steps.generate_changelog.outputs.changelog }}
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  publish-package:
+    name: Release package to Github packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
+      - run: npm run prod && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
