@@ -7,19 +7,31 @@
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
   "module": "./dist/index.module.js",
+  "exports": {
+    "require": "./dist/index.js",
+    "default": "./dist/index.modern.mjs"
+  },
   "files": [
-    "./dist"
+    "dist/"
   ],
   "scripts": {
     "build": "microbundle",
     "dev": "microbundle watch",
     "lint": "eslint 'src/**'",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watch"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qumu/player-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qumu/player-sdk/issues"
+  },
+  "homepage": "https://github.com/qumu/ui-player-sdk#readme",
+  "dependencies": {},
   "devDependencies": {
     "@qumu/code-conventions": "2.0.1",
-    "@qumu/ui-shared-service-guid": "1.0.1",
     "@types/jest": "27.5.1",
     "@typescript-eslint/eslint-plugin": "5.26.0",
     "@typescript-eslint/parser": "5.26.0",

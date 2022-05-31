@@ -1,5 +1,166 @@
-# Qumu Player SDK
+# Player SDK
 
-The official JavaScript SDK to interact with a Qumu Cloud presentation via an iframe.
+The official JavaScript SDK to interact with an embedded Qumu Cloud presentation.
 
+## Get Started
 
+### via CDN (easiest)
+
+The simplest way to use the SDK is to load it via the CDN. The script will add a new `playerSdk` property to the `window` object.
+
+**Note**: You need to load the script BEFORE your code to interact wit the SDK
+
+**Note**: You need to add this script only ONCE for each webpage
+
+In order to control a Qumu Cloud presentation, you will need to add it to your webpage via an iframe.
+
+```html
+
+<iframe src="<url-to-presentation>" frameborder="0"></iframe>
+
+<script src=""></script>
+<script>
+  var iframe = document.querySelector('iframe');
+
+  var sdk = new window.playerSdk.PlayerSdk(iframe);
+
+  sdk
+      .init()
+      .then(() => {
+        sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
+
+        sdk.getDuration().then((duration) => console.log('duration', duration));
+
+        sdk.play();
+      })
+      .catch((error) => console.error(error));
+</script>
+```
+
+### With a module bundler (advanced)
+
+If you use a module bundler (like Webpack or rollup), you will first need to install the dependency.
+
+```shell
+npm install @qumu/player-sdk
+```
+
+```js
+const iframe = document.querySelector('iframe');
+
+const sdk = new window.playerSdk.PlayerSdk(iframe);
+
+sdk
+  .init()
+  .then(() => {
+    sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
+
+    sdk.getDuration().then((duration) => console.log('duration', duration));
+
+    sdk.play();
+  })
+  .catch((error) => console.error(error));
+```
+
+## API
+
+### addEventListener(name: SdkEventListener, callback: Function): void
+
+Registers a callback to be run when the event is triggered.
+
+* `name`: the event to listen to
+* `callback`: the callback to run when the event is triggered
+
+Events you can listen to:
+
+| Event name     | Description                                         | 
+|----------------|-----------------------------------------------------|
+| `ended`        | Triggered when the playback ends                    |
+| `liveState`    | Triggered when the state of a live event is updated |
+| `pause`        | Triggered when the playback pauses                  |
+| `play`         | Triggered when the playback resumes                 |
+| `timeupdate`   | Triggered when the current time is updated          |
+| `volumechange` | Triggered when the volume changes                   |
+
+### destroy(): void
+
+Destroys the whole SDK.
+
+### getActiveClosedCaptionsGuid(): Promise<string>
+
+Gets the active closed captions' guid.
+
+### getClosedCaptions(): Promise<CaptionTrack[]>
+
+Gets the available closed captions.
+
+### getCurrentTime(): Promise<number>
+
+Gets the current time in milliseconds.
+
+### getDuration(): Promise<number>
+
+Gets the presentation's duration in milliseconds.
+
+### getLiveEndTime(): Promise<string | null>
+
+Gets the end date of a live event
+
+### getLiveStartTime(): Promise<string | null>
+
+Gets the start date of a live event
+
+### getPresentation(): Promise<Presentation>
+
+Gets the presentation.
+
+### getVolume(): Promise<number>
+
+Gets the player's volume between 0 and 100.
+
+### init(): Promise<void>
+
+Initializes the SDK. It is imperative that this method is the first one called as it starts a handshake communication with the embedded presentation.
+
+### isPaused(): Promise<boolean>
+
+Checks whether the player is paused or playing.
+
+### pause(): Promise<void>
+
+Pauses the player.
+
+### play(): Promise<void>
+
+Plays the player.
+
+### removeEventListener(name: string, callback?: Function): void
+
+Removes the callback for the provided event name.
+
+* `name`: the event name to listen to
+* `callback`: the callback to remove. If no callback is provided, all callbacks will be removed for the event name
+
+### setActiveClosedCaptionsGuid(guid: string): Promise<void>
+
+Sets the active closed captions' guid
+
+* `guid`: the guid of the new active closed captions
+
+### setCurrentTime(time: number): Promise<void>
+
+Sets the current time in the player
+
+* `time`: the new current time in milliseconds
+
+### setVolume(volume: number): Promise<void>
+
+Sets the volume in the player
+
+* `volume`: The new volume. The range is 0-100.
+
+## Generate a new package
+
+To generate a new Github package, all you have to do is run npm version <major|minor|patch on the master branch.
+
+This will generate a new tag that will then trigger the Package github action and create a release and publish to Github package.

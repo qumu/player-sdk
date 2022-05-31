@@ -1,1 +1,2 @@
-export * from './services/qumu-player-sdk.service';
+export * from './models/communication.model';
+export * from './services/player-sdk.service';
