@@ -165,6 +165,67 @@ describe('Service', () => {
       expect(() => sdk.addEventListener('volumechange', ('foo' as any))).toThrow('The callback must be a function.');
     });
 
+    describe('chapterchange', () => {
+      it('should listen to the event', (done) => {
+        const chapter = {
+          guid: 'chapter1',
+          hidden: false,
+          image: {
+            guid: 'image1',
+            url: 'http://example.com/image1.jpg',
+          },
+          time: 1000,
+          title: 'foo',
+        };
+
+        initSdk()
+          .then((sdk) => {
+            sdk.addEventListener('chapterchange', (c: any) => {
+              expect(c).toEqual(chapter);
+
+              done();
+            });
+
+            // Simulates an event sent from the player
+            window.dispatchEvent(new MessageEvent('message', {
+              data: JSON.stringify({
+                action: SdkMessageAction.Event,
+                guids: [guid],
+                name: 'chapterchange',
+                value: chapter,
+                version: 3,
+              }),
+              origin: url.origin,
+            }));
+          });
+      });
+    });
+
+    describe('closedcaptionslanguagechange', () => {
+      it('should listen to the event', (done) => {
+        initSdk()
+          .then((sdk) => {
+            sdk.addEventListener('closedcaptionslanguagechange', (lang: string) => {
+              expect(lang).toEqual('fr');
+
+              done();
+            });
+
+            // Simulates an event sent from the player
+            window.dispatchEvent(new MessageEvent('message', {
+              data: JSON.stringify({
+                action: SdkMessageAction.Event,
+                guids: [guid],
+                name: 'closedcaptionslanguagechange',
+                value: 'fr',
+                version: 3,
+              }),
+              origin: url.origin,
+            }));
+          });
+      });
+    });
+
     describe('ended', () => {
       it('should listen to events', (done) => {
         initSdk()
@@ -177,6 +238,31 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'ended',
+                version: 3,
+              }),
+              origin: url.origin,
+            }));
+          });
+      });
+    });
+
+    describe('layoutchange', () => {
+      it('should listen to the event', (done) => {
+        initSdk()
+          .then((sdk) => {
+            sdk.addEventListener('layoutchange', (layout: 'pip' | 'sbs') => {
+              expect(layout).toEqual('sbs');
+
+              done();
+            });
+
+            // Simulates an event sent from the player
+            window.dispatchEvent(new MessageEvent('message', {
+              data: JSON.stringify({
+                action: SdkMessageAction.Event,
+                guids: [guid],
+                name: 'layoutchange',
+                value: 'sbs',
                 version: 3,
               }),
               origin: url.origin,
@@ -242,6 +328,56 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'play',
+                version: 3,
+              }),
+              origin: url.origin,
+            }));
+          });
+      });
+    });
+
+    describe('playbackratechange', () => {
+      it('should listen to the event', (done) => {
+        initSdk()
+          .then((sdk) => {
+            sdk.addEventListener('playbackratechange', (rate: number) => {
+              expect(rate).toEqual(1.5);
+
+              done();
+            });
+
+            // Simulates an event sent from the player
+            window.dispatchEvent(new MessageEvent('message', {
+              data: JSON.stringify({
+                action: SdkMessageAction.Event,
+                guids: [guid],
+                name: 'playbackratechange',
+                value: 1.5,
+                version: 3,
+              }),
+              origin: url.origin,
+            }));
+          });
+      });
+    });
+
+    describe('primarycontentchange', () => {
+      it('should listen to the event', (done) => {
+        initSdk()
+          .then((sdk) => {
+            sdk.addEventListener('primarycontentchange', (primarycontent: 'media' | 'slides') => {
+              expect(primarycontent).toEqual('slides');
+
+              done();
+            });
+
+            // Simulates an event sent from the player
+            window.dispatchEvent(new MessageEvent('message', {
+              data: JSON.stringify({
+                action: SdkMessageAction.Event,
+                guids: [guid],
+                name: 'primarycontentchange',
+                value: 'slides',
                 version: 3,
               }),
               origin: url.origin,
@@ -953,6 +1089,52 @@ describe('Service', () => {
     });
   });
 
+  describe('getPrimaryContent', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getPrimaryContent();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'primaryContent',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', (done) => {
+      initSdk()
+        .then((sdk) => {
+          sdk.getPrimaryContent()
+            .then((primaryContent) => {
+              expect(primaryContent).toEqual('slides');
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'primaryContent',
+              value: 'slides',
+              version: 3,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
   describe('getVolume', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
@@ -1513,6 +1695,35 @@ describe('Service', () => {
       const sdk = await initSdk();
 
       expect(() => sdk.setLayout((null as any))).toThrow('A value must be set.');
+    });
+  });
+
+  describe('setPrimaryContent', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = await initSdk();
+
+      sdk.setPrimaryContent('slides');
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Set,
+          name: 'primaryContent',
+          value: 'slides',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should throw an error if no value is provided', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setPrimaryContent((null as any))).toThrow('A value must be set.');
     });
   });
 

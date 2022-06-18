@@ -83,6 +83,7 @@ Events you can listen to:
 | `pause`                        | Triggered when the playback pauses                     |
 | `play`                         | Triggered when the playback resumes                    |
 | `playbackratechange`           | Triggered when the playback rate changes               |
+| `primarycontentchange`         | Triggered when the primary content is updated          |
 | `timeupdate`                   | Triggered when the current time is updated             |
 | `volumechange`                 | Triggered when the volume changes                      |
 
@@ -138,6 +139,10 @@ Gets the list of playback rates.
 
 Gets the presentation.
 
+### getPrimaryContent(): Promise<'media' | 'slides'>
+
+Gets the primary content.
+
 ### getVolume(): Promise<number&gt;
 
 Gets the player's volume between 0 and 100.
@@ -177,7 +182,7 @@ Sets the current time in the player
 
 * `time`: the new current time in milliseconds
 
-### setLayout(string: 'pip' | 'sbs'): Promise<void&gt;
+### setLayout(layout: 'pip' | 'sbs'): Promise<void&gt;
 
 Sets the layout
 
@@ -188,6 +193,12 @@ Sets the layout
 Sets the playbak rate in the player.
 
 * `playbackRate`: the new playback rate.The range is 0-2.
+
+### setPrimaryContent(content: 'media' | 'slides'): Promise<void&gt;
+
+Sets the primary content
+
+* `content`: the new primary content
 
 ### setVolume(volume: number): Promise<void&gt;
 
