@@ -40,5 +40,6 @@ export type SdkEventListener =
   | 'liveState'
   | 'pause'
   | 'play'
+  | 'playbackratechange'
   | 'timeupdate'
   | 'volumechange';

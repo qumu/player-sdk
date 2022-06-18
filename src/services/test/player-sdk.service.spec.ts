@@ -637,6 +637,100 @@ describe('Service', () => {
     });
   });
 
+  describe('getPlaybackRate', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getPlaybackRate();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'playbackRate',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', (done) => {
+      initSdk()
+        .then((sdk) => {
+          sdk.getPlaybackRate()
+            .then((playbackRate) => {
+              expect(playbackRate).toEqual(2);
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'playbackRate',
+              value: 2,
+              version: 3,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
+  describe('getPlaybackRates', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getPlaybackRates();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'playbackRates',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', (done) => {
+      const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+      initSdk()
+        .then((sdk) => {
+          sdk.getPlaybackRates()
+            .then((rates) => {
+              expect(rates).toEqual(playbackRates);
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'playbackRates',
+              value: playbackRates,
+              version: 3,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
   describe('getPresentation', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
@@ -1171,6 +1265,47 @@ describe('Service', () => {
       const sdk = await initSdk();
 
       expect(() => sdk.setCurrentTime(-1)).toThrow('The current time must be superior or equal to 0');
+    });
+
+    it('should throw an error if no value is provided', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setCurrentTime((null as any))).toThrow('A value must be set.');
+    });
+  });
+
+  describe('setPlaybackRate', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = await initSdk();
+
+      sdk.setPlaybackRate(2);
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Set,
+          name: 'playbackRate',
+          value: 2,
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should send an error if the value is below 0', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setPlaybackRate(-1)).toThrow('The playback rate must be superior or equal to 0');
+    });
+
+    it('should send an error if the value is above 2', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setPlaybackRate(3)).toThrow('The playback rate must be inferior or equal to 2');
     });
 
     it('should throw an error if no value is provided', async () => {
