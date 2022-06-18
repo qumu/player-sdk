@@ -75,6 +75,7 @@ Events you can listen to:
 
 | Event name                     | Description                                            | 
 |--------------------------------|--------------------------------------------------------|
+| `chapterchange`                | Triggered when the current chapter changes             |
 | `closedcaptionslanguagechange` | Triggered when the closed captions language is updated |
 | `ended`                        | Triggered when the playback ends                       |
 | `liveState`                    | Triggered when the state of a live event changes       |
@@ -87,9 +88,17 @@ Events you can listen to:
 
 Destroys the whole SDK.
 
-### getClosedCaptions(): Promise<CaptionTrack[]>
+### getClosedCaptions(): Promise<CaptionTrack[]&gt;
 
 Gets the available closed captions.
+
+### getChapter(): Promise<Chapter%gt;
+
+Gets the current chapter
+
+### getChapters(): Promise<Chapter[]&gt;
+
+Gets the list of chapters for the presentation
 
 ### getClosedCaptionsLanguage(): Promise<string&gt;
 
