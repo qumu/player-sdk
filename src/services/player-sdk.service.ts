@@ -7,7 +7,7 @@ import {
   SdkMessage,
   SdkReadyMessage,
 } from '../models/communication.model';
-import { CallbackStore } from '../lib/callbacks/callbacks';
+import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
 
 export interface PlayerSdkOptions {
   timeout: number;
@@ -55,6 +55,9 @@ export class PlayerSdk {
 
   // callback for the ready process
   private readyHandler: ((event: MessageEvent) => void) | undefined;
+
+  // Cross window communication format version
+  private readonly version = 2;
 
   constructor(
     private readonly iframe: HTMLIFrameElement,
@@ -121,17 +124,17 @@ export class PlayerSdk {
   }
 
   /**
-   * Gets the active closed captions' guid
-   */
-  async getActiveClosedCaptionsGuid(): Promise<string> {
-    return this.get('ccGuid');
-  }
-
-  /**
    * Gets the available closed captions
    */
   async getClosedCaptions(): Promise<any[]> {
-    return this.get('ccTracks');
+    return this.get('closedCaptions');
+  }
+
+  /**
+   * Gets the active closed captions' language
+   */
+  async getClosedCaptionsLanguage(): Promise<string> {
+    return this.get('closedCaptionsLanguage');
   }
 
   /**
@@ -231,12 +234,12 @@ export class PlayerSdk {
   }
 
   /**
-   * Sets the active closed captions' guid
+   * Sets the active closed captions' language
    *
    * @param guid the guid of the new active closed captions
    */
-  setActiveClosedCaptionsGuid(guid: string): Promise<void> {
-    return this.set('ccGuid', guid);
+  setClosedCaptionsLanguage(guid: string): Promise<void> {
+    return this.set('closedCaptionsLanguage', guid);
   }
 
   /**
@@ -279,7 +282,7 @@ export class PlayerSdk {
         resolve,
       });
 
-      const message: SdkMessage = {
+      const message: Partial<SdkMessage> = {
         action: SdkMessageAction.Command,
         guid: this.guid,
         name,
@@ -410,10 +413,11 @@ export class PlayerSdk {
    * @param message the message to send
    * @private
    */
-  private postMessage(message: any): void {
+  private postMessage(message: Partial<SdkMessage>): void {
     this.iframe.contentWindow?.postMessage(JSON.stringify({
       ...message,
       guid: this.guid,
+      version: this.version,
     }), this.origin);
   }
 
@@ -426,11 +430,12 @@ export class PlayerSdk {
   private processData(data: any): void {
     const message = parseMessageData<SdkMessage>(data);
 
-    let callbacks = [];
+    let callbacks: FunctionOrPromise[] = [];
 
     // ignore messages that should not be for us
     if (
-      (message?.action === SdkMessageAction.Event && !message?.guids?.includes(this.guid))
+      message?.version !== this.version
+      || (message?.action === SdkMessageAction.Event && !message?.guids?.includes(this.guid))
       || (message?.action !== SdkMessageAction.Event && message?.guid !== this.guid)
     ) {
       return;
@@ -451,6 +456,7 @@ export class PlayerSdk {
       if (typeof cb === 'function') {
         cb(message.value);
       } else {
+        // TODO find a way to use the cb.reject() function;
         cb.resolve(message.value);
       }
     });

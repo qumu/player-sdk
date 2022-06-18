@@ -73,26 +73,27 @@ Registers a callback to be run when the event is triggered.
 
 Events you can listen to:
 
-| Event name     | Description                                         | 
-|----------------|-----------------------------------------------------|
-| `ended`        | Triggered when the playback ends                    |
-| `liveState`    | Triggered when the state of a live event is updated |
-| `pause`        | Triggered when the playback pauses                  |
-| `play`         | Triggered when the playback resumes                 |
-| `timeupdate`   | Triggered when the current time is updated          |
-| `volumechange` | Triggered when the volume changes                   |
+| Event name                     | Description                                            | 
+|--------------------------------|--------------------------------------------------------|
+| `closedcaptionslanguagechange` | Triggered when the closed captions language is updated |
+| `ended`                        | Triggered when the playback ends                       |
+| `liveState`                    | Triggered when the state of a live event changes       |
+| `pause`                        | Triggered when the playback pauses                     |
+| `play`                         | Triggered when the playback resumes                    |
+| `timeupdate`                   | Triggered when the current time is updated             |
+| `volumechange`                 | Triggered when the volume changes                      |
 
 ### destroy(): void
 
 Destroys the whole SDK.
 
-### getActiveClosedCaptionsGuid(): Promise<string>
-
-Gets the active closed captions' guid.
-
 ### getClosedCaptions(): Promise<CaptionTrack[]>
 
 Gets the available closed captions.
+
+### getClosedCaptionsLanguage(): Promise<string>
+
+Gets the active closed captions' language.
 
 ### getCurrentTime(): Promise<number>
 
@@ -141,11 +142,11 @@ Removes the callback for the provided event name.
 * `name`: the event name to listen to
 * `callback`: the callback to remove. If no callback is provided, all callbacks will be removed for the event name
 
-### setActiveClosedCaptionsGuid(guid: string): Promise<void>
+### setClosedCaptionsLanguage(guid: string): Promise<void>
 
-Sets the active closed captions' guid
+Sets the active closed captions' language
 
-* `guid`: the guid of the new active closed captions
+* `language`: the language of the new active closed captions
 
 ### setCurrentTime(time: number): Promise<void>
 

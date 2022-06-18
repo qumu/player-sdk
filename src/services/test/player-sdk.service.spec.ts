@@ -27,6 +27,7 @@ describe('Service', () => {
       data: JSON.stringify({
         action: SdkMessageAction.Ready,
         value: url.toString(),
+        version: 2,
       }),
       origin: url.origin,
     }));
@@ -46,6 +47,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid,
           status: 'success',
+          version: 2,
         }),
         origin: url.origin,
       }));
@@ -83,6 +85,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: url.toString(),
+          version: 2,
         }),
         origin: url.origin,
       }));
@@ -100,6 +103,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: url.toString(),
+          version: 2,
         }),
         origin: url.origin,
       }));
@@ -116,6 +120,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: url.toString(),
+          version: 2,
         }),
         origin: 'https://foo.bar',
       }));
@@ -132,6 +137,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: 'https://foo.bar/view/abcd',
+          version: 2,
         }),
         origin: url.origin,
       }));
@@ -171,6 +177,7 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'ended',
+                version: 2,
               }),
               origin: url.origin,
             }));
@@ -195,6 +202,7 @@ describe('Service', () => {
                 guids: [guid],
                 name: 'liveState',
                 value: 'LIVE',
+                version: 2,
               }),
               origin: url.origin,
             }));
@@ -214,6 +222,7 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'pause',
+                version: 2,
               }),
               origin: url.origin,
             }));
@@ -233,6 +242,7 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'play',
+                version: 2,
               }),
               origin: url.origin,
             }));
@@ -257,6 +267,7 @@ describe('Service', () => {
                 guids: [guid],
                 name: 'timeupdate',
                 value: 1000,
+                version: 2,
               }),
               origin: url.origin,
             }));
@@ -281,6 +292,7 @@ describe('Service', () => {
                 guids: [guid],
                 name: 'volumechange',
                 value: 100,
+                version: 2,
               }),
               origin: url.origin,
             }));
@@ -312,53 +324,10 @@ describe('Service', () => {
           name: 'destroy',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
-    });
-  });
-
-  describe('getActiveClosedCaptionsGuid', () => {
-    it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
-
-      sdk.getActiveClosedCaptionsGuid();
-
-      expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
-        JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'ccGuid',
-          // eslint-disable-next-line sort-keys
-          guid,
-        }),
-        url.origin,
-      );
-    });
-
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getActiveClosedCaptionsGuid()
-            .then((captionsGuid) => {
-              expect(captionsGuid).toEqual('abcd');
-
-              done();
-            });
-
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'ccGuid',
-              value: 'abcd',
-            }),
-            origin: url.origin,
-          }));
-        });
     });
   });
 
@@ -374,9 +343,10 @@ describe('Service', () => {
         JSON.stringify({
           action: SdkMessageAction.Get,
           callbackId: 0,
-          name: 'ccTracks',
+          name: 'closedCaptions',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -412,7 +382,7 @@ describe('Service', () => {
             data: JSON.stringify({
               action: SdkMessageAction.Get,
               guid,
-              name: 'ccTracks',
+              name: 'closedCaptions',
               value: [
                 {
                   captions: [],
@@ -429,6 +399,53 @@ describe('Service', () => {
                   title: 'French',
                 },
               ],
+              version: 2,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
+  describe('getClosedCaptionsLanguage', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getClosedCaptionsLanguage();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'closedCaptionsLanguage',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 2,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should returns the value from the iframe', (done) => {
+      initSdk()
+        .then((sdk) => {
+          sdk.getClosedCaptionsLanguage()
+            .then((language) => {
+              expect(language).toEqual('en');
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'closedCaptionsLanguage',
+              value: 'en',
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -451,6 +468,7 @@ describe('Service', () => {
           name: 'currentTime',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -473,6 +491,7 @@ describe('Service', () => {
               guid,
               name: 'currentTime',
               value: 1000,
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -495,6 +514,7 @@ describe('Service', () => {
           name: 'liveEndTime',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -517,6 +537,7 @@ describe('Service', () => {
               guid,
               name: 'liveEndTime',
               value: new Date('2022-01-01 01:00'),
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -539,6 +560,7 @@ describe('Service', () => {
           name: 'liveStartTime',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -561,6 +583,7 @@ describe('Service', () => {
               guid,
               name: 'liveStartTime',
               value: new Date('2022-01-01 01:00'),
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -583,6 +606,7 @@ describe('Service', () => {
           name: 'duration',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -605,6 +629,7 @@ describe('Service', () => {
               guid,
               name: 'duration',
               value: 1000,
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -627,6 +652,7 @@ describe('Service', () => {
           name: 'presentation',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -653,6 +679,7 @@ describe('Service', () => {
               guid,
               name: 'presentation',
               value: presentation,
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -675,6 +702,7 @@ describe('Service', () => {
           name: 'volume',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -697,6 +725,7 @@ describe('Service', () => {
               guid,
               name: 'volume',
               value: 80,
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -752,6 +781,7 @@ describe('Service', () => {
         JSON.stringify({
           action: SdkMessageAction.Handshake,
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -774,6 +804,7 @@ describe('Service', () => {
         JSON.stringify({
           action: SdkMessageAction.Handshake,
           guid,
+          version: 2,
         }),
         // because we have not received the ready message, we do not know who to send the message too
         // so we broadcast it with `*'
@@ -798,6 +829,7 @@ describe('Service', () => {
         JSON.stringify({
           action: SdkMessageAction.Handshake,
           guid,
+          version: 2,
         }),
         '*',
       );
@@ -828,6 +860,7 @@ describe('Service', () => {
           code: SdkMessageError.GuidInUse,
           guid,
           status: 'error',
+          version: 2,
         }),
         origin: url.origin,
       }));
@@ -858,6 +891,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid,
           status: 'success',
+          version: 2,
         }),
         origin: 'https://foo.bar',
       }));
@@ -886,6 +920,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid: 'does-not-exist',
           status: 'success',
+          version: 2,
         }),
         origin: url.origin,
       }));
@@ -953,6 +988,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid,
           status: 'success',
+          version: 2,
         }),
         origin: url.origin,
       }));
@@ -974,6 +1010,7 @@ describe('Service', () => {
           name: 'paused',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -996,6 +1033,7 @@ describe('Service', () => {
               guid,
               name: 'paused',
               value: true,
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -1017,6 +1055,7 @@ describe('Service', () => {
           action: SdkMessageAction.Command,
           guid,
           name: 'pause',
+          version: 2,
         }),
         url.origin,
       );
@@ -1037,6 +1076,7 @@ describe('Service', () => {
           action: SdkMessageAction.Command,
           guid,
           name: 'play',
+          version: 2,
         }),
         url.origin,
       );
@@ -1059,6 +1099,7 @@ describe('Service', () => {
               guids: [guid],
               name: 'volumechange',
               value: 100,
+              version: 2,
             }),
             origin: url.origin,
           }));
@@ -1075,22 +1116,23 @@ describe('Service', () => {
     });
   });
 
-  describe('setActiveClosedCaptionsGuid', () => {
+  describe('setClosedCaptionsLanguage', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
       const sdk = await initSdk();
 
-      sdk.setActiveClosedCaptionsGuid('abcd');
+      sdk.setClosedCaptionsLanguage('en');
 
       expect(spy).toHaveBeenCalledWith(
         // The order of the keys is important because we stringify the object
         JSON.stringify({
           action: SdkMessageAction.Set,
-          name: 'ccGuid',
-          value: 'abcd',
+          name: 'closedCaptionsLanguage',
+          value: 'en',
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -1099,7 +1141,7 @@ describe('Service', () => {
     it('should throw an error if no value is provided', async () => {
       const sdk = await initSdk();
 
-      expect(() => sdk.setActiveClosedCaptionsGuid((null as any))).toThrow('A value must be set.');
+      expect(() => sdk.setClosedCaptionsLanguage((null as any))).toThrow('A value must be set.');
     });
   });
 
@@ -1119,6 +1161,7 @@ describe('Service', () => {
           value: 2000,
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );
@@ -1153,6 +1196,7 @@ describe('Service', () => {
           value: 100,
           // eslint-disable-next-line sort-keys
           guid,
+          version: 2,
         }),
         url.origin,
       );

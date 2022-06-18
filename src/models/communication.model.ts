@@ -19,6 +19,7 @@ export interface SdkMessage {
   guids?: string[];
   name?: string;
   value?: any;
+  version: number;
 }
 
 export interface SdkReadyMessage {
@@ -34,7 +35,8 @@ export interface SdkHandshakeMessage {
 }
 
 export type SdkEventListener =
-  'ended'
+  'closedcaptionslanguagechange'
+  | 'ended'
   | 'liveState'
   | 'pause'
   | 'play'
