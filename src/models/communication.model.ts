@@ -38,6 +38,7 @@ export type SdkEventListener =
   'chapterchange'
   | 'closedcaptionslanguagechange'
   | 'ended'
+  | 'layoutchange'
   | 'liveState'
   | 'pause'
   | 'play'
