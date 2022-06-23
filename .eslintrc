@@ -1,6 +1,16 @@
 {
   "extends": "./node_modules/@qumu/code-conventions/eslint/index.js",
   "rules": {
-    "@typescript-eslint/no-non-null-assertion": "warn"
-  }
+    "@typescript-eslint/no-non-null-assertion": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.spec.ts"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
 }
