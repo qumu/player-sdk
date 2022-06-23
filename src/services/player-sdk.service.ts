@@ -57,7 +57,7 @@ export class PlayerSdk {
   private readyHandler: ((event: MessageEvent) => void) | undefined;
 
   // Cross window communication format version
-  private readonly version = 2;
+  private readonly version = 3;
 
   constructor(
     private readonly iframe: HTMLIFrameElement,

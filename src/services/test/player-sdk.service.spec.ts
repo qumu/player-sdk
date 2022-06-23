@@ -27,7 +27,7 @@ describe('Service', () => {
       data: JSON.stringify({
         action: SdkMessageAction.Ready,
         value: url.toString(),
-        version: 2,
+        version: 3,
       }),
       origin: url.origin,
     }));
@@ -47,7 +47,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid,
           status: 'success',
-          version: 2,
+          version: 3,
         }),
         origin: url.origin,
       }));
@@ -85,7 +85,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: url.toString(),
-          version: 2,
+          version: 3,
         }),
         origin: url.origin,
       }));
@@ -103,7 +103,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: url.toString(),
-          version: 2,
+          version: 3,
         }),
         origin: url.origin,
       }));
@@ -120,7 +120,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: url.toString(),
-          version: 2,
+          version: 3,
         }),
         origin: 'https://foo.bar',
       }));
@@ -137,7 +137,7 @@ describe('Service', () => {
         data: JSON.stringify({
           action: SdkMessageAction.Ready,
           value: 'https://foo.bar/view/abcd',
-          version: 2,
+          version: 3,
         }),
         origin: url.origin,
       }));
@@ -177,7 +177,7 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'ended',
-                version: 2,
+                version: 3,
               }),
               origin: url.origin,
             }));
@@ -202,7 +202,7 @@ describe('Service', () => {
                 guids: [guid],
                 name: 'liveState',
                 value: 'LIVE',
-                version: 2,
+                version: 3,
               }),
               origin: url.origin,
             }));
@@ -222,7 +222,7 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'pause',
-                version: 2,
+                version: 3,
               }),
               origin: url.origin,
             }));
@@ -242,7 +242,7 @@ describe('Service', () => {
                 action: SdkMessageAction.Event,
                 guids: [guid],
                 name: 'play',
-                version: 2,
+                version: 3,
               }),
               origin: url.origin,
             }));
@@ -267,7 +267,7 @@ describe('Service', () => {
                 guids: [guid],
                 name: 'timeupdate',
                 value: 1000,
-                version: 2,
+                version: 3,
               }),
               origin: url.origin,
             }));
@@ -292,7 +292,7 @@ describe('Service', () => {
                 guids: [guid],
                 name: 'volumechange',
                 value: 100,
-                version: 2,
+                version: 3,
               }),
               origin: url.origin,
             }));
@@ -324,7 +324,7 @@ describe('Service', () => {
           name: 'destroy',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -346,7 +346,7 @@ describe('Service', () => {
           name: 'closedCaptions',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -399,7 +399,7 @@ describe('Service', () => {
                   title: 'French',
                 },
               ],
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -422,7 +422,7 @@ describe('Service', () => {
           name: 'closedCaptionsLanguage',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -445,7 +445,7 @@ describe('Service', () => {
               guid,
               name: 'closedCaptionsLanguage',
               value: 'en',
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -468,7 +468,7 @@ describe('Service', () => {
           name: 'currentTime',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -491,7 +491,7 @@ describe('Service', () => {
               guid,
               name: 'currentTime',
               value: 1000,
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -514,7 +514,7 @@ describe('Service', () => {
           name: 'liveEndTime',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -537,7 +537,7 @@ describe('Service', () => {
               guid,
               name: 'liveEndTime',
               value: new Date('2022-01-01 01:00'),
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -560,7 +560,7 @@ describe('Service', () => {
           name: 'liveStartTime',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -583,7 +583,7 @@ describe('Service', () => {
               guid,
               name: 'liveStartTime',
               value: new Date('2022-01-01 01:00'),
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -606,7 +606,7 @@ describe('Service', () => {
           name: 'duration',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -629,7 +629,7 @@ describe('Service', () => {
               guid,
               name: 'duration',
               value: 1000,
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -652,7 +652,7 @@ describe('Service', () => {
           name: 'presentation',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -679,7 +679,7 @@ describe('Service', () => {
               guid,
               name: 'presentation',
               value: presentation,
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -702,7 +702,7 @@ describe('Service', () => {
           name: 'volume',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -725,7 +725,7 @@ describe('Service', () => {
               guid,
               name: 'volume',
               value: 80,
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -781,7 +781,7 @@ describe('Service', () => {
         JSON.stringify({
           action: SdkMessageAction.Handshake,
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -804,7 +804,7 @@ describe('Service', () => {
         JSON.stringify({
           action: SdkMessageAction.Handshake,
           guid,
-          version: 2,
+          version: 3,
         }),
         // because we have not received the ready message, we do not know who to send the message too
         // so we broadcast it with `*'
@@ -829,7 +829,7 @@ describe('Service', () => {
         JSON.stringify({
           action: SdkMessageAction.Handshake,
           guid,
-          version: 2,
+          version: 3,
         }),
         '*',
       );
@@ -860,7 +860,7 @@ describe('Service', () => {
           code: SdkMessageError.GuidInUse,
           guid,
           status: 'error',
-          version: 2,
+          version: 3,
         }),
         origin: url.origin,
       }));
@@ -891,7 +891,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid,
           status: 'success',
-          version: 2,
+          version: 3,
         }),
         origin: 'https://foo.bar',
       }));
@@ -920,7 +920,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid: 'does-not-exist',
           status: 'success',
-          version: 2,
+          version: 3,
         }),
         origin: url.origin,
       }));
@@ -988,7 +988,7 @@ describe('Service', () => {
           action: SdkMessageAction.Handshake,
           guid,
           status: 'success',
-          version: 2,
+          version: 3,
         }),
         origin: url.origin,
       }));
@@ -1010,7 +1010,7 @@ describe('Service', () => {
           name: 'paused',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -1033,7 +1033,7 @@ describe('Service', () => {
               guid,
               name: 'paused',
               value: true,
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -1055,7 +1055,7 @@ describe('Service', () => {
           action: SdkMessageAction.Command,
           guid,
           name: 'pause',
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -1076,7 +1076,7 @@ describe('Service', () => {
           action: SdkMessageAction.Command,
           guid,
           name: 'play',
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -1099,7 +1099,7 @@ describe('Service', () => {
               guids: [guid],
               name: 'volumechange',
               value: 100,
-              version: 2,
+              version: 3,
             }),
             origin: url.origin,
           }));
@@ -1132,7 +1132,7 @@ describe('Service', () => {
           value: 'en',
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -1161,7 +1161,7 @@ describe('Service', () => {
           value: 2000,
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
@@ -1196,7 +1196,7 @@ describe('Service', () => {
           value: 100,
           // eslint-disable-next-line sort-keys
           guid,
-          version: 2,
+          version: 3,
         }),
         url.origin,
       );
