@@ -1,4 +1,4 @@
-type FunctionOrPromise = Function | { reject: Function; resolve: Function };
+export type FunctionOrPromise = Function | { reject: Function; resolve: Function };
 
 export class CallbackStore {
   private readonly map = new Map();

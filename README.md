@@ -73,64 +73,65 @@ Registers a callback to be run when the event is triggered.
 
 Events you can listen to:
 
-| Event name     | Description                                         | 
-|----------------|-----------------------------------------------------|
-| `ended`        | Triggered when the playback ends                    |
-| `liveState`    | Triggered when the state of a live event is updated |
-| `pause`        | Triggered when the playback pauses                  |
-| `play`         | Triggered when the playback resumes                 |
-| `timeupdate`   | Triggered when the current time is updated          |
-| `volumechange` | Triggered when the volume changes                   |
+| Event name                     | Description                                            | 
+|--------------------------------|--------------------------------------------------------|
+| `closedcaptionslanguagechange` | Triggered when the closed captions language is updated |
+| `ended`                        | Triggered when the playback ends                       |
+| `liveState`                    | Triggered when the state of a live event changes       |
+| `pause`                        | Triggered when the playback pauses                     |
+| `play`                         | Triggered when the playback resumes                    |
+| `timeupdate`                   | Triggered when the current time is updated             |
+| `volumechange`                 | Triggered when the volume changes                      |
 
 ### destroy(): void
 
 Destroys the whole SDK.
 
-### getActiveClosedCaptionsGuid(): Promise<string>
-
-Gets the active closed captions' guid.
-
 ### getClosedCaptions(): Promise<CaptionTrack[]>
 
 Gets the available closed captions.
 
-### getCurrentTime(): Promise<number>
+### getClosedCaptionsLanguage(): Promise<string&gt;
+
+Gets the active closed captions' language.
+
+### getCurrentTime(): Promise<number&gt;
 
 Gets the current time in milliseconds.
 
-### getDuration(): Promise<number>
+### getDuration(): Promise<number&gt;
 
 Gets the presentation's duration in milliseconds.
 
-### getLiveEndTime(): Promise<string | null>
+### getLiveEndTime(): Promise<string | null&gt;
 
 Gets the end date of a live event
 
-### getLiveStartTime(): Promise<string | null>
+### getLiveStartTime(): Promise<string | null&gt;
 
 Gets the start date of a live event
 
-### getPresentation(): Promise<Presentation>
+### getPresentation(): Promise<Presentation&gt;
 
 Gets the presentation.
 
-### getVolume(): Promise<number>
+### getVolume(): Promise<number&gt;
 
 Gets the player's volume between 0 and 100.
 
-### init(): Promise<void>
+### init(): Promise<void&gt;
 
 Initializes the SDK. It is imperative that this method is the first one called as it starts a handshake communication with the embedded presentation.
 
-### isPaused(): Promise<boolean>
+### isPaused(): Promise<boolean&gt;
 
 Checks whether the player is paused or playing.
 
-### pause(): Promise<void>
+### pause(): Promise<void&gt;
 
 Pauses the player.
 
-### play(): Promise<void>
+### play(): Promise<void&gt;
 
 Plays the player.
 
@@ -141,19 +142,19 @@ Removes the callback for the provided event name.
 * `name`: the event name to listen to
 * `callback`: the callback to remove. If no callback is provided, all callbacks will be removed for the event name
 
-### setActiveClosedCaptionsGuid(guid: string): Promise<void>
+### setClosedCaptionsLanguage(guid: string): Promise<void&gt;
 
-Sets the active closed captions' guid
+Sets the active closed captions' language
 
-* `guid`: the guid of the new active closed captions
+* `language`: the language of the new active closed captions. Use an empty string to deactivate the captions.
 
-### setCurrentTime(time: number): Promise<void>
+### setCurrentTime(time: number): Promise<void&gt;
 
 Sets the current time in the player
 
 * `time`: the new current time in milliseconds
 
-### setVolume(volume: number): Promise<void>
+### setVolume(volume: number): Promise<void&gt;
 
 Sets the volume in the player
 
