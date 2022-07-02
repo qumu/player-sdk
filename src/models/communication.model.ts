@@ -35,7 +35,8 @@ export interface SdkHandshakeMessage {
 }
 
 export type SdkEventListener =
-  'closedcaptionslanguagechange'
+  'chapterchange'
+  | 'closedcaptionslanguagechange'
   | 'ended'
   | 'liveState'
   | 'pause'
