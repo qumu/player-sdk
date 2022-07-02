@@ -138,6 +138,20 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the chapter
+   */
+  async getChapter(): Promise<any> {
+    return this.get('chapter');
+  }
+
+  /**
+   * Gets the list of chapters for the presentation
+   */
+  async getChapters(): Promise<any[]> {
+    return this.get('chapters');
+  }
+
+  /**
    * Gets the current time in milliseconds
    */
   async getCurrentTime(): Promise<number> {

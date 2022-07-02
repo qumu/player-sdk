@@ -453,6 +453,132 @@ describe('Service', () => {
     });
   });
 
+  describe('getChapter', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getChapter();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'chapter',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', (done) => {
+      const chapter = {
+        guid: 'chapter1',
+        hidden: false,
+        image: {
+          guid: 'image1',
+          url: 'http://example.com/image1.jpg',
+        },
+        time: 1000,
+        title: 'foo',
+      };
+
+      initSdk()
+        .then((sdk) => {
+          sdk.getChapter()
+            .then((c) => {
+              expect(c).toEqual(chapter);
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'chapter',
+              value: chapter,
+              version: 3,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
+  describe('getChapters', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getChapters();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'chapters',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', (done) => {
+      const chapters = [
+        {
+          guid: 'chapter1',
+          hidden: false,
+          image: {
+            guid: 'image1',
+            url: 'http://example.com/image1.jpg',
+          },
+          time: 1000,
+          title: 'foo',
+        },
+        {
+          guid: 'chapter2',
+          hidden: false,
+          image: {
+            guid: 'image2',
+            url: 'http://example.com/image2.jpg',
+          },
+          time: 2000,
+          title: 'bar',
+        },
+      ];
+
+      initSdk()
+        .then((sdk) => {
+          sdk.getChapters()
+            .then((c) => {
+              expect(c).toEqual(chapters);
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'chapters',
+              value: chapters,
+              version: 3,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
   describe('getCurrentTime', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
