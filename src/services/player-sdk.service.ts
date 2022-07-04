@@ -3,6 +3,7 @@ import {
   SdkEventListener,
   SdkMessageAction,
   SdkHandshakeMessage,
+  SdkLayout,
   SdkMessageError,
   SdkMessage,
   SdkReadyMessage,
@@ -166,6 +167,13 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the layout
+   */
+  async getLayout(): Promise<SdkLayout> {
+    return this.get('layout');
+  }
+
+  /**
    * Gets the presentation's duration in milliseconds
    */
   async getLiveEndTime(): Promise<string | null> {
@@ -281,6 +289,15 @@ export class PlayerSdk {
     }
 
     return this.set('currentTime', time);
+  }
+
+  /**
+   * Sets the layout
+   *
+   * @param layout the new layout, either 'pip' or 'sbs'
+   */
+  setLayout(layout: SdkLayout): Promise<void> {
+    return this.set('layout', layout);
   }
 
   /**

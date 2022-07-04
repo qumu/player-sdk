@@ -38,9 +38,12 @@ export type SdkEventListener =
   'chapterchange'
   | 'closedcaptionslanguagechange'
   | 'ended'
+  | 'layoutchange'
   | 'liveState'
   | 'pause'
   | 'play'
   | 'playbackratechange'
   | 'timeupdate'
   | 'volumechange';
+
+export type SdkLayout = 'pip' | 'sbs';

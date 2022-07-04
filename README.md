@@ -78,6 +78,7 @@ Events you can listen to:
 | `chapterchange`                | Triggered when the current chapter changes             |
 | `closedcaptionslanguagechange` | Triggered when the closed captions language is updated |
 | `ended`                        | Triggered when the playback ends                       |
+| `layoutchange`                 | Triggered when the layout changes                      |
 | `liveState`                    | Triggered when the state of a live event changes       |
 | `pause`                        | Triggered when the playback pauses                     |
 | `play`                         | Triggered when the playback resumes                    |
@@ -112,6 +113,10 @@ Gets the current time in milliseconds.
 ### getDuration(): Promise<number&gt;
 
 Gets the presentation's duration in milliseconds.
+
+### getLayout(): Promise<string&gt;
+
+Gets the layout
 
 ### getLiveEndTime(): Promise<string | null&gt;
 
@@ -171,6 +176,12 @@ Sets the active closed captions' language
 Sets the current time in the player
 
 * `time`: the new current time in milliseconds
+
+### setLayout(string: 'pip' | 'sbs'): Promise<void&gt;
+
+Sets the layout
+
+* `layout`: the new layout
 
 ### setPlaybackRate(time: number): Promise<void&gt;
 
