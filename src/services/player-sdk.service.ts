@@ -14,7 +14,6 @@ export interface PlayerSdkOptions {
   timeout: number;
 }
 
-
 export class PlayerSdk {
   // store used for the callbacks
   private readonly callbackStore: CallbackStore;
