@@ -45,3 +45,5 @@ export type SdkEventListener =
   | 'playbackratechange'
   | 'timeupdate'
   | 'volumechange';
+
+export type SdkLayout = 'pip' | 'sbs';

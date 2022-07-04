@@ -3,6 +3,7 @@ import {
   SdkEventListener,
   SdkMessageAction,
   SdkHandshakeMessage,
+  SdkLayout,
   SdkMessageError,
   SdkMessage,
   SdkReadyMessage,
@@ -12,6 +13,7 @@ import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
 export interface PlayerSdkOptions {
   timeout: number;
 }
+
 
 export class PlayerSdk {
   // store used for the callbacks
@@ -168,7 +170,7 @@ export class PlayerSdk {
   /**
    * Gets the layout
    */
-  async getLayout(): Promise<'pip' | 'sbs'> {
+  async getLayout(): Promise<SdkLayout> {
     return this.get('layout');
   }
 
@@ -295,7 +297,7 @@ export class PlayerSdk {
    *
    * @param layout the new layout, either 'pip' or 'sbs'
    */
-  setLayout(layout: 'pip' | 'sbs'): Promise<void> {
+  setLayout(layout: SdkLayout): Promise<void> {
     return this.set('layout', layout);
   }
 
