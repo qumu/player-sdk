@@ -180,6 +180,20 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the current playback rate
+   */
+  async getPlaybackRate(): Promise<number> {
+    return this.get('playbackRate');
+  }
+
+  /**
+   * Gets the list of playback rates
+   */
+  async getPlaybackRates(): Promise<number[]> {
+    return this.get('playbackRates');
+  }
+
+  /**
    * Gets the presentation
    */
   async getPresentation(): Promise<any> {
@@ -267,6 +281,23 @@ export class PlayerSdk {
     }
 
     return this.set('currentTime', time);
+  }
+
+  /**
+   * Sets the playback rate in the player. The value must be between 0 and 2.
+   *
+   * @param playbackRate the new playback rate
+   */
+  setPlaybackRate(playbackRate: number): Promise<void> {
+    if (playbackRate < 0) {
+      throw new Error('The playback rate must be superior or equal to 0');
+    }
+
+    if (playbackRate > 2) {
+      throw new Error('The playback rate must be inferior or equal to 2');
+    }
+
+    return this.set('playbackRate', playbackRate);
   }
 
   /**

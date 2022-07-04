@@ -81,6 +81,7 @@ Events you can listen to:
 | `liveState`                    | Triggered when the state of a live event changes       |
 | `pause`                        | Triggered when the playback pauses                     |
 | `play`                         | Triggered when the playback resumes                    |
+| `playbackratechange`           | Triggered when the playback rate changes               |
 | `timeupdate`                   | Triggered when the current time is updated             |
 | `volumechange`                 | Triggered when the volume changes                      |
 
@@ -120,7 +121,15 @@ Gets the end date of a live event
 
 Gets the start date of a live event
 
-### getPresentation(): Promise<Presentation&gt;
+### getPlaybackRate(): Promise<number&gt;
+
+Gets the current playback rate.
+
+### getPlaybackRates(): Promise<number&gt;
+
+Gets the list of playback rates.
+
+### getPresentation(): Promise<Presentation>
 
 Gets the presentation.
 
@@ -162,6 +171,12 @@ Sets the active closed captions' language
 Sets the current time in the player
 
 * `time`: the new current time in milliseconds
+
+### setPlaybackRate(time: number): Promise<void&gt;
+
+Sets the playbak rate in the player.
+
+* `playbackRate`: the new playback rate.The range is 0-2.
 
 ### setVolume(volume: number): Promise<void&gt;
 
