@@ -139,7 +139,7 @@ Gets the list of playback rates.
 
 Gets the presentation.
 
-### getPrimaryContent(): Promise<'media' | 'slides'>
+### getPrimaryContent(): Promise<'media' | 'slides'&gt;
 
 Gets the primary content.
 
