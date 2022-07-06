@@ -1135,6 +1135,52 @@ describe('Service', () => {
     });
   });
 
+  describe('getSideBySideRatio', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getSideBySideRatio();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'sideBySideRatio',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', (done) => {
+      initSdk()
+        .then((sdk) => {
+          sdk.getSideBySideRatio()
+            .then((value) => {
+              expect(value).toEqual(60);
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'sideBySideRatio',
+              value: 60,
+              version: 3,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
   describe('getVolume', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
@@ -1724,6 +1770,41 @@ describe('Service', () => {
       const sdk = await initSdk();
 
       expect(() => sdk.setPrimaryContent((null as any))).toThrow('A value must be set.');
+    });
+  });
+
+  describe('setSideBySideRatio', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = await initSdk();
+
+      sdk.setSideBySideRatio(50);
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Set,
+          name: 'sideBySideRatio',
+          value: 50,
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should send an error if the ratio is below 50', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setSideBySideRatio(40)).toThrow('The ratio must be between 50 and 80');
+    });
+
+    it('should send an error if the ratio is above 80', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setSideBySideRatio(90)).toThrow('The ratio must be between 50 and 80');
     });
   });
 
