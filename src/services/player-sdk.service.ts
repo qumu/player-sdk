@@ -6,6 +6,7 @@ import {
   SdkLayout,
   SdkMessageError,
   SdkMessage,
+  SdkPrimaryContent,
   SdkReadyMessage,
 } from '../models/communication.model';
 import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
@@ -209,6 +210,13 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the primary content
+   */
+  async getPrimaryContent(): Promise<SdkPrimaryContent> {
+    return this.get('primaryContent');
+  }
+
+  /**
    * Gets the player's volume between 0 and 100
    */
   async getVolume(): Promise<number> {
@@ -315,6 +323,15 @@ export class PlayerSdk {
     }
 
     return this.set('playbackRate', playbackRate);
+  }
+
+  /**
+   * Sets the primary content
+   *
+   * @param primaryContent the primary content
+   */
+  setPrimaryContent(primaryContent: SdkPrimaryContent): Promise<void> {
+    return this.set('primaryContent', primaryContent);
   }
 
   /**

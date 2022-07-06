@@ -43,7 +43,10 @@ export type SdkEventListener =
   | 'pause'
   | 'play'
   | 'playbackratechange'
+  | 'primarycontentchange'
   | 'timeupdate'
   | 'volumechange';
 
 export type SdkLayout = 'pip' | 'sbs';
+
+export type SdkPrimaryContent = 'media' | 'slides';
