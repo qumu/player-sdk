@@ -127,6 +127,10 @@ Gets the end date of a live event
 
 Gets the start date of a live event
 
+### getPictureInPicturePosition(): Promise<'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'&gt;
+
+Gets the position of the PiP box
+
 ### getPlaybackRate(): Promise<number&gt;
 
 Gets the current playback rate.
@@ -188,9 +192,15 @@ Sets the layout
 
 * `layout`: the new layout
 
+### setPictureInPicturePosition(position: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'): Promise<void&gt;
+
+Sets the position of the PiP box
+
+* `position`: the new position
+
 ### setPlaybackRate(time: number): Promise<void&gt;
 
-Sets the playbak rate in the player.
+Sets the playback rate in the player.
 
 * `playbackRate`: the new playback rate.The range is 0-2.
 
@@ -208,6 +218,6 @@ Sets the volume in the player
 
 ## Generate a new package
 
-To generate a new Github package, all you have to do is run npm version <major|minor|patch on the master branch.
+To generate a new GitHub package, all you have to do is run npm version <major|minor|patch on the master branch.
 
 This will generate a new tag that will then trigger the Package github action and create a release and publish to Github package.
