@@ -225,6 +225,13 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the side by side ratio between 50% and 80%
+   */
+  async getSideBySideRatio(): Promise<number> {
+    return this.get('sideBySideRatio');
+  }
+
+  /**
    * Gets the player's volume between 0 and 100
    */
   async getVolume(): Promise<number> {
@@ -349,6 +356,19 @@ export class PlayerSdk {
    */
   setPrimaryContent(primaryContent: SdkPrimaryContent): Promise<void> {
     return this.set('primaryContent', primaryContent);
+  }
+
+  /**
+   * Sets the ratio for the Side by Side mode
+   *
+   * @param ratio the new ratio. The range is 50-80.
+   */
+  setSideBySideRatio(ratio: number): Promise<void> {
+    if (ratio < 50 || ratio > 80) {
+      throw new Error('The ratio must be between 50 and 80');
+    }
+
+    return this.set('sideBySideRatio', ratio);
   }
 
   /**

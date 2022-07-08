@@ -147,6 +147,10 @@ Gets the presentation.
 
 Gets the primary content.
 
+### getSideBySideRatio(): Promise<number&gt;
+
+Gets the side by side ratio between 50% and 80%.
+
 ### getVolume(): Promise<number&gt;
 
 Gets the player's volume between 0 and 100.
@@ -209,6 +213,12 @@ Sets the playback rate in the player.
 Sets the primary content
 
 * `content`: the new primary content
+
+### setSideBySideRatio(ratio: number): Promise<void&gt;
+
+Sets the ratio for the Side by Side mode
+
+* `ratio`: The new ratio. The range is 50-80.
 
 ### setVolume(volume: number): Promise<void&gt;
 
