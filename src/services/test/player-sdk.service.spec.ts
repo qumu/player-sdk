@@ -945,6 +945,52 @@ describe('Service', () => {
     });
   });
 
+  describe('getPictureInPicturePosition', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = await initSdk();
+
+      sdk.getPictureInPicturePosition();
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Get,
+          callbackId: 0,
+          name: 'pipPosition',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', (done) => {
+      initSdk()
+        .then((sdk) => {
+          sdk.getPictureInPicturePosition()
+            .then((value) => {
+              expect(value).toEqual('top-left');
+
+              done();
+            });
+
+          // Simulates an event sent from the player
+          window.dispatchEvent(new MessageEvent('message', {
+            data: JSON.stringify({
+              action: SdkMessageAction.Get,
+              guid,
+              name: 'pipPosition',
+              value: 'top-left',
+              version: 3,
+            }),
+            origin: url.origin,
+          }));
+        });
+    });
+  });
+
   describe('getPlaybackRate', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
@@ -1674,6 +1720,64 @@ describe('Service', () => {
     });
   });
 
+  describe('setLayout', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = await initSdk();
+
+      sdk.setLayout('sbs');
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Set,
+          name: 'layout',
+          value: 'sbs',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should throw an error if no value is provided', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setLayout((null as any))).toThrow('A value must be set.');
+    });
+  });
+
+  describe('setPictureInPicturePosition', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = await initSdk();
+
+      sdk.setPictureInPicturePosition('top-right');
+
+      expect(spy).toHaveBeenCalledWith(
+        // The order of the keys is important because we stringify the object
+        JSON.stringify({
+          action: SdkMessageAction.Set,
+          name: 'pipPosition',
+          value: 'top-right',
+          // eslint-disable-next-line sort-keys
+          guid,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should throw an error if no value is provided', async () => {
+      const sdk = await initSdk();
+
+      expect(() => sdk.setPictureInPicturePosition((null as any))).toThrow('A value must be set.');
+    });
+  });
+
   describe('setPlaybackRate', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
@@ -1712,35 +1816,6 @@ describe('Service', () => {
       const sdk = await initSdk();
 
       expect(() => sdk.setCurrentTime((null as any))).toThrow('A value must be set.');
-    });
-  });
-
-  describe('setLayout', () => {
-    it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-
-      const sdk = await initSdk();
-
-      sdk.setLayout('sbs');
-
-      expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
-        JSON.stringify({
-          action: SdkMessageAction.Set,
-          name: 'layout',
-          value: 'sbs',
-          // eslint-disable-next-line sort-keys
-          guid,
-          version: 3,
-        }),
-        url.origin,
-      );
-    });
-
-    it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
-
-      expect(() => sdk.setLayout((null as any))).toThrow('A value must be set.');
     });
   });
 

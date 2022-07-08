@@ -6,6 +6,7 @@ import {
   SdkLayout,
   SdkMessageError,
   SdkMessage,
+  SdkPipPosition,
   SdkPrimaryContent,
   SdkReadyMessage,
 } from '../models/communication.model';
@@ -189,6 +190,13 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the position of the PiP box
+   */
+  async getPictureInPicturePosition(): Promise<number> {
+    return this.get('pipPosition');
+  }
+
+  /**
    * Gets the current playback rate
    */
   async getPlaybackRate(): Promise<number> {
@@ -313,6 +321,15 @@ export class PlayerSdk {
    */
   setLayout(layout: SdkLayout): Promise<void> {
     return this.set('layout', layout);
+  }
+
+  /**
+   * Sets the position of the PiP box
+   *
+   * @param position the PiP position
+   */
+  setPictureInPicturePosition(position: SdkPipPosition): Promise<void> {
+    return this.set('pipPosition', position);
   }
 
   /**
