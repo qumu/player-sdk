@@ -1,46 +1,21 @@
 import { parseMessageData } from '../lib/functions/functions';
 import {
-  SdkEventListener,
-  SdkMessageAction,
+  SdkCommandMessage,
+  SdkEventMessage,
+  SdkGetSetMessage,
   SdkHandshakeMessage,
-  SdkLayout,
-  SdkMessageError,
   SdkMessage,
-  SdkPipPosition,
-  SdkPrimaryContent,
-  SdkReadyMessage,
-} from '../models/communication.model';
+} from '../models/internal';
 import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
-
-export interface PlayerSdkOptions {
-  timeout: number;
-}
+import { SdkLayout, SdkPipPosition, SdkPrimaryContent } from '../models/external';
 
 export class PlayerSdk {
   // store used for the callbacks
   private readonly callbackStore: CallbackStore;
 
-  // callback for the handshake process
-  private handshakeHandler: ((event: MessageEvent) => void) | undefined;
-
-  // interval id for the handshake process
-  // the interval is used to send the handshake message every second until we either have a response from the iframe
-  // or the handshake times out
-  private handshakeInterval: NodeJS.Timer | undefined;
-
-  // timeout for the handshake process
-  // this is used to time out the handshake process after the timeout passed in the options
-  private handshakeTimeout: NodeJS.Timeout | undefined;
-
   // Random guid used during Cross window communication
   // This is useful to prevent communication bleeding between SDKs if the same presentation is used multiple times in the page
   private readonly guid: string;
-
-  // Boolean to check if the SDK is loaded
-  private isLoaded = false;
-
-  // Boolean to check if the SDK is ready
-  private isReady = false;
 
   // callback for the message event listener once the handshake is done
   private messageHandler: ((event: MessageEvent) => void) | undefined;
@@ -49,33 +24,64 @@ export class PlayerSdk {
   // we will use it to compare with the event's origin and filter out messages from unknown origins
   private readonly originUrl: string;
 
-  // SDK options
-  private readonly options: PlayerSdkOptions;
-
   // origin used to send cross window communication messages
   // this is useful to target a specific origin and not have to broadcast to everybody
   private origin = '*';
 
-  // callback for the ready process
-  private readyHandler: ((event: MessageEvent) => void) | undefined;
+  private readonly readyPromise: Promise<void>;
 
   // Cross window communication format version
   private readonly version = 3;
 
   constructor(
     private readonly iframe: HTMLIFrameElement,
-    options?: Partial<PlayerSdkOptions>,
   ) {
-    this.options = {
-      timeout: 20000,
-      ...options,
-    };
-    this.guid = crypto.randomUUID();
     this.originUrl = new URL(this.iframe.src).origin;
+    this.guid = crypto.randomUUID();
 
     this.callbackStore = new CallbackStore();
 
-    this.ready();
+    // create the promise that will be used to verify if the messages can be exchanged with the player
+    this.readyPromise = new Promise((resolve) => {
+      this.messageHandler = (event: MessageEvent) => {
+        // ignore messages coming from another iframe
+        if (event.origin !== this.originUrl) {
+          return;
+        }
+
+        const message = parseMessageData<SdkMessage>(event.data);
+
+        // ignore messages from previous SDKs
+        if (message?.version !== this.version) {
+          return;
+        }
+
+        // ignores handshake from other SDKs
+        if (message?.action === 'handshake' && message?.guid !== this.guid) {
+          return;
+        }
+
+        if (message?.action === 'ready' || message?.action === 'handshake') {
+          // we provide the proper origin
+          // this allows us to send the cross window message to the proper origin and not broadcast to everybody
+          this.origin = event.origin;
+          resolve();
+
+          return;
+        }
+
+        this.processData(message);
+      };
+
+      window.addEventListener('message', this.messageHandler);
+    });
+
+    // we send a request for a handshake
+    // this one is useful in the event when the SDK is initialized after the player
+    this.postMessage({
+      action: 'handshake',
+      guid: this.guid,
+    } as SdkHandshakeMessage);
   }
 
   /**
@@ -84,7 +90,7 @@ export class PlayerSdk {
    * @param name the event name to listen to
    * @param callback the callback to run when the event is triggered
    */
-  addEventListener(name: SdkEventListener, callback: Function): void {
+  addEventListener(name: SdkEventMessage['name'], callback: Function): void {
     if (!name) {
       throw new TypeError('You must pass an event name.');
     }
@@ -97,33 +103,36 @@ export class PlayerSdk {
       throw new TypeError('The callback must be a function.');
     }
 
-    this.callbackStore.storeCallback(`${SdkMessageAction.Event}:${name}`, callback);
+    const callbacks = this.callbackStore.getCallbacks(`event:${name}`);
+
+    // This is the first time we subscribe to this event, we need to tell the Player to start a watcher
+    if (callbacks.length === 0) {
+      this.readyPromise.then(() => {
+        this.postMessage({
+          action: 'event',
+          guid: this.guid,
+          name,
+          value: 'add',
+        } as SdkEventMessage);
+      });
+    }
+
+    this.callbackStore.storeCallback(`event:${name}`, callback);
   }
 
   /**
    * Destroys the whole SDK
    */
   destroy(): void {
-    if (this.handshakeInterval) {
-      clearInterval(this.handshakeInterval);
-    }
-
-    if (this.handshakeHandler) {
-      window.removeEventListener('message', this.handshakeHandler);
-    }
-
     if (this.messageHandler) {
       window.removeEventListener('message', this.messageHandler);
     }
 
-    if (this.readyHandler) {
-      window.removeEventListener('message', this.readyHandler);
-    }
-
     this.postMessage({
-      action: SdkMessageAction.Command,
+      action: 'command',
+      guid: this.guid,
       name: 'destroy',
-    });
+    } as SdkCommandMessage);
   }
 
   /**
@@ -190,6 +199,13 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the presentation's live state
+   */
+  async getLiveState(): Promise<string | null> {
+    return this.get('liveState');
+  }
+
+  /**
    * Gets the position of the PiP box
    */
   async getPictureInPicturePosition(): Promise<number> {
@@ -239,25 +255,6 @@ export class PlayerSdk {
   }
 
   /**
-   * Initializes the SDK
-   */
-  async init(): Promise<void> {
-    return this.initSdk()
-      .then(() => {
-        this.messageHandler = (event) => {
-          // ignore messages coming from another iframe
-          if (event.origin !== this.originUrl) {
-            return;
-          }
-
-          this.processData(event.data);
-        };
-
-        window.addEventListener('message', this.messageHandler);
-      });
-  }
-
-  /**
    * Checks whether the player is paused or playing
    */
   async isPaused(): Promise<boolean> {
@@ -267,15 +264,15 @@ export class PlayerSdk {
   /**
    * Pauses the player
    */
-  async pause(): Promise<void> {
-    return this.command('pause');
+  pause(): void {
+    this.command('pause');
   }
 
   /**
    * Plays the player
    */
-  async play(): Promise<void> {
-    return this.command('play');
+  play(): void {
+    this.command('play');
   }
 
   /**
@@ -289,7 +286,19 @@ export class PlayerSdk {
       throw new TypeError('You must pass an event name.');
     }
 
-    this.callbackStore.removeCallback(`${SdkMessageAction.Event}:${name}`, callback);
+    this.callbackStore.removeCallback(`event:${name}`, callback);
+
+    const callbacks = this.callbackStore.getCallbacks(`event:${name}`);
+
+    // Remove the watcher on the player's side if there are no subscribers for this event
+    if (callbacks.length === 0) {
+      this.postMessage({
+        action: 'event',
+        guid: this.guid,
+        name,
+        value: 'remove',
+      } as SdkEventMessage);
+    }
   }
 
   /**
@@ -297,8 +306,8 @@ export class PlayerSdk {
    *
    * @param guid the guid of the new active closed captions
    */
-  setClosedCaptionsLanguage(guid: string): Promise<void> {
-    return this.set('closedCaptionsLanguage', guid);
+  setClosedCaptionsLanguage(guid: string): void {
+    this.set('closedCaptionsLanguage', guid);
   }
 
   /**
@@ -306,12 +315,12 @@ export class PlayerSdk {
    *
    * @param time the new current time in milliseconds
    */
-  setCurrentTime(time: number): Promise<void> {
+  setCurrentTime(time: number): void {
     if (time < 0) {
       throw new Error('The current time must be superior or equal to 0');
     }
 
-    return this.set('currentTime', time);
+    this.set('currentTime', time);
   }
 
   /**
@@ -319,8 +328,8 @@ export class PlayerSdk {
    *
    * @param layout the new layout, either 'pip' or 'sbs'
    */
-  setLayout(layout: SdkLayout): Promise<void> {
-    return this.set('layout', layout);
+  setLayout(layout: SdkLayout): void {
+    this.set('layout', layout);
   }
 
   /**
@@ -328,8 +337,8 @@ export class PlayerSdk {
    *
    * @param position the PiP position
    */
-  setPictureInPicturePosition(position: SdkPipPosition): Promise<void> {
-    return this.set('pipPosition', position);
+  setPictureInPicturePosition(position: SdkPipPosition): void {
+    this.set('pipPosition', position);
   }
 
   /**
@@ -337,7 +346,7 @@ export class PlayerSdk {
    *
    * @param playbackRate the new playback rate
    */
-  setPlaybackRate(playbackRate: number): Promise<void> {
+  setPlaybackRate(playbackRate: number): void {
     if (playbackRate < 0) {
       throw new Error('The playback rate must be superior or equal to 0');
     }
@@ -346,7 +355,7 @@ export class PlayerSdk {
       throw new Error('The playback rate must be inferior or equal to 2');
     }
 
-    return this.set('playbackRate', playbackRate);
+    this.set('playbackRate', playbackRate);
   }
 
   /**
@@ -354,8 +363,8 @@ export class PlayerSdk {
    *
    * @param primaryContent the primary content
    */
-  setPrimaryContent(primaryContent: SdkPrimaryContent): Promise<void> {
-    return this.set('primaryContent', primaryContent);
+  setPrimaryContent(primaryContent: SdkPrimaryContent): void {
+    this.set('primaryContent', primaryContent);
   }
 
   /**
@@ -363,12 +372,12 @@ export class PlayerSdk {
    *
    * @param ratio the new ratio. The range is 50-80.
    */
-  setSideBySideRatio(ratio: number): Promise<void> {
+  setSideBySideRatio(ratio: number): void {
     if (ratio < 50 || ratio > 80) {
       throw new Error('The ratio must be between 50 and 80');
     }
 
-    return this.set('sideBySideRatio', ratio);
+    this.set('sideBySideRatio', ratio);
   }
 
   /**
@@ -376,12 +385,12 @@ export class PlayerSdk {
    *
    * @param volume the new volume. The range is 0-100.
    */
-  setVolume(volume: number): Promise<void> {
+  setVolume(volume: number): void {
     if (volume < 0 || volume > 100) {
       throw new Error('The volume must be between 0 and 100');
     }
 
-    return this.set('volume', volume);
+    this.set('volume', volume);
   }
 
   /**
@@ -391,25 +400,18 @@ export class PlayerSdk {
    * @param args optional arguments to send
    * @private
    */
-  private command<T>(name: string, args?: any): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.callbackStore.storeCallback(name, {
-        reject,
-        resolve,
-      });
+  private command(name: SdkCommandMessage['name'], args?: any): void {
+    const message: Omit<SdkCommandMessage, 'version'> = {
+      action: 'command',
+      guid: this.guid,
+      name,
+    };
 
-      const message: Partial<SdkMessage> = {
-        action: SdkMessageAction.Command,
-        guid: this.guid,
-        name,
-      };
+    if (args) {
+      message.value = args;
+    }
 
-      if (args) {
-        message.value = args;
-      }
-
-      this.postMessage(message);
-    });
+    this.postMessage(message);
   }
 
   /**
@@ -419,107 +421,23 @@ export class PlayerSdk {
    * @private
    */
   private get<T>(name: string): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.callbackStore.storeCallback(`${SdkMessageAction.Get}:${name}`, {
-        reject,
-        resolve,
-      });
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.readyPromise;
 
-      this.postMessage({
-        action: SdkMessageAction.Get,
-        // TODO find a way to get rid of this
-        callbackId: 0,
-        name,
-      });
-    });
-  }
-
-  /**
-   * Starts the handshake process
-   *
-   * @private
-   */
-  private handshake(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // do not send the handshake on subsequent loads e.g. caused by disclaimer redirects
-      if (this.isLoaded) {
-        return;
-      }
-
-      this.isLoaded = true;
-
-      this.handshakeHandler = (event: MessageEvent) => {
-        // ignore messages coming from another iframe
-        if (event.origin !== this.originUrl) {
-          return;
-        }
-
-        const message = parseMessageData<SdkHandshakeMessage>(event.data);
-
-        if (
-          message?.action === SdkMessageAction.Handshake
-          && message?.guid === this.guid
-        ) {
-          // remove the interval and timeout as we finally got an answer from the player
-          if (this.handshakeInterval) {
-            clearInterval(this.handshakeInterval);
-          }
-
-          if (this.handshakeTimeout) {
-            clearTimeout(this.handshakeTimeout);
-          }
-
-          // remove the listener as we only need it once
-          window.removeEventListener('message', this.handshakeHandler!);
-
-          // complete the handshake
-          if (message?.status === 'error') {
-            reject(new Error(message.code));
-          } else {
-            resolve();
-          }
-        }
-      };
-
-      window.addEventListener('message', this.handshakeHandler);
-
-      const handler = () => this.postMessage({
-        action: SdkMessageAction.Handshake,
-      });
-
-      // start sending the handshake and send it every second until either the player answers or the handshake times out
-      handler();
-      this.handshakeInterval = setInterval(() => handler(), 1000);
-
-      // Start the handshake timeout
-      if (this.options.timeout > 0) {
-        this.handshakeTimeout = setTimeout(() => {
-          reject(new Error(SdkMessageError.Timeout));
-        }, this.options.timeout);
-      }
-    });
-  }
-
-  /**
-   * Initialises the SDK once the iframe is successfully loaded into the DOM
-   *
-   * @private
-   */
-  private initSdk(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const handler = () => this.handshake()
-        .then(resolve)
-        .catch((e) => {
-          this.destroy();
-          reject(e);
+        this.callbackStore.storeCallback(`get:${name}`, {
+          reject,
+          resolve,
         });
 
-      if (this.isReady) {
-        return handler();
+        this.postMessage({
+          action: 'get',
+          guid: this.guid,
+          name,
+        } as SdkGetSetMessage);
+      } catch (e) {
+        reject(e);
       }
-
-      // we wait for the iframe to load before starting the handshake
-      this.iframe.addEventListener('load', () => handler());
     });
   }
 
@@ -529,12 +447,13 @@ export class PlayerSdk {
    * @param message the message to send
    * @private
    */
-  private postMessage(message: Partial<SdkMessage>): void {
-    this.iframe.contentWindow?.postMessage(JSON.stringify({
+  private postMessage(message: Omit<SdkMessage, 'version'>): void {
+    const messageString = JSON.stringify({
       ...message,
-      guid: this.guid,
       version: this.version,
-    }), this.origin);
+    });
+
+    this.iframe.contentWindow?.postMessage(messageString, this.origin);
   }
 
   /**
@@ -549,18 +468,14 @@ export class PlayerSdk {
     let callbacks: FunctionOrPromise[] = [];
 
     // ignore messages that should not be for us
-    if (
-      message?.version !== this.version
-      || (message?.action === SdkMessageAction.Event && !message?.guids?.includes(this.guid))
-      || (message?.action !== SdkMessageAction.Event && message?.guid !== this.guid)
-    ) {
+    if (message?.version !== this.version || (message as any)?.guid !== this.guid) {
       return;
     }
 
-    if (message.action === SdkMessageAction.Event) {
+    if (message.action === 'event') {
       // TODO  Update the receiver on the player's side to find a way to provide error
       callbacks = this.callbackStore.getCallbacks(`${message.action}:${message.name}`);
-    } else {
+    } else if (message.action === 'get' || message.action === 'set') {
       const callback = this.callbackStore.shiftCallback(`${message.action}:${message.name}`);
 
       if (callback) {
@@ -570,44 +485,12 @@ export class PlayerSdk {
 
     callbacks.forEach((cb) => {
       if (typeof cb === 'function') {
-        cb(message.value);
+        cb((message as SdkGetSetMessage).value);
       } else {
         // TODO find a way to use the cb.reject() function;
-        cb.resolve(message.value);
+        cb.resolve((message as SdkGetSetMessage).value);
       }
     });
-  }
-
-  /**
-   * A piece of code marking an iframe as loaded on receiving a ready message.
-   * This is needed for the API initialization to cater for the case where an iframe is already loaded, and we cannot use the load event.
-   * This is fairly optimistic and will likely not work with redirects, though.
-   */
-  private ready(): void {
-    this.readyHandler = (event: MessageEvent) => {
-      // ignores messages coming from other origins
-      if (event.origin !== this.originUrl) {
-        return;
-      }
-
-      const message = parseMessageData<SdkReadyMessage>(event.data);
-
-      if (
-        message?.action === SdkMessageAction.Ready
-        && message?.value === this.iframe.src
-      ) {
-        this.isReady = true;
-
-        // we provide the proper origin
-        // this allows us to send the cross window message to the proper origin and not broadcast to everybody
-        this.origin = event.origin;
-
-        // removes the listener as we only need it once
-        window.removeEventListener('message', this.readyHandler!);
-      }
-    };
-
-    window.addEventListener('message', this.readyHandler);
   }
 
   /**
@@ -617,22 +500,19 @@ export class PlayerSdk {
    * @param value the value to send
    * @private
    */
-  private set(name: string, value: any): Promise<void> {
+  private set(name: string, value: any): void {
     if (value === undefined || value === null) {
       throw new TypeError('A value must be set.');
     }
 
-    return new Promise((resolve, reject) => {
-      this.callbackStore.storeCallback(`${SdkMessageAction.Set}:${name}`, {
-        reject,
-        resolve,
+    this.readyPromise
+      .then(() => {
+        this.postMessage({
+          action: 'set',
+          guid: this.guid,
+          name,
+          value,
+        } as SdkGetSetMessage);
       });
-
-      this.postMessage({
-        action: SdkMessageAction.Set,
-        name,
-        value,
-      });
-    });
   }
 }
