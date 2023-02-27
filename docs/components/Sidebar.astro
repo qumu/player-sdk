@@ -1,0 +1,34 @@
+---
+import { SIDEBAR } from '../variables';
+
+type Props = {
+  currentPage: string;
+};
+
+const { currentPage } = Astro.props;
+---
+
+<nav>
+  {
+    SIDEBAR.map(({ pages, title }) => (
+      <section class="qi-mb--5">
+        <h5 class="qi-h5 qi--display">{title}</h5>
+        <ul class="qi-list--unstyled qi-mb--0">
+          {pages.map((page) => {
+            return (
+              <li>
+                <a
+                  href={page.link}
+                  class:list={['qi-btn qi-btn--transparent qi-btn--block qi-text--left', currentPage === page.link ? 'qi-btn--primary active' : 'qi-btn--secondary',]}
+                  aria-current={currentPage === page.link ? 'page' : false}
+                >
+                  {page.text}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))
+  }
+</nav>

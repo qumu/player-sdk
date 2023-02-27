@@ -16,8 +16,10 @@
   ],
   "scripts": {
     "build": "microbundle",
+    "build:docs": "npm run build && astro build",
     "dev": "microbundle watch",
     "lint": "eslint 'src/**'",
+    "serve": "concurrently \"npm run dev\" \"astro dev\"",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -30,10 +32,15 @@
   },
   "homepage": "https://github.com/qumu/ui-player-sdk#readme",
   "devDependencies": {
+    "@astrojs/markdown-remark": "2.0.1",
+    "@astrojs/mdx": "0.17.2",
     "@qumu/code-conventions": "2.0.1",
+    "@qumu/ui-kit": "0.33.1",
     "@types/jest": "27.5.1",
     "@typescript-eslint/eslint-plugin": "5.26.0",
     "@typescript-eslint/parser": "5.26.0",
+    "astro": "2.0.13",
+    "concurrently": "7.6.0",
     "eslint": "8.16.0",
     "eslint-import-resolver-typescript": "2.7.1",
     "eslint-plugin-import": "2.26.0",
@@ -42,6 +49,8 @@
     "jest": "28.1.0",
     "jest-environment-jsdom": "28.1.0",
     "microbundle": "0.15.0",
+    "rehype-autolink-headings": "6.1.1",
+    "sass": "1.58.3",
     "ts-jest": "28.0.3",
     "typescript": "4.7.2"
   },

@@ -1,0 +1,282 @@
+---
+title: "Legacy SDK"
+---
+
+<div className="qi-alert qi-alert--warning qi-mb--4">
+  <p>⚠️This SDK is considered legacy. No new features will be added.</p>
+  <a href="/migration#migration-from-legacy-to-the-new-sdk-v10">Learn how to migrate to the new SDK &rarr;</a>
+</div>
+
+The Qumu Player API allows you to programmatically interact with the player embedded in an iframe.
+
+You can send commands to the player, get and set properties, and bind to events from the player.
+
+```html
+<iframe name="player-iframe-name" width="900" height="467" frameborder="0" src="http://<QumuCloud_Domain>/view/guid-or-alias"></iframe>
+<script src="http://<QumuCloud_Domain>/client/application/api-v2.js"></script>
+
+<script>
+var api = new KV.Api('player-iframe-name');
+
+api.init(function(err) {
+  if (err) {
+    alert('Error initializing Player API. Code: ' + err);
+    return;
+  }
+
+  // You can bind to events
+  api.bind('ended', function() {
+    alert('Event: ended');
+  });
+
+  // Get properties
+  api.get('currentTime', function(currentTime) {
+    alert(currentTime);
+  });
+
+  // Set properties
+  api.set('currentTime', 1000);
+
+  // And issue commands
+  api.command('play');
+});
+</script>
+```
+
+## Basics
+
+The Player API is a separate JavaScript file that sets up a cross domain communication channel with a Qumu player embedded in an iframe.
+
+### Include the Player API script
+
+```html
+<!-- Include the Player API script. This can be included before or after the Player iframe. -->
+<script src="http://<QumuCloud_Domain>/client/application/api-v2.js"></script>
+```
+
+### Include the Player iframe
+
+```html
+<!--
+Include the Player iframe.
+You must set the name attribute so that the API knows which iframe to talk to.
+-->
+<iframe name="player-iframe-name" width="900" height="467" frameborder="0" src="http://<QumuCloud_Domain>/view/guid-or-alias"></iframe>
+```
+
+### Create the API object
+
+```js
+<script>
+// Now we create the Api object.
+// Each Api object connects to a single Player iframe. You must pass the name of the iframe as the first parameter.
+// The second parameter is a collection of options.
+// Currently the only option you can set is the timeout in milliseconds.
+var api = new KV.Api('player-iframe-name', {
+  // The maximum amount of time to wait for the initialization.
+  // The default is 20000 (20 seconds).
+  timeout: 15000
+});
+</script>
+```
+
+### Initialize the API
+
+```js
+<script>
+// The API must be initialized before it can be used.
+// The 'init' mehtod takes a callback which will be called when the initialization is complete.
+// If the initialization fails the 'err' parameter will be set.
+api.init(function(err) {
+  if (err === 'NO_IFRAME') {
+    alert('Unable to find iframe with name: ' + api.iframe());
+    return;
+  } else if (err === 'TIMED_OUT') {
+    alert('Timed out waiting for Player to connect');
+    return;
+  } else if (err) {
+    alert('Unknown error initializing Player API. Code: ' + err);
+    return;
+  }
+
+  // API was initialized successfully.
+  // Bind events and issue commands here.
+});
+</script>
+```
+
+The `err` parameter will be set if the initialization fails. There are currently only two possible values it can be set to:
+
+ * `NO_IFRAME` - Used if the player iframe cannot be found. Check that you have created the Api with the correct iframe name, and that the iframe is in the page before you initialize the Api.
+ * `TIMED_OUT` - Used when the Api is unable to establish a connection to the Player within the timeout period. This covers all other errors that could occur.
+
+### Bind to events, get and set properties, and send commands
+
+```js
+<script>
+api.init(function(err) {
+  // Assuming error handling occurs here.
+
+  var playHandler = function() {
+      alert('Event: play');
+  };
+
+  // Use 'bind' to register an event handler
+  api.bind('play', playHandler);
+
+
+  // Use 'command' to issue a command to the player
+  api.command('play');
+
+  // Use 'get' to get a property from the player
+  // Values are always returned in a callback (due to iframe communication)
+  api.get('currentTime', function(currentTime) {
+    alert(currentTime);
+  });
+
+  // Use 'set' to set a property on the player
+  api.set('currentTime', 1000);
+
+  // Use 'unbind' to remove a specific event handler
+  api.unbind('play', playHandler);
+
+  // or remove all handlers for an event.
+  api.unbind('play');
+});
+</script>
+```
+
+### Destroy the API and Player
+
+You only need to issue the `destroy` command if you wish to remove the API and Player while the user is still on the page. It does NOT need to be called when the user navigates away from the page.
+
+```js
+<script>
+api.init(function(err) {
+  // Assuming error handling occurs here.
+
+  // Start destroying the API.
+  // No more events will be sent, and no more commands can be issued.
+  api.command('destroy', [], function() {
+
+    // Once the callback is executed the destroy is complete.
+    // and you can remove the Player iframe from the page.
+
+    // If you remove the iframe before the callback as fired view
+    // won't get sent correctly.
+    alert('API destroyed. Player iframe can now be removed.');
+  });
+});
+</script>
+```
+
+## Methods
+
+### Constructor
+
+```js
+new KV.Api(iframeName, [options])
+
+iframeName - The name attribute of the Player iframe, or null if using the Api from a HTML slide.
+options - A map of option names to values. Optional. Available options:
+  timeout: The maximum time in milliseconds to wait before failing initialization. Default is 20000.
+```
+
+This creates a new Api object for a specific Player iframe. If you have multiple Players on the page you will need to create an Api object for each one.
+
+
+### init
+
+```js
+.init(callback)
+
+callback - A function to execute when the initialization is complete (success or failure).
+            An error code will be returned as the first parameter if initialization fails.
+```
+The Api must be initialized before it can be used.
+
+
+### command
+
+```js
+.command(commandName [,parameters[,callback]])
+
+commandName - The name of the command to send to the Player.
+parameters - An array of parameters to the command. At the moment no commands take parameters. Optional.
+callback - A function to execute when the command has finished. Optional.
+            At the moment only the destroy command fires a callback.
+
+```
+
+The available commands are:
+
+ * `play` - Start or resume playing the presentation. Note: On the iPad or iPhone this won't have any effect until the presentation has manually been played once, this is due to deliberate iOS restrictions.
+ * `pause` - Pause the presentation.
+ * `destroy` - Prepare the Player for removal. This only needs to be called if you want to remove the Player before leaving the page. It ensures that view stats are sent, and that the Api is cleaned up. No more commands can be sent once this has been called. This fires a callback when the destroy function is finished, don't remove the Player iframe from the page until this callback has executed.
+
+
+### bind
+
+```js
+.bind(eventName, callback)
+
+eventName - Which event to bind this callback to.
+callback - A function to execute when the Player fires the event.
+Allows you to register callbacks for events from the Player. Call bind multiple times to register multiple callbacks for the same event.
+```
+
+The available events are:
+
+ * `play` - Fired when the presentation starts or playback is resumed.
+ * `pause` - Fired when the presentation ends or playback is paused.
+ * `timeupdate` - Fired when the playback position is updated. The callback parameter is the currentTime in milliseconds.
+ * `volumechange` - Fired when the volume of the player changes. The callback parameter is the current volume (0 to 100).
+ * `ended` - Fired when the presentation ends.
+ * `liveState` - Fired when the state of a live event is updated. The callback parameter is the new state.
+
+### get
+
+```js
+get
+.get(propertyName, callback)
+
+propertyName - Which property to get.
+callback - A function to execute with the property value.
+```
+
+Allows you to get property values from the player. A callback is used instead of a return value as we are communicating across iframes.
+The available properties to get are:
+
+ * `currentTime` - The current time of the play head in milliseconds
+ * `volume` - The current volume (0 to 100).
+ * `paused` - Returns true if the player is not currently playing.
+ * `duration` - Returns the duration of the presentation in milliseconds.
+ * `liveState` - Returns the current live state.
+ * `liveEndTime` - Returns the time when the live event ended
+ * `liveStartTime` - Returns the time when the live event started
+
+### set
+
+```js
+.set(propertyName, value)
+
+
+propertyName - Which property to set.
+value - The value to set the property to.
+Allows you to set property values on the player.
+The available properties to get are:
+```
+
+ * `currentTime` - Set the current time of the play head in milliseconds
+ * `volume` - Set the volume (0 to 100).
+
+### unbind
+
+```js
+.unbind(eventName, [callback])
+
+eventName - Which event to unbind from.
+callback - The callback to unbind. Optional. If not given all callbacks bound to this event will be unbound.
+
+```
+Allows you to remove a specific callback bound to an event, or if no callback is given to remove all callbacks for an event.
