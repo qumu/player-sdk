@@ -1,7 +1,6 @@
 import { defineConfig } from 'astro/config';
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
-
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
 // https://astro.build/config
