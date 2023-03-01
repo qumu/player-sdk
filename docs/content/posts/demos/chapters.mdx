@@ -1,0 +1,43 @@
+---
+title: "Chapters example"
+---
+
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+import { IFRAME_URL } from '../../../variables';
+
+<Playground url={IFRAME_URL}>
+  <div slot="actions" className="actions">
+    <PlaygroundButton type="get" command="getChapters">Get chapters list</PlaygroundButton>
+    <PlaygroundButton type="get" command="getChapter">Get current chapter</PlaygroundButton>
+    <hr/>
+    <PlaygroundCheckbox id="addEventListener" checked={true} event="chapterchange">Listen for `chapterchange` events</PlaygroundCheckbox>
+  </div>
+  <div slot="code">
+    ```js
+    import { PlayerSdk } from '@qumu/player-sdk';
+
+    const iframe = document.querySelector('iframe');
+    const sdk = new PlayerSdk(iframe);
+
+    document.getElementById('getChapters').addEventListener('click', () => {
+      sdk.getChapters()
+        .then((chapters) => {
+          console.log('chapters', chapters)
+        });
+    });
+
+    document.getElementById('getChapter').addEventListener('click', () => {
+      sdk.getChapter()
+        .then((chapter) => {
+          console.log('current chapter', chapter)
+        });
+    });
+
+    sdk.addEventListener('chapterchange', (newChapter) => {
+      console.log('chapterchange', newChapter);
+    });
+    ```
+  </div>
+</Playground>

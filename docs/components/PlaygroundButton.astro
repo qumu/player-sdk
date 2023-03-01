@@ -1,0 +1,45 @@
+---
+import { SdkEventMessage } from "../../src/models/internal";
+import { PlayerSdk } from "../../src";
+
+type CommandProps = {
+  command: 'play' | 'pause' | 'destroy';
+  type: 'command'
+}
+
+type EventProps = {
+  event: SdkEventMessage['name'];
+  type: 'event'
+}
+
+type GetProps = {
+  command: keyof PlayerSdk;
+  type: 'get'
+}
+
+type SetProps = {
+  command: keyof PlayerSdk;
+  type: 'set';
+  value: any;
+}
+
+type Props = CommandProps | EventProps | GetProps | SetProps;
+
+const { command, event, property, type, value }: Props = Astro.props;
+
+const props = {
+...(command && {'data-command': command}),
+...(event && {'data-event': event}),
+...(type && {'data-type': type}),
+...(value !== undefined && value !== null && {'data-value': value}),
+}
+---
+
+<button
+  type="button"
+  class="qi-btn qi-btn--secondary"
+  id={command || property}
+  {...props}
+>
+  <slot/>
+</button>

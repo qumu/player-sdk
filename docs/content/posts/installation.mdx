@@ -1,0 +1,52 @@
+---
+title: "Installation"
+---
+
+## via CDN (easiest)
+
+The simplest way to use the SDK is to load it via the CDN. The script will add a new `playerSdk` property to the `window` object.
+
+<div className="qi-alert qi-alert--warning qi-mb--4">
+  ⚠️ You need to load the script BEFORE your code to interact with the SDK.
+</div>
+
+In order to control a Qumu Cloud presentation, you will need to add it to your webpage via an iframe.
+
+```html
+<iframe src="<url-to-presentation>" frameborder="0"></iframe>
+
+<script src="<url-to-script>"></script>
+<script>
+  var iframe = document.querySelector('iframe');
+
+  var sdk = new window.playerSdk.PlayerSdk(iframe);
+
+  sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
+
+  sdk.getDuration().then((duration) => console.log('duration', duration));
+
+  sdk.play();
+</script>
+```
+
+## With a module bundler (advanced)
+
+If you use a module bundler (like Webpack or rollup), you will first need to install the dependency.
+
+```shell
+npm install @qumu/player-sdk
+```
+
+```js
+const iframe = document.querySelector('iframe');
+
+const sdk = new window.playerSdk.PlayerSdk(iframe);
+
+sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
+
+sdk.getDuration().then((duration) => console.log('duration', duration));
+
+sdk.play();
+```
+
+

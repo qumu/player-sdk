@@ -8,17 +8,16 @@ The official JavaScript SDK to interact with an embedded Qumu Cloud presentation
 
 The simplest way to use the SDK is to load it via the CDN. The script will add a new `playerSdk` property to the `window` object.
 
-**Note**: You need to load the script BEFORE your code to interact wit the SDK
+**Note**: You need to load the script BEFORE your code to interact with the SDK
 
 **Note**: You need to add this script only ONCE for each webpage
 
 In order to control a Qumu Cloud presentation, you will need to add it to your webpage via an iframe.
 
 ```html
-
 <iframe src="<url-to-presentation>" frameborder="0"></iframe>
 
-<script src=""></script>
+<script src="<url-to-script>"></script>
 <script>
   var iframe = document.querySelector('iframe');
 
@@ -81,75 +80,75 @@ Events you can listen to:
 
 Destroys the whole SDK.
 
-### getClosedCaptions(): Promise<CaptionTrack[]&gt;
+### getClosedCaptions(): Promise&lt;CaptionTrack[]&gt;
 
 Gets the available closed captions.
 
-### getChapter(): Promise<Chapter%gt;
+### getChapter(): Promise&lt;Chapter%gt;
 
 Gets the current chapter
 
-### getChapters(): Promise<Chapter[]&gt;
+### getChapters(): Promise&lt;Chapter[]&gt;
 
 Gets the list of chapters for the presentation
 
-### getClosedCaptionsLanguage(): Promise<string&gt;
+### getClosedCaptionsLanguage(): Promise&lt;string&gt;
 
 Gets the active closed captions' language.
 
-### getCurrentTime(): Promise<number&gt;
+### getCurrentTime(): Promise&lt;number&gt;
 
 Gets the current time in milliseconds.
 
-### getDuration(): Promise<number&gt;
+### getDuration(): Promise&lt;number&gt;
 
 Gets the presentation's duration in milliseconds.
 
-### getLayout(): Promise<string&gt;
+### getLayout(): Promise&lt;string&gt;
 
 Gets the layout
 
-### getLiveEndTime(): Promise<string | null&gt;
+### getLiveEndTime(): Promise&lt;string | null&gt;
 
 Gets the end date of a live event
 
-### getLiveStartTime(): Promise<string | null&gt;
+### getLiveStartTime(): Promise&lt;string | null&gt;
 
 Gets the start date of a live event
 
-### getLiveState(): Promise<string | null&gt;
+### getLiveState(): Promise&lt;string | null&gt;
 
 Gets the state of a live event
 
-### getPictureInPicturePosition(): Promise<'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'&gt;
+### getPictureInPicturePosition(): Promise&lt;'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'&gt;
 
 Gets the position of the PiP box
 
-### getPlaybackRate(): Promise<number&gt;
+### getPlaybackRate(): Promise&lt;number&gt;
 
 Gets the current playback rate.
 
-### getPlaybackRates(): Promise<number&gt;
+### getPlaybackRates(): Promise&lt;number&gt;
 
 Gets the list of playback rates.
 
-### getPresentation(): Promise<Presentation>
+### getPresentation(): Promise&lt;Presentation>
 
 Gets the presentation.
 
-### getPrimaryContent(): Promise<'media' | 'slides'&gt;
+### getPrimaryContent(): Promise&lt;'media' | 'slides'&gt;
 
 Gets the primary content.
 
-### getSideBySideRatio(): Promise<number&gt;
+### getSideBySideRatio(): Promise&lt;number&gt;
 
 Gets the side by side ratio between 50% and 80%.
 
-### getVolume(): Promise<number&gt;
+### getVolume(): Promise&lt;number&gt;
 
 Gets the player's volume between 0 and 100.
 
-### isPaused(): Promise<boolean&gt;
+### isPaused(): Promise&lt;boolean&gt;
 
 Checks whether the player is paused or playing.
 
@@ -186,7 +185,7 @@ Sets the layout
 
 * `layout`: the new layout
 
-### setPictureInPicturePosition(position: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'): Promise<void&gt;
+### setPictureInPicturePosition(position: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'): Promise&lt;void&gt;
 
 Sets the position of the PiP box
 

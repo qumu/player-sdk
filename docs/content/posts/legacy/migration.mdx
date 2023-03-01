@@ -1,0 +1,87 @@
+---
+title: "Migration"
+---
+
+## Migration from legacy to the new SDK v1.0
+
+### Load the new SDK
+
+Please follow xxx to load the new SDK
+
+### `.init()` is removed
+
+The new SDK has an improved handshake mechanism and the `.init()` function is not necessary anymore.
+
+### Changes to `.bind()` and `.unbind()`
+
+In order to offer an API closer to the JavaScript standards, we rename the following methods:
+
+ * `.bind()` is now `.addEventListener()`
+ * `.unbind()` is now `.removeEventListener()`
+
+```js
+// BEFORE
+sdk.bind('timeupdate', function (newTime) {
+  console.log('new time', newTime);
+});
+
+//AFTER
+sdk.addEventListener('timeupdate', (newTime) => {
+  console.log('new time', newTime);
+});
+```
+
+### Changes to `.command()`
+
+In order to offer a better API, we replaced the `.command()` function with the following:
+
+ * `.command('play')` is now `.play()`
+ * `.command('pause')` is now `.pause()`
+ * `.command('destroy')` is now `.destroy()`
+
+```js
+// BEFORE
+sdk.command('play');
+
+//AFTER
+sdk.play();
+```
+
+### Changes to `.get()`
+
+In order to offer a better API, we replaced the `.get()` function with the following:
+
+* `.get('currentTime')` is now `.getCurrentTime()`
+* `.get('volume')` is now `.getVolume()`
+* `.get('paused')` is now `.isPaused()`
+* `.get('duration')` is now `.getDuration()`
+* `.get('liveState')` is now `.getLiveState()`
+* `.get('liveEndTime')` is now `.getLiveEndTime()`
+* `.get('liveStartTime')` is now `.getLiveStartTime()`
+
+Those new methods return a promise instead of requiring a callback.
+
+```js
+// BEFORE
+sdk.get('volume', function (newVolume) {
+  console.log('new volume', newVolume);
+});
+
+//AFTER
+sdk.getVolume().then((newVolume) => console.log('new volume', newVolume));
+```
+
+### Changes to `.set()`
+
+In order to offer a better API, we replaced the `.get()` function with the following:
+
+* `.set('currentTime', value)` is now `.setCurrentTime(value)`
+* `.set('volume', value)` is now `.setVolume(value)`
+
+```js
+// BEFORE
+sdk.set('volume', 0.5);
+
+//AFTER
+sdk.setVolume(0.5);
+```
