@@ -29,7 +29,6 @@
     "url": "https://github.com/qumu/player-sdk/issues"
   },
   "homepage": "https://github.com/qumu/ui-player-sdk#readme",
-  "dependencies": {},
   "devDependencies": {
     "@qumu/code-conventions": "2.0.1",
     "@types/jest": "27.5.1",

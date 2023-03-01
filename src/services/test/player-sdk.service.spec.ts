@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
-import { PlayerSdk, PlayerSdkOptions } from '../player-sdk.service';
-import { SdkMessageAction, SdkMessageError } from '../../models/communication.model';
+import { PlayerSdk } from '../player-sdk.service';
+import { SdkEventMessage, SdkGetSetMessage, SdkMessage } from '../../models/internal';
 
 const url = new URL('https://knowledge.qumucloud.com/view/abcd1234');
 
@@ -14,49 +14,36 @@ function createIFrame(name = `iframe${randomUUID()}`, src = url.toString()): HTM
   return iframe;
 }
 
+async function nextTick(): Promise<void> {
+  return new Promise((resolve) => process.nextTick(resolve));
+}
+
+function postMessageFromPlayer(message: Omit<SdkMessage, 'version'>) {
+  // Simulates a successful handshake event from the player
+  window.dispatchEvent(new MessageEvent('message', {
+    data: JSON.stringify({
+      ...message,
+      version: 3,
+    }),
+    origin: url.origin,
+  }));
+}
+
 describe('Service', () => {
   let guid: string;
   let iframe: HTMLIFrameElement;
-  let windowSpy: jest.SpyInstance;
 
-  function readySdk(frame = iframe, options?: PlayerSdkOptions) {
-    const sdk = new PlayerSdk(frame, options);
+  function initSdk(frame = iframe): PlayerSdk {
+    const sdk = new PlayerSdk(frame);
 
-    // Simulates a successful ready event from the player
-    window.dispatchEvent(new MessageEvent('message', {
-      data: JSON.stringify({
-        action: SdkMessageAction.Ready,
-        value: url.toString(),
-        version: 3,
-      }),
-      origin: url.origin,
-    }));
+    postMessageFromPlayer({
+      action: 'ready',
+    });
 
     return sdk;
   }
 
-  function initSdk(frame = iframe): Promise<PlayerSdk> {
-    return new Promise((resolve) => {
-      const sdk = readySdk(frame);
-
-      sdk.init().then(() => resolve(sdk));
-
-      // Simulates a successful handshake from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          guid,
-          status: 'success',
-          version: 3,
-        }),
-        origin: url.origin,
-      }));
-    });
-  }
-
   beforeEach(() => {
-    windowSpy = jest.spyOn(window, 'window', 'get');
-
     guid = randomUUID();
 
     Object.assign(window, {
@@ -70,103 +57,116 @@ describe('Service', () => {
     document.body.appendChild(iframe);
   });
 
-  afterEach(() => {
-    windowSpy.mockRestore();
-  });
-
   describe('constructor', () => {
-    it('should mark the SDK as ready', () => {
-      const sdk = new PlayerSdk(iframe);
+    it('should send handshake message', () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      expect((sdk as any).isReady).toBeFalsy();
+      // eslint-disable-next-line no-new
+      new PlayerSdk(iframe);
 
-      // Simulates a successful ready event from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Ready,
-          value: url.toString(),
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'handshake',
+          guid,
           version: 3,
         }),
-        origin: url.origin,
-      }));
-
-      expect((sdk as any).isReady).toBeTruthy();
+        '*',
+      );
     });
 
-    it('should save the origin for the next communications', () => {
+    it('should save the origin for the next communications', async () => {
       const sdk = new PlayerSdk(iframe);
 
       expect((sdk as any).origin).toEqual('*');
 
-      // Simulates a successful ready event from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Ready,
-          value: url.toString(),
-          version: 3,
-        }),
-        origin: url.origin,
-      }));
+      postMessageFromPlayer({
+        action: 'ready',
+      });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
 
       expect((sdk as any).origin).toEqual(url.origin);
-    });
-
-    it('should ignore ready messages from unknown origins', () => {
-      // eslint-disable-next-line no-new
-      new PlayerSdk(iframe);
-
-      // Simulates a successful ready event from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Ready,
-          value: url.toString(),
-          version: 3,
-        }),
-        origin: 'https://foo.bar',
-      }));
-
-      expect(iframe.dataset.loaded).toBeUndefined();
-    });
-
-    it('should ignore ready messages from correct origins but wrong iframes', () => {
-      // eslint-disable-next-line no-new
-      new PlayerSdk(iframe);
-
-      // Simulates a successful ready event from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Ready,
-          value: 'https://foo.bar/view/abcd',
-          version: 3,
-        }),
-        origin: url.origin,
-      }));
-
-      expect(iframe.dataset.loaded).toBeUndefined();
     });
   });
 
   describe('addEventListener', () => {
     it('should throw an error if no event name is passed', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      expect(() => sdk.addEventListener((null as any), () => {})).toThrow('You must pass an event name.');
+      expect(() => sdk.addEventListener((null as any), () => {
+      })).toThrow('You must pass an event name.');
     });
 
     it('should throw an error if no callback is passed', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.addEventListener('volumechange', (null as any))).toThrow('You must pass a callback function.');
     });
 
     it('should throw an error if the callback is not a function', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.addEventListener('volumechange', ('foo' as any))).toThrow('The callback must be a function.');
     });
 
+    it('should send a message to the player for the first subscribe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = initSdk();
+
+      sdk.addEventListener('chapterchange', () => {
+      });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'event',
+          guid,
+          name: 'chapterchange',
+          value: 'add',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should only send a message to the player for the first subscribe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = initSdk();
+
+      spy.mockReset();
+
+      sdk.addEventListener('chapterchange', () => {
+      });
+
+      sdk.addEventListener('chapterchange', () => {
+      });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'event',
+          guid,
+          name: 'chapterchange',
+          value: 'add',
+          version: 3,
+        }),
+        url.origin,
+      );
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
     describe('chapterchange', () => {
-      it('should listen to the event', (done) => {
+      it('should listen to the event', async () => {
+        expect.assertions(1);
+
         const chapter = {
           guid: 'chapter1',
           hidden: false,
@@ -178,261 +178,231 @@ describe('Service', () => {
           title: 'foo',
         };
 
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('chapterchange', (c: any) => {
-              expect(c).toEqual(chapter);
+        const sdk = initSdk();
 
-              done();
-            });
+        sdk.addEventListener('chapterchange', (c: any) => {
+          expect(c).toEqual(chapter);
+        });
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'chapterchange',
-                value: chapter,
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'chapterchange',
+          value: chapter,
+        } as SdkEventMessage);
       });
     });
 
     describe('closedcaptionslanguagechange', () => {
-      it('should listen to the event', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('closedcaptionslanguagechange', (lang: string) => {
-              expect(lang).toEqual('fr');
+      it('should listen to the event', async () => {
+        expect.assertions(1);
+        const sdk = initSdk();
 
-              done();
-            });
+        sdk.addEventListener('closedcaptionslanguagechange', (lang: string) => {
+          expect(lang).toEqual('fr');
+        });
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'closedcaptionslanguagechange',
-                value: 'fr',
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'closedcaptionslanguagechange',
+          value: 'fr',
+        } as SdkEventMessage);
       });
     });
 
     describe('ended', () => {
-      it('should listen to events', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('ended', done);
+      it('should listen to events', async () => {
+        expect.assertions(1);
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'ended',
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        const sdk = initSdk();
+
+        sdk.addEventListener('ended', () => {
+          expect(true).toBeTruthy();
+        });
+
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'ended',
+        } as SdkEventMessage);
       });
     });
 
     describe('layoutchange', () => {
-      it('should listen to the event', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('layoutchange', (layout: 'pip' | 'sbs') => {
-              expect(layout).toEqual('sbs');
+      it('should listen to the event', async () => {
+        expect.assertions(1);
 
-              done();
-            });
+        const sdk = initSdk();
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'layoutchange',
-                value: 'sbs',
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        sdk.addEventListener('layoutchange', (layout: 'pip' | 'sbs') => {
+          expect(layout).toEqual('sbs');
+        });
+
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'layoutchange',
+          value: 'sbs',
+        } as SdkEventMessage);
       });
     });
 
     describe('liveState', () => {
-      it('should listen to events', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('liveState', (state: number) => {
-              expect(state).toEqual('LIVE');
+      it('should listen to events', async () => {
+        expect.assertions(1);
 
-              done();
-            });
+        const sdk = initSdk();
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'liveState',
-                value: 'LIVE',
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        sdk.addEventListener('liveState', (state: number) => {
+          expect(state).toEqual('LIVE');
+        });
+
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'liveState',
+          value: 'LIVE',
+        } as SdkEventMessage);
       });
     });
 
     describe('pause', () => {
-      it('should listen to events', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('pause', done);
+      it('should listen to events', async () => {
+        expect.assertions(1);
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'pause',
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        const sdk = initSdk();
+
+        sdk.addEventListener('pause', () => {
+          expect(true).toBeTruthy();
+        });
+
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'pause',
+        } as SdkEventMessage);
       });
     });
 
     describe('play', () => {
-      it('should listen to events', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('play', done);
+      it('should listen to events', async () => {
+        expect.assertions(1);
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'play',
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        const sdk = initSdk();
+
+        sdk.addEventListener('play', () => {
+          expect(true).toBeTruthy();
+        });
+
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'play',
+        } as SdkEventMessage);
       });
     });
 
     describe('playbackratechange', () => {
-      it('should listen to the event', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('playbackratechange', (rate: number) => {
-              expect(rate).toEqual(1.5);
+      it('should listen to the event', async () => {
+        expect.assertions(1);
 
-              done();
-            });
+        const sdk = initSdk();
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'playbackratechange',
-                value: 1.5,
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        sdk.addEventListener('playbackratechange', (rate: number) => {
+          expect(rate).toEqual(1.5);
+        });
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'playbackratechange',
+          value: 1.5,
+        } as SdkEventMessage);
       });
     });
 
     describe('primarycontentchange', () => {
-      it('should listen to the event', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('primarycontentchange', (primarycontent: 'media' | 'slides') => {
-              expect(primarycontent).toEqual('slides');
+      it('should listen to the event', async () => {
+        expect.assertions(1);
 
-              done();
-            });
+        const sdk = initSdk();
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'primarycontentchange',
-                value: 'slides',
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        sdk.addEventListener('primarycontentchange', (primarycontent: 'media' | 'slides') => {
+          expect(primarycontent).toEqual('slides');
+        });
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'primarycontentchange',
+          value: 'slides',
+        } as SdkEventMessage);
       });
     });
 
     describe('timeupdate', () => {
-      it('should listen to events', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('timeupdate', (time: number) => {
-              expect(time).toEqual(1000);
+      it('should listen to events', async () => {
+        expect.assertions(1);
 
-              done();
-            });
+        const sdk = initSdk();
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'timeupdate',
-                value: 1000,
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        sdk.addEventListener('timeupdate', (time: number) => {
+          expect(time).toEqual(1000);
+        });
+
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'timeupdate',
+          value: 1000,
+        } as SdkEventMessage);
       });
     });
 
     describe('volumechange', () => {
-      it('should listen to events', (done) => {
-        initSdk()
-          .then((sdk) => {
-            sdk.addEventListener('volumechange', (volume: number) => {
-              expect(volume).toEqual(100);
+      it('should listen to events', async () => {
+        expect.assertions(1);
 
-              done();
-            });
+        const sdk = initSdk();
 
-            // Simulates an event sent from the player
-            window.dispatchEvent(new MessageEvent('message', {
-              data: JSON.stringify({
-                action: SdkMessageAction.Event,
-                guids: [guid],
-                name: 'volumechange',
-                value: 100,
-                version: 3,
-              }),
-              origin: url.origin,
-            }));
-          });
+        sdk.addEventListener('volumechange', (volume: number) => {
+          expect(volume).toEqual(100);
+        });
+
+        // we need to wait for a tick to get the code inside the promise to be executed
+        await nextTick();
+
+        postMessageFromPlayer({
+          action: 'event',
+          guid,
+          name: 'volumechange',
+          value: 100,
+        } as SdkEventMessage);
       });
     });
   });
@@ -440,7 +410,7 @@ describe('Service', () => {
   describe('destroy', () => {
     it('should remove the message event listener', async () => {
       const spy = jest.spyOn(window, 'removeEventListener');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.destroy();
 
@@ -449,17 +419,15 @@ describe('Service', () => {
 
     it('should send a destroy message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.destroy();
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Command,
-          name: 'destroy',
-          // eslint-disable-next-line sort-keys
+          action: 'command',
           guid,
+          name: 'destroy',
           version: 3,
         }),
         url.origin,
@@ -470,147 +438,143 @@ describe('Service', () => {
   describe('getClosedCaptions', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getClosedCaptions();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'closedCaptions',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'closedCaptions',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getClosedCaptions()
-            .then((captionTracks) => {
-              expect(captionTracks).toEqual([
-                {
-                  captions: [],
-                  guid: 'caption1',
-                  languageCode: 'en',
-                  source: 'AUTOGENERATED',
-                  title: 'English',
-                },
-                {
-                  captions: [],
-                  guid: 'caption2',
-                  languageCode: 'fr',
-                  source: 'UPLOADED',
-                  title: 'French',
-                },
-              ]);
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'closedCaptions',
-              value: [
-                {
-                  captions: [],
-                  guid: 'caption1',
-                  languageCode: 'en',
-                  source: 'AUTOGENERATED',
-                  title: 'English',
-                },
-                {
-                  captions: [],
-                  guid: 'caption2',
-                  languageCode: 'fr',
-                  source: 'UPLOADED',
-                  title: 'French',
-                },
-              ],
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getClosedCaptions()
+        .then((captionTracks) => {
+          expect(captionTracks).toEqual([
+            {
+              captions: [],
+              guid: 'caption1',
+              languageCode: 'en',
+              source: 'AUTOGENERATED',
+              title: 'English',
+            },
+            {
+              captions: [],
+              guid: 'caption2',
+              languageCode: 'fr',
+              source: 'UPLOADED',
+              title: 'French',
+            },
+          ]);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'closedCaptions',
+        value: [
+          {
+            captions: [],
+            guid: 'caption1',
+            languageCode: 'en',
+            source: 'AUTOGENERATED',
+            title: 'English',
+          },
+          {
+            captions: [],
+            guid: 'caption2',
+            languageCode: 'fr',
+            source: 'UPLOADED',
+            title: 'French',
+          },
+        ],
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getClosedCaptionsLanguage', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getClosedCaptionsLanguage();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'closedCaptionsLanguage',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'closedCaptionsLanguage',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should returns the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getClosedCaptionsLanguage()
-            .then((language) => {
-              expect(language).toEqual('en');
+    it('should returns the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'closedCaptionsLanguage',
-              value: 'en',
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getClosedCaptionsLanguage()
+        .then((language) => {
+          expect(language).toEqual('en');
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'closedCaptionsLanguage',
+        value: 'en',
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getChapter', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getChapter();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'chapter',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'chapter',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
       const chapter = {
         guid: 'chapter1',
         hidden: false,
@@ -622,52 +586,49 @@ describe('Service', () => {
         title: 'foo',
       };
 
-      initSdk()
-        .then((sdk) => {
-          sdk.getChapter()
-            .then((c) => {
-              expect(c).toEqual(chapter);
+      const sdk = initSdk();
 
-              done();
-            });
-
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'chapter',
-              value: chapter,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getChapter()
+        .then((c) => {
+          expect(c).toEqual(chapter);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'chapter',
+        value: chapter,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getChapters', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getChapters();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'chapters',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'chapters',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
       const chapters = [
         {
           guid: 'chapter1',
@@ -691,893 +652,631 @@ describe('Service', () => {
         },
       ];
 
-      initSdk()
-        .then((sdk) => {
-          sdk.getChapters()
-            .then((c) => {
-              expect(c).toEqual(chapters);
+      const sdk = initSdk();
 
-              done();
-            });
-
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'chapters',
-              value: chapters,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getChapters()
+        .then((c) => {
+          expect(c).toEqual(chapters);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'chapters',
+        value: chapters,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getCurrentTime', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getCurrentTime();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'currentTime',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'currentTime',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getCurrentTime()
-            .then((currentTime) => {
-              expect(currentTime).toEqual(1000);
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'currentTime',
-              value: 1000,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getCurrentTime()
+        .then((currentTime) => {
+          expect(currentTime).toEqual(1000);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'currentTime',
+        value: 1000,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getLiveEndTime', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getLiveEndTime();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'liveEndTime',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'liveEndTime',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getLiveEndTime()
-            .then((time) => {
-              expect(time).toEqual('2022-01-01T01:00:00.000Z');
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'liveEndTime',
-              value: new Date('2022-01-01 01:00'),
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getLiveEndTime()
+        .then((time) => {
+          expect(time).toEqual('2022-01-01T01:00:00.000Z');
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'liveEndTime',
+        value: new Date('2022-01-01 01:00'),
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getLiveStartTime', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getLiveStartTime();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'liveStartTime',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'liveStartTime',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getLiveStartTime()
-            .then((time) => {
-              expect(time).toEqual('2022-01-01T01:00:00.000Z');
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'liveStartTime',
-              value: new Date('2022-01-01 01:00'),
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getLiveStartTime()
+        .then((time) => {
+          expect(time).toEqual('2022-01-01T01:00:00.000Z');
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'liveStartTime',
+        value: new Date('2022-01-01 01:00'),
+      } as SdkGetSetMessage);
+    });
+  });
+
+  describe('getLiveState', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = initSdk();
+
+      sdk.getLiveState();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'liveState',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const sdk = initSdk();
+
+      sdk.getLiveState()
+        .then((state) => {
+          expect(state).toEqual('LIVE');
+        });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'liveState',
+        value: 'LIVE',
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getDuration', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getDuration();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'duration',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'duration',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getDuration()
-            .then((duration) => {
-              expect(duration).toEqual(1000);
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'duration',
-              value: 1000,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getDuration()
+        .then((duration) => {
+          expect(duration).toEqual(1000);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'duration',
+        value: 1000,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getLayout', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getLayout();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'layout',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'layout',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getLayout()
-            .then((layout) => {
-              expect(layout).toEqual('pip');
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'layout',
-              value: 'pip',
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getLayout()
+        .then((layout) => {
+          expect(layout).toEqual('pip');
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'layout',
+        value: 'pip',
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getPictureInPicturePosition', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getPictureInPicturePosition();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'pipPosition',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'pipPosition',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getPictureInPicturePosition()
-            .then((value) => {
-              expect(value).toEqual('top-left');
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'pipPosition',
-              value: 'top-left',
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getPictureInPicturePosition()
+        .then((value) => {
+          expect(value).toEqual('top-left');
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'pipPosition',
+        value: 'top-left',
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getPlaybackRate', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getPlaybackRate();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'playbackRate',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'playbackRate',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getPlaybackRate()
-            .then((playbackRate) => {
-              expect(playbackRate).toEqual(2);
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'playbackRate',
-              value: 2,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getPlaybackRate()
+        .then((playbackRate) => {
+          expect(playbackRate).toEqual(2);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'playbackRate',
+        value: 2,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getPlaybackRates', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getPlaybackRates();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'playbackRates',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'playbackRates',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
       const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
-      initSdk()
-        .then((sdk) => {
-          sdk.getPlaybackRates()
-            .then((rates) => {
-              expect(rates).toEqual(playbackRates);
+      const sdk = initSdk();
 
-              done();
-            });
-
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'playbackRates',
-              value: playbackRates,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getPlaybackRates()
+        .then((rates) => {
+          expect(rates).toEqual(playbackRates);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'playbackRates',
+        value: playbackRates,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getPresentation', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getPresentation();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'presentation',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'presentation',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
       const presentation = {
         guid: 'foobar1234',
       };
 
-      initSdk()
-        .then((sdk) => {
-          sdk.getPresentation()
-            .then((pres) => {
-              expect(pres).toEqual(presentation);
+      const sdk = initSdk();
 
-              done();
-            });
-
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'presentation',
-              value: presentation,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getPresentation()
+        .then((pres) => {
+          expect(pres).toEqual(presentation);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'presentation',
+        value: presentation,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getPrimaryContent', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getPrimaryContent();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'primaryContent',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'primaryContent',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getPrimaryContent()
-            .then((primaryContent) => {
-              expect(primaryContent).toEqual('slides');
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'primaryContent',
-              value: 'slides',
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getPrimaryContent()
+        .then((primaryContent) => {
+          expect(primaryContent).toEqual('slides');
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'primaryContent',
+        value: 'slides',
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getSideBySideRatio', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getSideBySideRatio();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'sideBySideRatio',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'sideBySideRatio',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getSideBySideRatio()
-            .then((value) => {
-              expect(value).toEqual(60);
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'sideBySideRatio',
-              value: 60,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.getSideBySideRatio()
+        .then((value) => {
+          expect(value).toEqual(60);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'sideBySideRatio',
+        value: 60,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('getVolume', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.getVolume();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
+          action: 'get',
+          guid,
           name: 'volume',
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.getVolume()
-            .then((volume) => {
-              expect(volume).toEqual(80);
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'volume',
-              value: 80,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
-        });
-    });
-  });
-
-  describe('init', () => {
-    it('should return an error when the handshake takes too long', (done) => {
-      jest.useFakeTimers();
-
-      const sdk = readySdk(iframe, {
-        timeout: 2000,
-      });
-
-      sdk
-        .init()
-        .catch((error) => {
-          expect(error).toStrictEqual(new Error(SdkMessageError.Timeout));
-
-          done();
+      sdk.getVolume()
+        .then((volume) => {
+          expect(volume).toEqual(80);
         });
 
-      jest.advanceTimersByTime(2001);
-    });
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
 
-    it('should remove the message event listener when the handshake takes too long', (done) => {
-      jest.useFakeTimers();
-
-      const spy = jest.spyOn(window, 'removeEventListener');
-
-      const sdk = readySdk(iframe, {
-        timeout: 2000,
-      });
-
-      sdk.init()
-        .catch(() => {
-          expect(spy).toHaveBeenCalledWith('message', expect.any(Function));
-          done();
-        });
-
-      jest.advanceTimersByTime(2001);
-    });
-
-    it('should immediately send a handshake message to the iframe that is already loaded', () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-
-      const sdk = readySdk();
-
-      sdk.init();
-
-      expect(spy).toHaveBeenCalledWith(
-        JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          guid,
-          version: 3,
-        }),
-        url.origin,
-      );
-    });
-
-    it('should send a handshake message to the iframe once it is loaded', () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-
-      const sdk = new PlayerSdk(iframe);
-
-      // at this point, we start the init while the iframe is not loaded
-      sdk.init();
-
-      expect(spy).not.toHaveBeenCalled();
-
-      // simulates the iframe being loaded
-      iframe.dispatchEvent(new Event('load'));
-
-      expect(spy).toHaveBeenCalledWith(
-        JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          guid,
-          version: 3,
-        }),
-        // because we have not received the ready message, we do not know who to send the message too
-        // so we broadcast it with `*'
-        '*',
-      );
-    });
-
-    it('should not send another handshake message to the iframe on subsequent load events', () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-
-      const sdk = new PlayerSdk(iframe);
-
-      // at this point, we start the init while the iframe is not loaded
-      sdk.init();
-
-      expect(spy).not.toHaveBeenCalled();
-
-      // simulates the iframe being loaded
-      iframe.dispatchEvent(new Event('load'));
-
-      expect(spy).toHaveBeenCalledWith(
-        JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          guid,
-          version: 3,
-        }),
-        '*',
-      );
-
-      spy.mockReset();
-
-      // simulates the iframe being loaded a second time
-      iframe.dispatchEvent(new Event('load'));
-
-      expect(spy).not.toHaveBeenCalled();
-    });
-
-    it('should rejects with an error on failed handshake', (done) => {
-      const sdk = readySdk();
-
-      sdk
-        .init()
-        .catch((error) => {
-          expect(error).toStrictEqual(new Error(SdkMessageError.GuidInUse));
-
-          done();
-        });
-
-      // Simulates a failed handshake from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          code: SdkMessageError.GuidInUse,
-          guid,
-          status: 'error',
-          version: 3,
-        }),
-        origin: url.origin,
-      }));
-    });
-
-    it('should resolves with no parameters on successful handshake', async () => {
-      await expect(initSdk()).resolves.not.toThrow();
-    });
-
-    it('should ignore handshakes from unknown origins', (done) => {
-      jest.useFakeTimers();
-
-      const sdk = readySdk(iframe, {
-        timeout: 2000,
-      });
-
-      sdk
-        .init()
-        .catch((error) => {
-          expect(error).toStrictEqual(new Error(SdkMessageError.Timeout));
-
-          done();
-        });
-
-      // Simulates a failed handshake from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          guid,
-          status: 'success',
-          version: 3,
-        }),
-        origin: 'https://foo.bar',
-      }));
-
-      jest.advanceTimersByTime(2001);
-    });
-
-    it('should ignore handshakes from correct origins but wrong iframes', (done) => {
-      jest.useFakeTimers();
-
-      const sdk = readySdk(iframe, {
-        timeout: 2000,
-      });
-
-      sdk
-        .init()
-        .catch((error) => {
-          expect(error).toStrictEqual(new Error(SdkMessageError.Timeout));
-
-          done();
-        });
-
-      // Simulates a failed handshake from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          guid: 'does-not-exist',
-          status: 'success',
-          version: 3,
-        }),
-        origin: url.origin,
-      }));
-
-      jest.advanceTimersByTime(2001);
-    });
-
-    it('should retry the handshake every second and stop retrying after a successful handshake', () => {
-      jest.useFakeTimers();
-
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-
-      const sdk = readySdk(iframe, {
-        timeout: 5000,
-      });
-
-      sdk.init();
-
-      jest.advanceTimersByTime(3000);
-
-      // 1 initial attempt + 3 intervals
-      expect(spy).toHaveBeenCalledTimes(4);
-    });
-
-    it('should stop retrying after a failed handshake', (done) => {
-      jest.useFakeTimers();
-
-      const postMessageSpy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
-
-      const sdk = readySdk(iframe, {
-        timeout: 2000,
-      });
-
-      // we reset the mock to not have the ready message
-      postMessageSpy.mockReset();
-
-      sdk.init()
-        .catch(() => {
-          // 1 initial attempt + 3 intervals before the timeout + 1 destroy message
-          expect(postMessageSpy).toHaveBeenCalledTimes(4);
-          expect(clearIntervalSpy).toHaveBeenCalled();
-
-          done();
-        });
-
-      jest.advanceTimersByTime(2001);
-    });
-
-    it('should clear the handshake timeout after a successful handshake', (done) => {
-      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
-
-      const sdk = readySdk();
-
-      sdk.init()
-        .then(() => {
-          expect(clearIntervalSpy).toHaveBeenCalled();
-
-          done();
-        });
-
-      // Simulates a successful handshake from the player
-      window.dispatchEvent(new MessageEvent('message', {
-        data: JSON.stringify({
-          action: SdkMessageAction.Handshake,
-          guid,
-          status: 'success',
-          version: 3,
-        }),
-        origin: url.origin,
-      }));
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'volume',
+        value: 80,
+      } as SdkGetSetMessage);
     });
   });
 
   describe('isPaused', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = await initSdk();
+
+      const sdk = initSdk();
 
       sdk.isPaused();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Get,
-          callbackId: 0,
-          name: 'paused',
-          // eslint-disable-next-line sort-keys
+          action: 'get',
           guid,
+          name: 'paused',
           version: 3,
         }),
         url.origin,
       );
     });
 
-    it('should return the value from the iframe', (done) => {
-      initSdk()
-        .then((sdk) => {
-          sdk.isPaused()
-            .then((isPaused) => {
-              expect(isPaused).toEqual(true);
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
 
-              done();
-            });
+      const sdk = initSdk();
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Get,
-              guid,
-              name: 'paused',
-              value: true,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      sdk.isPaused()
+        .then((isPaused) => {
+          expect(isPaused).toEqual(false);
         });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'paused',
+        value: false,
+      } as SdkGetSetMessage);
     });
   });
 
@@ -1585,14 +1284,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.pause();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Command,
+          action: 'command',
           guid,
           name: 'pause',
           version: 3,
@@ -1606,14 +1307,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       sdk.play();
 
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Command,
+          action: 'command',
           guid,
           name: 'play',
           version: 3,
@@ -1625,34 +1328,51 @@ describe('Service', () => {
 
   describe('removeEventListener', () => {
     it('should remove the event ', () => {
-      initSdk()
-        .then((sdk) => {
-          const callback = jest.fn();
+      const sdk = initSdk();
+      const callback = jest.fn();
 
-          sdk.addEventListener('volumechange', callback);
-          sdk.removeEventListener('volumechange', callback);
+      sdk.addEventListener('volumechange', callback);
+      sdk.removeEventListener('volumechange', callback);
 
-          // Simulates an event sent from the player
-          window.dispatchEvent(new MessageEvent('message', {
-            data: JSON.stringify({
-              action: SdkMessageAction.Event,
-              guids: [guid],
-              name: 'volumechange',
-              value: 100,
-              version: 3,
-            }),
-            origin: url.origin,
-          }));
+      postMessageFromPlayer({
+        action: 'event',
+        guid,
+        name: 'volumechange',
+        value: 100,
+      } as SdkEventMessage);
 
+      expect(callback).not.toHaveBeenCalled();
+    });
 
-          expect(callback).not.toHaveBeenCalled();
-        });
+    it('should send a message to the player ', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = initSdk();
+      const callback = jest.fn();
+
+      sdk.addEventListener('volumechange', callback);
+      sdk.removeEventListener('volumechange', callback);
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'event',
+          guid,
+          name: 'volumechange',
+          value: 'remove',
+          version: 3,
+        }),
+        url.origin,
+      );
     });
 
     it('should throw an error if no event name is passed', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      expect(() => sdk.removeEventListener((null as any), () => {})).toThrow('You must pass an event name.');
+      expect(() => sdk.removeEventListener((null as any), () => {
+      })).toThrow('You must pass an event name.');
     });
   });
 
@@ -1660,18 +1380,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setClosedCaptionsLanguage('en');
+      await sdk.setClosedCaptionsLanguage('en');
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'closedCaptionsLanguage',
           value: 'en',
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1679,7 +1397,7 @@ describe('Service', () => {
     });
 
     it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setClosedCaptionsLanguage((null as any))).toThrow('A value must be set.');
     });
@@ -1689,18 +1407,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setCurrentTime(2000);
+      await sdk.setCurrentTime(2000);
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'currentTime',
           value: 2000,
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1708,13 +1424,13 @@ describe('Service', () => {
     });
 
     it('should send an error if the time is below 0', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setCurrentTime(-1)).toThrow('The current time must be superior or equal to 0');
     });
 
     it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setCurrentTime((null as any))).toThrow('A value must be set.');
     });
@@ -1724,18 +1440,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setLayout('sbs');
+      await sdk.setLayout('sbs');
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'layout',
           value: 'sbs',
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1743,7 +1457,7 @@ describe('Service', () => {
     });
 
     it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setLayout((null as any))).toThrow('A value must be set.');
     });
@@ -1753,18 +1467,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setPictureInPicturePosition('top-right');
+      await sdk.setPictureInPicturePosition('top-right');
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'pipPosition',
           value: 'top-right',
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1772,7 +1484,7 @@ describe('Service', () => {
     });
 
     it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setPictureInPicturePosition((null as any))).toThrow('A value must be set.');
     });
@@ -1782,18 +1494,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setPlaybackRate(2);
+      await sdk.setPlaybackRate(2);
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'playbackRate',
           value: 2,
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1801,19 +1511,19 @@ describe('Service', () => {
     });
 
     it('should send an error if the value is below 0', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setPlaybackRate(-1)).toThrow('The playback rate must be superior or equal to 0');
     });
 
     it('should send an error if the value is above 2', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setPlaybackRate(3)).toThrow('The playback rate must be inferior or equal to 2');
     });
 
     it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setCurrentTime((null as any))).toThrow('A value must be set.');
     });
@@ -1823,18 +1533,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setPrimaryContent('slides');
+      await sdk.setPrimaryContent('slides');
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'primaryContent',
           value: 'slides',
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1842,7 +1550,7 @@ describe('Service', () => {
     });
 
     it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setPrimaryContent((null as any))).toThrow('A value must be set.');
     });
@@ -1852,18 +1560,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setSideBySideRatio(50);
+      await sdk.setSideBySideRatio(50);
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'sideBySideRatio',
           value: 50,
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1871,13 +1577,13 @@ describe('Service', () => {
     });
 
     it('should send an error if the ratio is below 50', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setSideBySideRatio(40)).toThrow('The ratio must be between 50 and 80');
     });
 
     it('should send an error if the ratio is above 80', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setSideBySideRatio(90)).toThrow('The ratio must be between 50 and 80');
     });
@@ -1887,18 +1593,16 @@ describe('Service', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
 
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
-      sdk.setVolume(100);
+      await sdk.setVolume(100);
 
       expect(spy).toHaveBeenCalledWith(
-        // The order of the keys is important because we stringify the object
         JSON.stringify({
-          action: SdkMessageAction.Set,
+          action: 'set',
+          guid,
           name: 'volume',
           value: 100,
-          // eslint-disable-next-line sort-keys
-          guid,
           version: 3,
         }),
         url.origin,
@@ -1906,19 +1610,19 @@ describe('Service', () => {
     });
 
     it('should send an error if the volume is below 0', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setVolume(-1)).toThrow('The volume must be between 0 and 100');
     });
 
     it('should send an error if the volume is above 100', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setVolume(101)).toThrow('The volume must be between 0 and 100');
     });
 
     it('should throw an error if no value is provided', async () => {
-      const sdk = await initSdk();
+      const sdk = initSdk();
 
       expect(() => sdk.setVolume((null as any))).toThrow('A value must be set.');
     });

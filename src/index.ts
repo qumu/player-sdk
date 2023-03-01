@@ -1,2 +1,2 @@
-export * from './models/communication.model';
+export * from './models/external';
 export * from './services/player-sdk.service';

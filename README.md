@@ -24,16 +24,11 @@ In order to control a Qumu Cloud presentation, you will need to add it to your w
 
   var sdk = new window.playerSdk.PlayerSdk(iframe);
 
-  sdk
-      .init()
-      .then(() => {
-        sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
+  sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
 
-        sdk.getDuration().then((duration) => console.log('duration', duration));
+  sdk.getDuration().then((duration) => console.log('duration', duration));
 
-        sdk.play();
-      })
-      .catch((error) => console.error(error));
+  sdk.play();
 </script>
 ```
 
@@ -50,16 +45,11 @@ const iframe = document.querySelector('iframe');
 
 const sdk = new window.playerSdk.PlayerSdk(iframe);
 
-sdk
-  .init()
-  .then(() => {
-    sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
+sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
 
-    sdk.getDuration().then((duration) => console.log('duration', duration));
+sdk.getDuration().then((duration) => console.log('duration', duration));
 
-    sdk.play();
-  })
-  .catch((error) => console.error(error));
+sdk.play();
 ```
 
 ## API
@@ -127,6 +117,10 @@ Gets the end date of a live event
 
 Gets the start date of a live event
 
+### getLiveState(): Promise<string | null&gt;
+
+Gets the state of a live event
+
 ### getPictureInPicturePosition(): Promise<'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'&gt;
 
 Gets the position of the PiP box
@@ -155,19 +149,15 @@ Gets the side by side ratio between 50% and 80%.
 
 Gets the player's volume between 0 and 100.
 
-### init(): Promise<void&gt;
-
-Initializes the SDK. It is imperative that this method is the first one called as it starts a handshake communication with the embedded presentation.
-
 ### isPaused(): Promise<boolean&gt;
 
 Checks whether the player is paused or playing.
 
-### pause(): Promise<void&gt;
+### pause(): void;
 
 Pauses the player.
 
-### play(): Promise<void&gt;
+### play(): void;
 
 Plays the player.
 
@@ -178,19 +168,19 @@ Removes the callback for the provided event name.
 * `name`: the event name to listen to
 * `callback`: the callback to remove. If no callback is provided, all callbacks will be removed for the event name
 
-### setClosedCaptionsLanguage(guid: string): Promise<void&gt;
+### setClosedCaptionsLanguage(guid: string): void;
 
 Sets the active closed captions' language
 
 * `language`: the language of the new active closed captions. Use an empty string to deactivate the captions.
 
-### setCurrentTime(time: number): Promise<void&gt;
+### setCurrentTime(time: number): void;
 
 Sets the current time in the player
 
 * `time`: the new current time in milliseconds
 
-### setLayout(layout: 'pip' | 'sbs'): Promise<void&gt;
+### setLayout(layout: 'pip' | 'sbs'): void;
 
 Sets the layout
 
@@ -202,25 +192,25 @@ Sets the position of the PiP box
 
 * `position`: the new position
 
-### setPlaybackRate(time: number): Promise<void&gt;
+### setPlaybackRate(time: number): void;
 
 Sets the playback rate in the player.
 
 * `playbackRate`: the new playback rate.The range is 0-2.
 
-### setPrimaryContent(content: 'media' | 'slides'): Promise<void&gt;
+### setPrimaryContent(content: 'media' | 'slides'): void;
 
 Sets the primary content
 
 * `content`: the new primary content
 
-### setSideBySideRatio(ratio: number): Promise<void&gt;
+### setSideBySideRatio(ratio: number): void;
 
 Sets the ratio for the Side by Side mode
 
 * `ratio`: The new ratio. The range is 50-80.
 
-### setVolume(volume: number): Promise<void&gt;
+### setVolume(volume: number): void;
 
 Sets the volume in the player
 
