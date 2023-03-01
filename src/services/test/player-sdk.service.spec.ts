@@ -260,13 +260,13 @@ describe('Service', () => {
       });
     });
 
-    describe('liveState', () => {
+    describe('livestatechange', () => {
       it('should listen to events', async () => {
         expect.assertions(1);
 
         const sdk = initSdk();
 
-        sdk.addEventListener('liveState', (state: number) => {
+        sdk.addEventListener('livestatechange', (state: number) => {
           expect(state).toEqual('LIVE');
         });
 
@@ -276,7 +276,7 @@ describe('Service', () => {
         postMessageFromPlayer({
           action: 'event',
           guid,
-          name: 'liveState',
+          name: 'livestatechange',
           value: 'LIVE',
         } as SdkEventMessage);
       });
