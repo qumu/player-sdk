@@ -13,7 +13,7 @@ import { IFRAME_URL } from '../../../variables';
     <PlaygroundButton type="get" command="getLiveStartTime">Get start time of live event</PlaygroundButton>
     <PlaygroundButton type="get" command="getLiveEndTime">Get end time of live event</PlaygroundButton>
     <hr/>
-    <PlaygroundCheckbox id="addEventListener" checked={true} event="liveState">Listen for `liveState` events</PlaygroundCheckbox>
+    <PlaygroundCheckbox id="addEventListener" checked={true} event="livestatechange">Listen for `livestatechange` events</PlaygroundCheckbox>
   </div>
   <div slot="code">
     ```js
@@ -43,8 +43,8 @@ import { IFRAME_URL } from '../../../variables';
         });
     });
 
-    sdk.addEventListener('liveState', (newLiveState) => {
-      console.log('liveState', newLiveState);
+    sdk.addEventListener('livestatechange', (newLiveState) => {
+      console.log('livestatechange', newLiveState);
     });
     ```
   </div>

@@ -68,7 +68,7 @@ Events you can listen to:
 | `closedcaptionslanguagechange` | Triggered when the closed captions language is updated |
 | `ended`                        | Triggered when the playback ends                       |
 | `layoutchange`                 | Triggered when the layout changes                      |
-| `liveState`                    | Triggered when the state of a live event changes       |
+| `livestatechange`              | Triggered when the state of a live event changes       |
 | `pause`                        | Triggered when the playback pauses                     |
 | `play`                         | Triggered when the playback resumes                    |
 | `playbackratechange`           | Triggered when the playback rate changes               |

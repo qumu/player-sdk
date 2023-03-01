@@ -3,7 +3,7 @@ type SdkEventListener =
   | 'closedcaptionslanguagechange'
   | 'ended'
   | 'layoutchange'
-  | 'liveState'
+  | 'livestatechange'
   | 'pause'
   | 'play'
   | 'playbackratechange'
