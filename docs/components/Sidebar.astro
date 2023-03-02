@@ -6,6 +6,9 @@ type Props = {
 };
 
 const { currentPage } = Astro.props;
+const currentPageMatch = currentPage.endsWith('/')
+  ? currentPage.slice(0, -1)
+  : currentPage;
 ---
 
 <nav>
@@ -19,8 +22,8 @@ const { currentPage } = Astro.props;
               <li>
                 <a
                   href={page.link}
-                  class:list={['qi-btn qi-btn--transparent qi-btn--block qi-text--left', currentPage === page.link ? 'qi-btn--primary active' : 'qi-btn--secondary',]}
-                  aria-current={currentPage === page.link ? 'page' : false}
+                  class:list={['qi-btn qi-btn--transparent qi-btn--block qi-text--left', currentPageMatch === page.link ? 'qi-btn--primary active' : 'qi-btn--secondary',]}
+                  aria-current={currentPageMatch === page.link ? 'page' : false}
                 >
                   {page.text}
                 </a>

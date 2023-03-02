@@ -10,13 +10,15 @@ import { IFRAME_URL } from '../../../variables';
 
 <Playground url={IFRAME_URL}>
   <div slot="actions">
-    <PlaygroundButton type="get" command="getClosedCaptions">Get caption tracks</PlaygroundButton>
-    <PlaygroundButton type="get" command="getClosedCaptionsLanguage">Get current language</PlaygroundButton>
-    <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="">Remove CC</PlaygroundButton>
-    <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="en">Set English</PlaygroundButton>
-    <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="fr">Set French</PlaygroundButton>
-    <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="it">Set Italian</PlaygroundButton>
-    <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="es">Set Spanish</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="get" command="getClosedCaptions">Get caption tracks</PlaygroundButton>
+      <PlaygroundButton type="get" command="getClosedCaptionsLanguage">Get current language</PlaygroundButton>
+      <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="">Remove CC</PlaygroundButton>
+      <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="en">Set English</PlaygroundButton>
+      <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="fr">Set French</PlaygroundButton>
+      <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="it">Set Italian</PlaygroundButton>
+      <PlaygroundButton type="set" command="setClosedCaptionsLanguage" value="es">Set Spanish</PlaygroundButton>
+    </div>
     <hr/>
     <PlaygroundCheckbox id="addEventListener" checked={true} event="closedcaptionslanguagechange">Listen for `closedcaptionslanguagechange` events</PlaygroundCheckbox>
   </div>

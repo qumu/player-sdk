@@ -9,15 +9,17 @@ import { IFRAME_URL } from '../../../variables';
 
 <Playground url={IFRAME_URL}>
   <div slot="actions">
-    <PlaygroundButton type="get" command="getPlaybackRates">Get playback rates</PlaygroundButton>
-    <PlaygroundButton type="get" command="getPlaybackRate">Get current playback rate</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPlaybackRate" value={0.25}>0.25x</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPlaybackRate" value={0.5}>0.5x</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPlaybackRate" value={0.75}>0.75x</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPlaybackRate" value={1}>1x</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPlaybackRate" value={1.25}>1.25x</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPlaybackRate" value={1.5}>1.5x</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPlaybackRate" value={2}>2x</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="get" command="getPlaybackRates">Get playback rates</PlaygroundButton>
+      <PlaygroundButton type="get" command="getPlaybackRate">Get current playback rate</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPlaybackRate" value={0.25}>0.25x</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPlaybackRate" value={0.5}>0.5x</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPlaybackRate" value={0.75}>0.75x</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPlaybackRate" value={1}>1x</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPlaybackRate" value={1.25}>1.25x</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPlaybackRate" value={1.5}>1.5x</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPlaybackRate" value={2}>2x</PlaygroundButton>
+    </div>
     <hr/>
     <PlaygroundCheckbox id="addEventListener" checked={true} event="playbackratechange">Listen for `playbackratechange` events</PlaygroundCheckbox>
   </div>

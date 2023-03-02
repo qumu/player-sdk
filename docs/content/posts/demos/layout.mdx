@@ -9,22 +9,28 @@ import { IFRAME_URL } from '../../../variables';
 
 <Playground url={IFRAME_URL}>
   <div slot="actions">
-    <PlaygroundButton type="get" command="getLayout">Get layout</PlaygroundButton>
-    <PlaygroundButton type="get" command="getPrimaryContent">Get primary content</PlaygroundButton>
-    <PlaygroundButton type="set" command="setLayout" value="pip">Set layout to PiP</PlaygroundButton>
-    <PlaygroundButton type="set" command="setLayout" value="sbs">Set layout to SbS</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPrimaryContent" value="media">Set primary content to media</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPrimaryContent" value="slides">Set primary content to slides</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="get" command="getLayout">Get layout</PlaygroundButton>
+      <PlaygroundButton type="get" command="getPrimaryContent">Get primary content</PlaygroundButton>
+      <PlaygroundButton type="set" command="setLayout" value="pip">Set layout to PiP</PlaygroundButton>
+      <PlaygroundButton type="set" command="setLayout" value="sbs">Set layout to SbS</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPrimaryContent" value="media">Set primary content to media</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPrimaryContent" value="slides">Set primary content to slides</PlaygroundButton>
+    </div>
     <hr/>
-    <PlaygroundButton type="get" command="getPictureInPicturePosition">Get PiP Position</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="bottom-left">Set PiP to bottom-left</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="bottom-right">Set PiP to bottom-right</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="top-left">Set PiP to top-left</PlaygroundButton>
-    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="top-right">Set PiP to top-right</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="get" command="getPictureInPicturePosition">Get PiP Position</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPictureInPicturePosition" value="bottom-left">Set PiP to bottom-left</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPictureInPicturePosition" value="bottom-right">Set PiP to bottom-right</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPictureInPicturePosition" value="top-left">Set PiP to top-left</PlaygroundButton>
+      <PlaygroundButton type="set" command="setPictureInPicturePosition" value="top-right">Set PiP to top-right</PlaygroundButton>
+    </div>
     <hr/>
-    <PlaygroundButton type="get" command="getSideBySideRatio">Get SbS ratio</PlaygroundButton>
-    <PlaygroundButton type="set" command="setSideBySideRatio" value={50}>Set SbS ratio to 50/50</PlaygroundButton>
-    <PlaygroundButton type="set" command="setSideBySideRatio" value={80}>Set SbS ratio to 80/20</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="get" command="getSideBySideRatio">Get SbS ratio</PlaygroundButton>
+      <PlaygroundButton type="set" command="setSideBySideRatio" value={50}>Set SbS ratio to 50/50</PlaygroundButton>
+      <PlaygroundButton type="set" command="setSideBySideRatio" value={80}>Set SbS ratio to 80/20</PlaygroundButton>
+    </div>
     <hr/>
     <PlaygroundCheckbox id="layoutAddEventListener" checked={true} event="layoutchange">Listen for `layoutchange` events</PlaygroundCheckbox>
     <PlaygroundCheckbox id="primaryContentAddEventListener" checked={true} event="primarycontentchange">Listen for `primarycontentchange` events</PlaygroundCheckbox>

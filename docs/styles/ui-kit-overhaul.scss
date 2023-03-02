@@ -1,0 +1,9 @@
+@import '@qumu/ui-kit/scss/core/variables';
+
+iframe {
+  border-radius: map-get($qi-border-radiuses, lg);
+}
+
+.qi-alert p:last-of-type {
+  margin-bottom: 0;
+}
