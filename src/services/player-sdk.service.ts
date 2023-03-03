@@ -145,7 +145,7 @@ export class PlayerSdk {
   /**
    * Sets the current caption track
    *
-   * @param lang the language of the active track. Use .ull to disable captions.
+   * @param lang the language of the active track. Use null to disable captions.
    */
   enableCaptionTrack(lang: string | null): void {
     this.set('captionTrack', lang);

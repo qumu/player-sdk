@@ -84,11 +84,11 @@ Destroys the whole SDK.
 
 Disables the caption track.
 
-### enableCaptionTrack(guid: string): void;
+### enableCaptionTrack(language: string): void;
 
 Sets the current caption track.
 
-* `language`: the language of the active track. Use .ull to disable captions.
+* `language`: the language of the active track. Use null to disable captions.
 
 ### getCaptionTracks(): Promise&lt;SdkCaptionTrack[]&gt;
 
