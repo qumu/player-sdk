@@ -62,39 +62,49 @@ Registers a callback to be run when the event is triggered.
 
 Events you can listen to:
 
-| Event name                     | Description                                            | 
-|--------------------------------|--------------------------------------------------------|
-| `chapterchange`                | Triggered when the current chapter changes             |
-| `closedcaptionslanguagechange` | Triggered when the closed captions language is updated |
-| `ended`                        | Triggered when the playback ends                       |
-| `layoutchange`                 | Triggered when the layout changes                      |
-| `livestatechange`              | Triggered when the state of a live event changes       |
-| `pause`                        | Triggered when the playback pauses                     |
-| `play`                         | Triggered when the playback resumes                    |
-| `playbackratechange`           | Triggered when the playback rate changes               |
-| `primarycontentchange`         | Triggered when the primary content is updated          |
-| `timeupdate`                   | Triggered when the current time is updated             |
-| `volumechange`                 | Triggered when the volume changes                      |
+| Event name             | Description                                         | 
+|------------------------|-----------------------------------------------------|
+| `captiontrackchange`   | Triggered when the current caption track is updated |
+| `chapterchange`        | Triggered when the current chapter changes          |
+| `ended`                | Triggered when the playback ends                    |
+| `layoutchange`         | Triggered when the layout changes                   |
+| `livestatechange`      | Triggered when the state of a live event changes    |
+| `pause`                | Triggered when the playback pauses                  |
+| `play`                 | Triggered when the playback resumes                 |
+| `playbackratechange`   | Triggered when the playback rate changes            |
+| `primarycontentchange` | Triggered when the primary content is updated       |
+| `timeupdate`           | Triggered when the current time is updated          |
+| `volumechange`         | Triggered when the volume changes                   |
 
 ### destroy(): void
 
 Destroys the whole SDK.
 
-### getClosedCaptions(): Promise&lt;CaptionTrack[]&gt;
+### disableCaptionTrack(): void
 
-Gets the available closed captions.
+Disables the caption track.
+
+### enableCaptionTrack(language: string): void;
+
+Sets the current caption track.
+
+* `language`: the language of the active track. Use null to disable captions.
+
+### getCaptionTracks(): Promise&lt;SdkCaptionTrack[]&gt;
+
+Gets the available caption tracks.
 
 ### getChapter(): Promise&lt;Chapter%gt;
 
-Gets the current chapter
+Gets the current chapter.
 
 ### getChapters(): Promise&lt;Chapter[]&gt;
 
-Gets the list of chapters for the presentation
+Gets the list of chapters for the presentation.
 
-### getClosedCaptionsLanguage(): Promise&lt;string&gt;
+### getCurrentCaptionTrack(): Promise&lt;SdkCaptionTrack&gt;
 
-Gets the active closed captions' language.
+Gets the current caption track.
 
 ### getCurrentTime(): Promise&lt;number&gt;
 
@@ -106,23 +116,23 @@ Gets the presentation's duration in milliseconds.
 
 ### getLayout(): Promise&lt;string&gt;
 
-Gets the layout
+Gets the layout.
 
 ### getLiveEndTime(): Promise&lt;string | null&gt;
 
-Gets the end date of a live event
+Gets the end date of a live event.
 
 ### getLiveStartTime(): Promise&lt;string | null&gt;
 
-Gets the start date of a live event
+Gets the start date of a live event.
 
 ### getLiveState(): Promise&lt;string | null&gt;
 
-Gets the state of a live event
+Gets the state of a live event.
 
 ### getPictureInPicturePosition(): Promise&lt;'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'&gt;
 
-Gets the position of the PiP box
+Gets the position of the PiP box.
 
 ### getPlaybackRate(): Promise&lt;number&gt;
 
@@ -167,27 +177,21 @@ Removes the callback for the provided event name.
 * `name`: the event name to listen to
 * `callback`: the callback to remove. If no callback is provided, all callbacks will be removed for the event name
 
-### setClosedCaptionsLanguage(guid: string): void;
-
-Sets the active closed captions' language
-
-* `language`: the language of the new active closed captions. Use an empty string to deactivate the captions.
-
 ### setCurrentTime(time: number): void;
 
-Sets the current time in the player
+Sets the current time in the player.
 
 * `time`: the new current time in milliseconds
 
 ### setLayout(layout: 'pip' | 'sbs'): void;
 
-Sets the layout
+Sets the layout.
 
 * `layout`: the new layout
 
 ### setPictureInPicturePosition(position: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'): Promise&lt;void&gt;
 
-Sets the position of the PiP box
+Sets the position of the PiP box.
 
 * `position`: the new position
 
@@ -199,19 +203,19 @@ Sets the playback rate in the player.
 
 ### setPrimaryContent(content: 'media' | 'slides'): void;
 
-Sets the primary content
+Sets the primary content.
 
 * `content`: the new primary content
 
 ### setSideBySideRatio(ratio: number): void;
 
-Sets the ratio for the Side by Side mode
+Sets the ratio for the Side by Side mode.
 
 * `ratio`: The new ratio. The range is 50-80.
 
 ### setVolume(volume: number): void;
 
-Sets the volume in the player
+Sets the volume in the player.
 
 * `volume`: The new volume. The range is 0-100.
 
