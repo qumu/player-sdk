@@ -6,17 +6,17 @@ type SidebarBlock = {
   title: string;
 };
 
-export const IFRAME_URL = 'https://pbaron.qumu.dev/view/jXaJBD3dhPrK7UqEQpSjzZ';
+export const IFRAME_URL = 'https://knowledge.qumucloud.com/view/player-sdk-example';
 
 export const SIDEBAR: SidebarBlock[] = [
   {
     pages: [
       {
-        link: '/installation',
+        link: `${import.meta.env.BASE_URL}installation`,
         text: 'Installation',
       },
       {
-        link: '/usage',
+        link: `${import.meta.env.BASE_URL}usage`,
         text: 'Usage',
       },
     ],
@@ -25,31 +25,31 @@ export const SIDEBAR: SidebarBlock[] = [
   {
     pages: [
       {
-        link: '/demos/playback',
+        link: `${import.meta.env.BASE_URL}demos/playback`,
         text: 'Playback',
       },
       {
-        link: '/demos/captions',
+        link: `${import.meta.env.BASE_URL}demos/captions`,
         text: 'Captions',
       },
       {
-        link: '/demos/chapters',
+        link: `${import.meta.env.BASE_URL}demos/chapters`,
         text: 'Chapters',
       },
       {
-        link: '/demos/layout',
+        link: `${import.meta.env.BASE_URL}demos/layout`,
         text: 'Layout',
       },
       {
-        link: '/demos/live',
+        link: `${import.meta.env.BASE_URL}demos/live`,
         text: 'Live states',
       },
       {
-        link: '/demos/playback-rates',
+        link: `${import.meta.env.BASE_URL}demos/playback-rates`,
         text: 'Playback Rates',
       },
       {
-        link: '/demos/volume',
+        link: `${import.meta.env.BASE_URL}demos/volume`,
         text: 'Volume',
       },
     ],
@@ -58,11 +58,11 @@ export const SIDEBAR: SidebarBlock[] = [
   {
     pages: [
       {
-        link: '/legacy/usage',
+        link: `${import.meta.env.BASE_URL}legacy/usage`,
         text: 'Usage',
       },
       {
-        link: '/legacy/migration',
+        link: `${import.meta.env.BASE_URL}legacy/migration`,
         text: 'Migration guide',
       },
     ],

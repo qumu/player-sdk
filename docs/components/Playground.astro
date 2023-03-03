@@ -28,9 +28,8 @@ const { url }:Props = Astro.props;
   <slot name="code"/>
 </details>
 
-<script type="module">
-  import { PlayerSdk } from '/dist/index.modern.mjs';
-
+<script is:inline src=`${import.meta.env.BASE_URL}dist/index.umd.js`></script>
+<script>
   const iframe = document.querySelector('iframe');
 
   let sdk;
@@ -48,7 +47,7 @@ const { url }:Props = Astro.props;
   });
 
   function initSdk() {
-    sdk = new PlayerSdk(iframe);
+    sdk = new window.playerSdk.PlayerSdk(iframe);
 
     document.querySelectorAll('[data-type="event"]').forEach((element) => {
       const eventName = element.getAttribute('data-event');

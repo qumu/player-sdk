@@ -1,0 +1,41 @@
+name: "Deploy to GitHub pages"
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  github-pages:
+    name: Deploy to Github Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Use Node.js 16.14
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14
+          cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@qumu'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
+
+      - name: Build documentation website
+        run: npm run build:docs -- --base player-sdk
+
+      - name: Copy library to documentation website
+        run: cp -R dist/ .docs/dist
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3.9.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .docs
