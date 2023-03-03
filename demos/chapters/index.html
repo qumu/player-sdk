@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>Chapters example</title>
-  <link rel="stylesheet" href="/_astro/_...slug_.9621a164.css" /></head>
+  <link rel="stylesheet" href="/player-sdk/_astro/_...slug_.9621a164.css" /><script type="module">
+</script><script src="/player-sdk/_astro/Playground.astro_astro_type_script_index_0_lang.478837b6.js" type="module"></script></head>
   <body>
     <header>
   <nav class="qi-navbar qi-navbar--collapse@md">
@@ -23,11 +24,11 @@
         <h5 class="qi-h5 qi--display">General</h5>
         <ul class="qi-list--unstyled qi-mb--0">
           <li>
-                <a href="/installation" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/installation" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Installation
                 </a>
               </li><li>
-                <a href="/usage" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/usage" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Usage
                 </a>
               </li>
@@ -36,31 +37,31 @@
         <h5 class="qi-h5 qi--display">Demos</h5>
         <ul class="qi-list--unstyled qi-mb--0">
           <li>
-                <a href="/demos/playback" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/demos/playback" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Playback
                 </a>
               </li><li>
-                <a href="/demos/captions" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/demos/captions" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Captions
                 </a>
               </li><li>
-                <a href="/demos/chapters" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/demos/chapters" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--primary active" aria-current="page">
                   Chapters
                 </a>
               </li><li>
-                <a href="/demos/layout" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/demos/layout" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Layout
                 </a>
               </li><li>
-                <a href="/demos/live" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/demos/live" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Live states
                 </a>
               </li><li>
-                <a href="/demos/playback-rates" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/demos/playback-rates" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Playback Rates
                 </a>
               </li><li>
-                <a href="/demos/volume" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/demos/volume" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Volume
                 </a>
               </li>
@@ -69,11 +70,11 @@
         <h5 class="qi-h5 qi--display">Legacy</h5>
         <ul class="qi-list--unstyled qi-mb--0">
           <li>
-                <a href="/legacy/usage" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/legacy/usage" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Usage
                 </a>
               </li><li>
-                <a href="/legacy/migration" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
+                <a href="/player-sdk/legacy/migration" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
                   Migration guide
                 </a>
               </li>
@@ -131,80 +132,7 @@
 <span class="line"><span style="color:#000000">});</span></span></code></pre></div>
 </details>
 
-<script type="module">
-  import { PlayerSdk } from '/dist/index.modern.mjs';
-
-  const iframe = document.querySelector('iframe');
-
-  let sdk;
-  let events = {};
-
-  iframe.addEventListener('load', () => {
-    sdk = initSdk();
-  });
-
-  document.getElementById('url').addEventListener('input', (event) => {
-    sdk?.destroy();
-    events = {};
-
-    iframe.setAttribute('src', event.target.value);
-  });
-
-  function initSdk() {
-    sdk = new PlayerSdk(iframe);
-
-    document.querySelectorAll('[data-type="event"]').forEach((element) => {
-      const eventName = element.getAttribute('data-event');
-
-      events[eventName] = (value) => {
-        console.log(eventName, value);
-      };
-
-      if (element.checked) {
-        sdk.addEventListener(eventName, events[eventName]);
-      }
-    });
-
-    return sdk;
-  }
-
-  document.querySelectorAll('[data-type="get"]').forEach((element) => {
-    element.addEventListener('click', () => {
-      const commandName = element.getAttribute('data-command');
-
-      sdk[commandName]().then((value) => console.log(commandName, value));
-    });
-  });
-
-  document.querySelectorAll('[data-type="set"]').forEach((element) => {
-    element.addEventListener('click', () => {
-      const commandName = element.getAttribute('data-command');
-      const value = element.getAttribute('data-value');
-
-      sdk[commandName](value);
-    });
-  });
-
-  document.querySelectorAll('[data-type="command"]').forEach((element) => {
-    element.addEventListener('click', () => {
-      const commandName = element.getAttribute('data-command');
-
-      sdk[commandName]();
-    });
-  });
-
-  document.querySelectorAll('[data-type="event"]').forEach((element) => {
-    const eventName = element.getAttribute('data-event');
-
-    element.addEventListener('change', (event) => {
-      if (event.currentTarget.checked) {
-        sdk.addEventListener(eventName, events[eventName]);
-      } else {
-        sdk.removeEventListener(eventName, events[eventName]);
-      }
-    });
-  });
-</script>
+<script src="/player-sdk/dist/index.umd.js"></script>
         </main>
       </div>
     </div>
