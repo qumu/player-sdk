@@ -6,7 +6,7 @@ type SidebarBlock = {
   title: string;
 };
 
-export const IFRAME_URL = 'https://knowledge.qumucloud.com/view/player-sdk-example';
+export const IFRAME_URL = 'https://demo.qumucloud.com/view/player-sdk-example';
 
 export const SIDEBAR: SidebarBlock[] = [
   {
