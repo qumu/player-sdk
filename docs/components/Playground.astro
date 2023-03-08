@@ -47,7 +47,7 @@ const { url }:Props = Astro.props;
   });
 
   function initSdk() {
-    sdk = new window.playerSdk.PlayerSdk(iframe);
+    const playerSdk = new window.playerSdk.PlayerSdk(iframe);
 
     document.querySelectorAll('[data-type="event"]').forEach((element) => {
       const eventName = element.getAttribute('data-event');
@@ -57,11 +57,11 @@ const { url }:Props = Astro.props;
       };
 
       if (element.checked) {
-        sdk.addEventListener(eventName, events[eventName]);
+        playerSdk.addEventListener(eventName, events[eventName]);
       }
     });
 
-    return sdk;
+    return playerSdk;
   }
 
   document.querySelectorAll('[data-type="get"]').forEach((element) => {
