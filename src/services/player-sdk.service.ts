@@ -7,7 +7,7 @@ import {
   SdkMessage,
 } from '../models/internal';
 import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
-import { SdkLayout, SdkPipPosition, SdkPrimaryContent } from '../models/external';
+import { SdkCaptionTrack, SdkLayout, SdkPipPosition, SdkPrimaryContent } from '../models/external';
 
 export class PlayerSdk {
   // store used for the callbacks
@@ -136,24 +136,26 @@ export class PlayerSdk {
   }
 
   /**
-   * Gets the available closed captions
+   * Disables any caption track
    */
-  async getClosedCaptions(): Promise<any[]> {
-    return this.get('closedCaptions');
+  disableCaptionTrack(): void {
+    this.enableCaptionTrack(null);
   }
 
   /**
-   * Gets the active closed captions' language
+   * Sets the current caption track
+   *
+   * @param lang the language of the active track. Use null to disable captions.
    */
-  async getClosedCaptionsLanguage(): Promise<string> {
-    return this.get('closedCaptionsLanguage');
+  enableCaptionTrack(lang: string | null): void {
+    this.set('captionTrack', lang);
   }
 
   /**
-   * Gets the chapter
+   * Gets the available caption tracks
    */
-  async getChapter(): Promise<any> {
-    return this.get('chapter');
+  async getCaptionTracks(): Promise<SdkCaptionTrack[]> {
+    return this.get('captionTracks');
   }
 
   /**
@@ -161,6 +163,20 @@ export class PlayerSdk {
    */
   async getChapters(): Promise<any[]> {
     return this.get('chapters');
+  }
+
+  /**
+   * Gets the current chapter
+   */
+  async getCurrentChapter(): Promise<any> {
+    return this.get('chapter');
+  }
+
+  /**
+   * Gets the current caption track
+   */
+  async getCurrentCaptionTrack(): Promise<SdkCaptionTrack | null> {
+    return this.get('captionTrack');
   }
 
   /**
@@ -199,7 +215,7 @@ export class PlayerSdk {
   }
 
   /**
-   * Gets the presentation's live state
+   * Gets the state of a live event
    */
   async getLiveState(): Promise<string | null> {
     return this.get('liveState');
@@ -213,7 +229,7 @@ export class PlayerSdk {
   }
 
   /**
-   * Gets the current playback rate
+   * Gets the playback rate
    */
   async getPlaybackRate(): Promise<number> {
     return this.get('playbackRate');
@@ -299,15 +315,6 @@ export class PlayerSdk {
         value: 'remove',
       } as SdkEventMessage);
     }
-  }
-
-  /**
-   * Sets the active closed captions' language
-   *
-   * @param guid the guid of the new active closed captions
-   */
-  setClosedCaptionsLanguage(guid: string): void {
-    this.set('closedCaptionsLanguage', guid);
   }
 
   /**
@@ -420,7 +427,7 @@ export class PlayerSdk {
    * @param name the event name to send
    * @private
    */
-  private get<T>(name: string): Promise<T> {
+  private get<T>(name: SdkGetSetMessage['name']): Promise<T> {
     return new Promise(async (resolve, reject) => {
       try {
         await this.readyPromise;
@@ -501,7 +508,7 @@ export class PlayerSdk {
    * @private
    */
   private set(name: string, value: any): void {
-    if (value === undefined || value === null) {
+    if (value === undefined) {
       throw new TypeError('A value must be set.');
     }
 

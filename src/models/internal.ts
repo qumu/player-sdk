@@ -1,9 +1,9 @@
 type SdkEventListener =
-  'chapterchange'
-  | 'closedcaptionslanguagechange'
+  'captiontrackchange'
+  | 'chapterchange'
   | 'ended'
   | 'layoutchange'
-  | 'liveState'
+  | 'livestatechange'
   | 'pause'
   | 'play'
   | 'playbackratechange'
@@ -12,9 +12,10 @@ type SdkEventListener =
   | 'volumechange';
 
 type SdkGetSetName =
-  'closedCaptions'
-  | 'closedCaptionsLanguage'
-  | 'chapter' | 'chapters'
+  'captionTrack'
+  | 'captionTracks'
+  | 'chapter'
+  | 'chapters'
   | 'currentTime'
   | 'duration'
   | 'layout'
