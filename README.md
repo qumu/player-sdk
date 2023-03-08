@@ -94,13 +94,13 @@ Sets the current caption track.
 
 Gets the available caption tracks.
 
-### getChapter(): Promise&lt;Chapter%gt;
-
-Gets the current chapter.
-
 ### getChapters(): Promise&lt;Chapter[]&gt;
 
 Gets the list of chapters for the presentation.
+
+### getCurrentChapter(): Promise&lt;Chapter%gt;
+
+Gets the current chapter.
 
 ### getCurrentCaptionTrack(): Promise&lt;SdkCaptionTrack&gt;
 
@@ -136,7 +136,7 @@ Gets the position of the PiP box.
 
 ### getPlaybackRate(): Promise&lt;number&gt;
 
-Gets the current playback rate.
+Gets the playback rate.
 
 ### getPlaybackRates(): Promise&lt;number&gt;
 
