@@ -159,17 +159,17 @@ export class PlayerSdk {
   }
 
   /**
-   * Gets the chapter
-   */
-  async getChapter(): Promise<any> {
-    return this.get('chapter');
-  }
-
-  /**
    * Gets the list of chapters for the presentation
    */
   async getChapters(): Promise<any[]> {
     return this.get('chapters');
+  }
+
+  /**
+   * Gets the current chapter
+   */
+  async getCurrentChapter(): Promise<any> {
+    return this.get('chapter');
   }
 
   /**
@@ -215,7 +215,7 @@ export class PlayerSdk {
   }
 
   /**
-   * Gets the presentation's live state
+   * Gets the state of a live event
    */
   async getLiveState(): Promise<string | null> {
     return this.get('liveState');
@@ -229,7 +229,7 @@ export class PlayerSdk {
   }
 
   /**
-   * Gets the current playback rate
+   * Gets the playback rate
    */
   async getPlaybackRate(): Promise<number> {
     return this.get('playbackRate');

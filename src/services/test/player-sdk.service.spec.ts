@@ -554,60 +554,6 @@ describe('Service', () => {
     });
   });
 
-  describe('getChapter', () => {
-    it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = initSdk();
-
-      sdk.getChapter();
-
-      // we need to wait for a tick to get the code inside the promise to be executed
-      await nextTick();
-
-      expect(spy).toHaveBeenCalledWith(
-        JSON.stringify({
-          action: 'get',
-          guid,
-          name: 'chapter',
-          version: 3,
-        }),
-        url.origin,
-      );
-    });
-
-    it('should return the value from the iframe', async () => {
-      expect.assertions(1);
-
-      const chapter = {
-        guid: 'chapter1',
-        hidden: false,
-        image: {
-          guid: 'image1',
-          url: 'http://example.com/image1.jpg',
-        },
-        time: 1000,
-        title: 'foo',
-      };
-
-      const sdk = initSdk();
-
-      sdk.getChapter()
-        .then((c) => {
-          expect(c).toEqual(chapter);
-        });
-
-      // we need to wait for a tick to get the code inside the promise to be executed
-      await nextTick();
-
-      postMessageFromPlayer({
-        action: 'get',
-        guid,
-        name: 'chapter',
-        value: chapter,
-      } as SdkGetSetMessage);
-    });
-  });
-
   describe('getChapters', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
@@ -670,6 +616,60 @@ describe('Service', () => {
         guid,
         name: 'chapters',
         value: chapters,
+      } as SdkGetSetMessage);
+    });
+  });
+
+  describe('getCurrentChapter', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = initSdk();
+
+      sdk.getCurrentChapter();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'chapter',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const chapter = {
+        guid: 'chapter1',
+        hidden: false,
+        image: {
+          guid: 'image1',
+          url: 'http://example.com/image1.jpg',
+        },
+        time: 1000,
+        title: 'foo',
+      };
+
+      const sdk = initSdk();
+
+      sdk.getCurrentChapter()
+        .then((c) => {
+          expect(c).toEqual(chapter);
+        });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'chapter',
+        value: chapter,
       } as SdkGetSetMessage);
     });
   });
@@ -765,6 +765,49 @@ describe('Service', () => {
         action: 'get',
         guid,
         name: 'currentTime',
+        value: 1000,
+      } as SdkGetSetMessage);
+    });
+  });
+
+  describe('getDuration', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = initSdk();
+
+      sdk.getDuration();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'duration',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const sdk = initSdk();
+
+      sdk.getDuration()
+        .then((duration) => {
+          expect(duration).toEqual(1000);
+        });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer({
+        action: 'get',
+        guid,
+        name: 'duration',
         value: 1000,
       } as SdkGetSetMessage);
     });
@@ -895,49 +938,6 @@ describe('Service', () => {
         guid,
         name: 'liveState',
         value: 'LIVE',
-      } as SdkGetSetMessage);
-    });
-  });
-
-  describe('getDuration', () => {
-    it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
-      const sdk = initSdk();
-
-      sdk.getDuration();
-
-      // we need to wait for a tick to get the code inside the promise to be executed
-      await nextTick();
-
-      expect(spy).toHaveBeenCalledWith(
-        JSON.stringify({
-          action: 'get',
-          guid,
-          name: 'duration',
-          version: 3,
-        }),
-        url.origin,
-      );
-    });
-
-    it('should return the value from the iframe', async () => {
-      expect.assertions(1);
-
-      const sdk = initSdk();
-
-      sdk.getDuration()
-        .then((duration) => {
-          expect(duration).toEqual(1000);
-        });
-
-      // we need to wait for a tick to get the code inside the promise to be executed
-      await nextTick();
-
-      postMessageFromPlayer({
-        action: 'get',
-        guid,
-        name: 'duration',
-        value: 1000,
       } as SdkGetSetMessage);
     });
   });

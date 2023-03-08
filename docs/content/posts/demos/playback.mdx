@@ -9,13 +9,15 @@ import { IFRAME_URL } from '../../../variables';
 
 <Playground url={IFRAME_URL}>
   <div slot="actions">
-    <PlaygroundButton type="command" command="play">Play</PlaygroundButton>
-    <PlaygroundButton type="command" command="pause">Pause</PlaygroundButton>
-    <PlaygroundButton type="command" command="destroy">Destroy</PlaygroundButton>
-    <PlaygroundButton type="get" command="getDuration">Get duration</PlaygroundButton>
-    <PlaygroundButton type="get" command="isPaused">Get is paused</PlaygroundButton>
-    <PlaygroundButton type="get" command="getCurrentTime">Get current time</PlaygroundButton>
-    <PlaygroundButton type="set" command="setCurrentTime" value={20000}>Seek to 20s</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="command" command="play">Play</PlaygroundButton>
+      <PlaygroundButton type="command" command="pause">Pause</PlaygroundButton>
+      <PlaygroundButton type="command" command="destroy">Destroy</PlaygroundButton>
+      <PlaygroundButton type="get" command="getDuration">Get duration</PlaygroundButton>
+      <PlaygroundButton type="get" command="isPaused">Get is paused</PlaygroundButton>
+      <PlaygroundButton type="get" command="getCurrentTime">Get current time</PlaygroundButton>
+      <PlaygroundButton type="set" command="setCurrentTime" value={20000}>Seek to 20s</PlaygroundButton>
+    </div>
     <hr/>
     <PlaygroundCheckbox id="playAddEventListener" checked={true} event="play">Listen for `play` events</PlaygroundCheckbox>
     <PlaygroundCheckbox id="pauseAddEventListener" checked={true} event="pause">Listen for `pause` events</PlaygroundCheckbox>

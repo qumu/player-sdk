@@ -9,8 +9,10 @@ import { IFRAME_URL } from '../../../variables';
 
 <Playground url={IFRAME_URL}>
   <div slot="actions" className="actions">
-    <PlaygroundButton type="get" command="getChapters">Get chapters list</PlaygroundButton>
-    <PlaygroundButton type="get" command="getChapter">Get current chapter</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="get" command="getChapters">Get chapters list</PlaygroundButton>
+      <PlaygroundButton type="get" command="getCurrentChapter">Get current chapter</PlaygroundButton>
+    </div>
     <hr/>
     <PlaygroundCheckbox id="addEventListener" checked={true} event="chapterchange">Listen for `chapterchange` events</PlaygroundCheckbox>
   </div>
@@ -28,8 +30,8 @@ import { IFRAME_URL } from '../../../variables';
         });
     });
 
-    document.getElementById('getChapter').addEventListener('click', () => {
-      sdk.getChapter()
+    document.getElementById('getCurrentChapter').addEventListener('click', () => {
+      sdk.getCurrentChapter()
         .then((chapter) => {
           console.log('current chapter', chapter)
         });

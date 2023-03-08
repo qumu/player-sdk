@@ -9,10 +9,12 @@ import { IFRAME_URL } from '../../../variables';
 
 <Playground url={IFRAME_URL}>
   <div slot="actions" className="actions">
-    <PlaygroundButton type="get" command="getVolume">Get volume</PlaygroundButton>
-    <PlaygroundButton type="set" command="setVolume" value={0}>Set volume to 0</PlaygroundButton>
-    <PlaygroundButton type="set" command="setVolume" value={50}>Set volume to 50%</PlaygroundButton>
-    <PlaygroundButton type="set" command="setVolume" value={100}>Set volume to 100%</PlaygroundButton>
+    <div className="playground-actions-container">
+      <PlaygroundButton type="get" command="getVolume">Get volume</PlaygroundButton>
+      <PlaygroundButton type="set" command="setVolume" value={0}>Set volume to 0</PlaygroundButton>
+      <PlaygroundButton type="set" command="setVolume" value={50}>Set volume to 50%</PlaygroundButton>
+      <PlaygroundButton type="set" command="setVolume" value={100}>Set volume to 100%</PlaygroundButton>
+    </div>
     <hr/>
     <PlaygroundCheckbox id="addEventListener" checked={true} event="volumechange">Listen for `volumechange` events</PlaygroundCheckbox>
   </div>
