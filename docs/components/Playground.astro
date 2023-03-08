@@ -28,9 +28,8 @@ const { url }:Props = Astro.props;
   <slot name="code"/>
 </details>
 
-<script type="module">
-  import { PlayerSdk } from '/dist/index.modern.mjs';
-
+<script is:inline src=`${import.meta.env.BASE_URL}dist/index.umd.js`></script>
+<script>
   const iframe = document.querySelector('iframe');
 
   let sdk;
@@ -48,7 +47,7 @@ const { url }:Props = Astro.props;
   });
 
   function initSdk() {
-    sdk = new PlayerSdk(iframe);
+    const playerSdk = new window.playerSdk.PlayerSdk(iframe);
 
     document.querySelectorAll('[data-type="event"]').forEach((element) => {
       const eventName = element.getAttribute('data-event');
@@ -58,11 +57,11 @@ const { url }:Props = Astro.props;
       };
 
       if (element.checked) {
-        sdk.addEventListener(eventName, events[eventName]);
+        playerSdk.addEventListener(eventName, events[eventName]);
       }
     });
 
-    return sdk;
+    return playerSdk;
   }
 
   document.querySelectorAll('[data-type="get"]').forEach((element) => {

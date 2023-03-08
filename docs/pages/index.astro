@@ -1,5 +1,10 @@
+---
+import { SIDEBAR } from '../variables';
+---
+
+<div data-redirect-url={SIDEBAR[0].pages[0].link}></div>
 <script is:inline>
 	// Redirect your homepage to the first page of documentation.
 	// If you have a landing page, remove this script and add it here!
-	window.location.pathname = `/installation`;
+	window.location.pathname = document.querySelector('div').getAttribute('data-redirect-url');
 </script>
