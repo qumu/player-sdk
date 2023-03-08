@@ -1,0 +1,20 @@
+@use "sass:math";
+
+@import '@qumu/ui-kit/scss/core/variables';
+@import '@qumu/ui-kit/scss/theme/light';
+
+// style `pre` tag created by Astro
+.astro-code {
+  background-color: $qi-light-bg !important;
+  border: $qi-border-width solid $qi-gray-200;
+  border-radius: map-get($qi-border-radiuses, lg);
+  padding: map-get($qi-spacers, 2);
+}
+
+// Style `<code>` that are not inside `<pre>`
+:not(pre) > code {
+  background-color: $qi-red-200;
+  border-radius: map-get($qi-border-radiuses, md);
+  color: $qi-red-700;
+  padding: math.div(map-get($qi-spacers, 1), 4) map-get($qi-spacers, 1);
+}
