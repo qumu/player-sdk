@@ -39,6 +39,7 @@ jobs:
         with:
           node-version: 16.14
           cache: 'npm'
+          token: ${{ secrets.FE_CI_BOT_TOKEN }}
 
       - name: Install dependencies
         run: npm ci
