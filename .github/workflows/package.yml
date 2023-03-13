@@ -57,6 +57,8 @@ jobs:
           token: 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
 
       - name: Publish to NPM
-        run: npm publish --access public
+        run: |
+          npm config set //registry.npmjs.org/:_authToken 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
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: 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
