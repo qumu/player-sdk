@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>Playback rates example</title>
-  <link rel="stylesheet" href="/player-sdk/_astro/_...slug_.9621a164.css" /><script type="module">
-</script><script src="/player-sdk/_astro/Playground.astro_astro_type_script_index_0_lang.478837b6.js" type="module"></script></head>
+  <link rel="stylesheet" href="/player-sdk/_astro/_...slug_.02626325.css" /><script type="module">
+</script><script src="/player-sdk/_astro/Playground.astro_astro_type_script_index_0_lang.46f1c6ef.js" type="module"></script></head>
   <body>
     <header>
   <nav class="qi-navbar qi-navbar--collapse@md">
@@ -84,15 +84,15 @@
         </aside>
         <main class="qi-col">
           <h1>Playback rates example</h1><div class="qi-form-group">
-  <input type="text" class="qi-form-control" id="url" value="https://knowledge.qumucloud.com/view/player-sdk-example" aria-label="Presentation URL">
+  <input type="text" class="qi-form-control" id="url" value="https://demo.qumucloud.com/view/player-sdk-example" aria-label="Presentation URL">
 </div>
 
 <div class="qi-embed-responsive qi-embed-responsive--16by9 qi-mb--4">
-  <iframe src="https://knowledge.qumucloud.com/view/player-sdk-example" name="iframe1" frameborder="0" allow="fullscreen"></iframe>
+  <iframe src="https://demo.qumucloud.com/view/player-sdk-example" name="iframe1" frameborder="0" allow="fullscreen"></iframe>
 </div>
 
-<div class="actions qi-mb--4">
-  <div><button type="button" class="qi-btn qi-btn--secondary" id="getPlaybackRates" data-command="getPlaybackRates" data-type="get">
+<div class="playground-actions qi-mb--4">
+  <div><div class="playground-actions-container"><button type="button" class="qi-btn qi-btn--secondary" id="getPlaybackRates" data-command="getPlaybackRates" data-type="get">
   Get playback rates
 </button><button type="button" class="qi-btn qi-btn--secondary" id="getPlaybackRate" data-command="getPlaybackRate" data-type="get">
   Get current playback rate
@@ -110,7 +110,7 @@
   1.5x
 </button><button type="button" class="qi-btn qi-btn--secondary" id="setPlaybackRate" data-command="setPlaybackRate" data-type="set" data-value="2">
   2x
-</button><hr/><div className="qi-form-group">
+</button></div><hr/><div className="qi-form-group">
   <div className="qi-custom-control qi-custom-checkbox">
     <input type="checkbox" className="qi-custom-control__input" id="addEventListener" data-type="event" data-event="playbackratechange" checked="true">
     <label className="qi-custom-control__label" for="addEventListener">
@@ -122,7 +122,7 @@
 
 <details>
   <summary>See the code</summary>
-  <div><pre class="astro-code" style="background-color:#FFFFFF;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"><code><span class="line"><span style="color:#AF00DB">import</span><span style="color:#000000"> { </span><span style="color:#001080">PlayerSdk</span><span style="color:#000000"> } </span><span style="color:#AF00DB">from</span><span style="color:#000000"> </span><span style="color:#A31515">&#39;@qumu/player-sdk&#39;</span><span style="color:#000000">;</span></span>
+  <div><pre class="astro-code" style="background-color:#FFFFFF;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"><code><span class="line"><span style="color:#AF00DB">import</span><span style="color:#000000"> { </span><span style="color:#001080">PlayerSdk</span><span style="color:#000000"> } </span><span style="color:#AF00DB">from</span><span style="color:#000000"> </span><span style="color:#A31515">&#39;@enghouse-qumu/player-sdk&#39;</span><span style="color:#000000">;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#0000FF">const</span><span style="color:#000000"> </span><span style="color:#0070C1">iframe</span><span style="color:#000000"> = </span><span style="color:#001080">document</span><span style="color:#000000">.</span><span style="color:#795E26">querySelector</span><span style="color:#000000">(</span><span style="color:#A31515">&#39;iframe&#39;</span><span style="color:#000000">);</span></span>
 <span class="line"><span style="color:#0000FF">const</span><span style="color:#000000"> </span><span style="color:#0070C1">sdk</span><span style="color:#000000"> = </span><span style="color:#0000FF">new</span><span style="color:#000000"> </span><span style="color:#795E26">PlayerSdk</span><span style="color:#000000">(</span><span style="color:#001080">iframe</span><span style="color:#000000">);</span></span>

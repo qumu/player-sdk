@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>Layout example</title>
-  <link rel="stylesheet" href="/player-sdk/_astro/_...slug_.9621a164.css" /><script type="module">
-</script><script src="/player-sdk/_astro/Playground.astro_astro_type_script_index_0_lang.478837b6.js" type="module"></script></head>
+  <link rel="stylesheet" href="/player-sdk/_astro/_...slug_.02626325.css" /><script type="module">
+</script><script src="/player-sdk/_astro/Playground.astro_astro_type_script_index_0_lang.46f1c6ef.js" type="module"></script></head>
   <body>
     <header>
   <nav class="qi-navbar qi-navbar--collapse@md">
@@ -84,15 +84,15 @@
         </aside>
         <main class="qi-col">
           <h1>Layout example</h1><div class="qi-form-group">
-  <input type="text" class="qi-form-control" id="url" value="https://knowledge.qumucloud.com/view/player-sdk-example" aria-label="Presentation URL">
+  <input type="text" class="qi-form-control" id="url" value="https://demo.qumucloud.com/view/player-sdk-example" aria-label="Presentation URL">
 </div>
 
 <div class="qi-embed-responsive qi-embed-responsive--16by9 qi-mb--4">
-  <iframe src="https://knowledge.qumucloud.com/view/player-sdk-example" name="iframe1" frameborder="0" allow="fullscreen"></iframe>
+  <iframe src="https://demo.qumucloud.com/view/player-sdk-example" name="iframe1" frameborder="0" allow="fullscreen"></iframe>
 </div>
 
-<div class="actions qi-mb--4">
-  <div><button type="button" class="qi-btn qi-btn--secondary" id="getLayout" data-command="getLayout" data-type="get">
+<div class="playground-actions qi-mb--4">
+  <div><div class="playground-actions-container"><button type="button" class="qi-btn qi-btn--secondary" id="getLayout" data-command="getLayout" data-type="get">
   Get layout
 </button><button type="button" class="qi-btn qi-btn--secondary" id="getPrimaryContent" data-command="getPrimaryContent" data-type="get">
   Get primary content
@@ -104,7 +104,7 @@
   Set primary content to media
 </button><button type="button" class="qi-btn qi-btn--secondary" id="setPrimaryContent" data-command="setPrimaryContent" data-type="set" data-value="slides">
   Set primary content to slides
-</button><hr/><button type="button" class="qi-btn qi-btn--secondary" id="getPictureInPicturePosition" data-command="getPictureInPicturePosition" data-type="get">
+</button></div><hr/><div class="playground-actions-container"><button type="button" class="qi-btn qi-btn--secondary" id="getPictureInPicturePosition" data-command="getPictureInPicturePosition" data-type="get">
   Get PiP Position
 </button><button type="button" class="qi-btn qi-btn--secondary" id="setPictureInPicturePosition" data-command="setPictureInPicturePosition" data-type="set" data-value="bottom-left">
   Set PiP to bottom-left
@@ -114,13 +114,13 @@
   Set PiP to top-left
 </button><button type="button" class="qi-btn qi-btn--secondary" id="setPictureInPicturePosition" data-command="setPictureInPicturePosition" data-type="set" data-value="top-right">
   Set PiP to top-right
-</button><hr/><button type="button" class="qi-btn qi-btn--secondary" id="getSideBySideRatio" data-command="getSideBySideRatio" data-type="get">
+</button></div><hr/><div class="playground-actions-container"><button type="button" class="qi-btn qi-btn--secondary" id="getSideBySideRatio" data-command="getSideBySideRatio" data-type="get">
   Get SbS ratio
 </button><button type="button" class="qi-btn qi-btn--secondary" id="setSideBySideRatio" data-command="setSideBySideRatio" data-type="set" data-value="50">
   Set SbS ratio to 50/50
 </button><button type="button" class="qi-btn qi-btn--secondary" id="setSideBySideRatio" data-command="setSideBySideRatio" data-type="set" data-value="80">
   Set SbS ratio to 80/20
-</button><hr/><div className="qi-form-group">
+</button></div><hr/><div className="qi-form-group">
   <div className="qi-custom-control qi-custom-checkbox">
     <input type="checkbox" className="qi-custom-control__input" id="layoutAddEventListener" data-type="event" data-event="layoutchange" checked="true">
     <label className="qi-custom-control__label" for="layoutAddEventListener">
@@ -139,7 +139,7 @@
 
 <details>
   <summary>See the code</summary>
-  <div><pre class="astro-code" style="background-color:#FFFFFF;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"><code><span class="line"><span style="color:#AF00DB">import</span><span style="color:#000000"> { </span><span style="color:#001080">PlayerSdk</span><span style="color:#000000"> } </span><span style="color:#AF00DB">from</span><span style="color:#000000"> </span><span style="color:#A31515">&#39;@qumu/player-sdk&#39;</span><span style="color:#000000">;</span></span>
+  <div><pre class="astro-code" style="background-color:#FFFFFF;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"><code><span class="line"><span style="color:#AF00DB">import</span><span style="color:#000000"> { </span><span style="color:#001080">PlayerSdk</span><span style="color:#000000"> } </span><span style="color:#AF00DB">from</span><span style="color:#000000"> </span><span style="color:#A31515">&#39;@enghouse-qumu/player-sdk&#39;</span><span style="color:#000000">;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#0000FF">const</span><span style="color:#000000"> </span><span style="color:#0070C1">iframe</span><span style="color:#000000"> = </span><span style="color:#001080">document</span><span style="color:#000000">.</span><span style="color:#795E26">querySelector</span><span style="color:#000000">(</span><span style="color:#A31515">&#39;iframe&#39;</span><span style="color:#000000">);</span></span>
 <span class="line"><span style="color:#0000FF">const</span><span style="color:#000000"> </span><span style="color:#0070C1">sdk</span><span style="color:#000000"> = </span><span style="color:#0000FF">new</span><span style="color:#000000"> </span><span style="color:#795E26">PlayerSdk</span><span style="color:#000000">(</span><span style="color:#001080">iframe</span><span style="color:#000000">);</span></span>

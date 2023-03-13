@@ -36,13 +36,13 @@ export declare class PlayerSdk {
      */
     getCaptionTracks(): Promise<SdkCaptionTrack[]>;
     /**
-     * Gets the chapter
-     */
-    getChapter(): Promise<any>;
-    /**
      * Gets the list of chapters for the presentation
      */
     getChapters(): Promise<any[]>;
+    /**
+     * Gets the current chapter
+     */
+    getCurrentChapter(): Promise<any>;
     /**
      * Gets the current caption track
      */
@@ -68,7 +68,7 @@ export declare class PlayerSdk {
      */
     getLiveStartTime(): Promise<string | null>;
     /**
-     * Gets the presentation's live state
+     * Gets the state of a live event
      */
     getLiveState(): Promise<string | null>;
     /**
@@ -76,7 +76,7 @@ export declare class PlayerSdk {
      */
     getPictureInPicturePosition(): Promise<number>;
     /**
-     * Gets the current playback rate
+     * Gets the playback rate
      */
     getPlaybackRate(): Promise<number>;
     /**
