@@ -1,6 +1,6 @@
-export declare type SdkLayout = 'pip' | 'sbs';
-export declare type SdkPrimaryContent = 'media' | 'slides';
-export declare type SdkPipPosition = 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
+export type SdkLayout = 'pip' | 'sbs';
+export type SdkPrimaryContent = 'media' | 'slides';
+export type SdkPipPosition = 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
 export interface SdkCaptionTrack {
     guid: string;
     languageCode: string;

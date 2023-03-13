@@ -1,4 +1,4 @@
-export declare type FunctionOrPromise = Function | {
+export type FunctionOrPromise = Function | {
     reject: Function;
     resolve: Function;
 };
