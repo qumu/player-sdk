@@ -54,6 +54,7 @@ jobs:
         with:
           node-version: 16.14
           cache: 'npm'
+          token: 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
 
       - name: Publish to NPM
         run: npm publish --access public
