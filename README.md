@@ -18,7 +18,7 @@ In order to control a Qumu Cloud presentation, you will need to add it to your w
 ```html
 <iframe src="<url-to-presentation>" frameborder="0"></iframe>
 
-<script src="https://unpkg.com/@enghouse-qumu/player-sdk@0.0.0/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@enghouse-qumu/player-sdk@1.0.0/dist/index.umd.js"></script>
 <script>
   const iframe = document.querySelector('iframe');
 
@@ -40,7 +40,7 @@ This version is only supported on modern browsers (no IE11) but offers a code st
 <iframe src="<url-to-presentation>" frameborder="0"></iframe>
 
 <script type="module">
-  import { PlayerSdk } from 'https://unpkg.com/@enghouse-qumu/player-sdk@0.0.0/dist/index.modern.mjs'
+  import { PlayerSdk } from 'https://unpkg.com/@enghouse-qumu/player-sdk@1.0.0/dist/index.modern.mjs'
 
   const iframe = document.querySelector('iframe');
 
