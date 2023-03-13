@@ -1,4 +1,4 @@
-name: New tag deployed actions
+name: "Generate release & new package to NPM"
 
 on:
   push:
