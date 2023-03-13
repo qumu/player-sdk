@@ -39,7 +39,8 @@ jobs:
         with:
           node-version: 16.14
           cache: 'npm'
-          token: ${{ secrets.FE_CI_BOT_TOKEN }}
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@qumu'
 
       - name: Install dependencies
         run: npm ci
