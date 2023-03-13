@@ -10,9 +10,11 @@ jobs:
     name: Create new release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
       - name: Create Release
         uses: actions/github-script@v6.1.0
         with:
@@ -27,14 +29,25 @@ jobs:
     name: Release package to Github packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
         with:
-          node-version: 16
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Use Node.js 16.14
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14
+          cache: 'npm'
           registry-url: 'https://npm.pkg.github.com'
-      - run: npm ci
+          scope: '@qumu'
+
+      - name: Install dependencies
+        run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
-      - run: npm run prod && npm publish
+
+      - name: Publish to NPM
+        run: npm run prod && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

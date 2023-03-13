@@ -46,9 +46,9 @@ describe('Service', () => {
   beforeEach(() => {
     guid = randomUUID();
 
-    Object.assign(window, {
-      crypto: {
-        randomUUID: jest.fn().mockReturnValue(guid),
+    Object.defineProperty(globalThis, 'crypto', {
+      value: {
+        randomUUID: () => guid,
       },
     });
 
