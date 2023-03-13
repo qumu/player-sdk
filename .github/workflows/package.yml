@@ -47,18 +47,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
 
-      - run: npm run build
-
-      - name: Use Node.js 16.14
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.14
-          cache: 'npm'
-          token: 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
+      - name: Build package
+        run: npm run build
 
       - name: Publish to NPM
         run: |
-          npm config set //registry.npmjs.org/:_authToken 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
+          npm config set //registry.npmjs.org/:_authToken ${NODE_AUTH_TOKEN}
           npm publish --access public
         env:
-          NODE_AUTH_TOKEN: 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
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
