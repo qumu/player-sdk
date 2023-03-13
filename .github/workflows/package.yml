@@ -47,6 +47,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
 
+      - name: Use Node.js 16.14
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.14
+          cache: 'npm'
+
       - name: Publish to NPM
         run: npm run build && npm publish
         env:
