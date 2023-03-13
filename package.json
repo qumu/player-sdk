@@ -1,11 +1,12 @@
 {
-  "name": "@qumu/player-sdk",
+  "name": "@enghouse-qumu/player-sdk",
   "version": "0.0.0",
   "description": "JavaScript SDK to interact with the player ",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
+  "unpkg": "dist/index.umd.js",
   "module": "./dist/index.module.js",
   "exports": {
     "require": "./dist/index.js",
@@ -31,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/qumu/player-sdk/issues"
   },
-  "homepage": "https://github.com/qumu/ui-player-sdk#readme",
+  "homepage": "https://qumu.github.io/player-sdk",
   "devDependencies": {
     "@astrojs/markdown-remark": "2.0.1",
     "@astrojs/mdx": "0.17.2",
@@ -55,8 +56,5 @@
     "stylelint": "13.9.0",
     "ts-jest": "28.0.3",
     "typescript": "4.7.2"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   }
 }
