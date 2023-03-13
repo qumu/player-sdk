@@ -6,22 +6,45 @@ The official JavaScript SDK to interact with an embedded Qumu Cloud presentation
 
 ### via CDN (easiest)
 
-The simplest way to use the SDK is to load it via the CDN. The script will add a new `playerSdk` property to the `window` object.
+The simplest way to use the SDK is to load it via the CDN.
 
-**Note**: You need to load the script BEFORE your code to interact with the SDK
+#### Using UMD build
+If you need to support older browsers, this is the version for you. The script will add a new `playerSdk` property to the `window` object.
 
-**Note**: You need to add this script only ONCE for each webpage
+⚠️ You need to load the script BEFORE your code to interact with the SDK.
 
 In order to control a Qumu Cloud presentation, you will need to add it to your webpage via an iframe.
 
 ```html
 <iframe src="<url-to-presentation>" frameborder="0"></iframe>
 
-<script src="<url-to-script>"></script>
+<script src="https://unpkg.com/@enghouse-qumu/player-sdk@0.0.0/dist/index.umd.js"></script>
 <script>
-  var iframe = document.querySelector('iframe');
+  const iframe = document.querySelector('iframe');
 
-  var sdk = new window.playerSdk.PlayerSdk(iframe);
+  const sdk = new window.playerSdk.PlayerSdk(iframe);
+
+  sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
+
+  sdk.getDuration().then((duration) => console.log('duration', duration));
+
+  sdk.play();
+</script>
+```
+
+#### Using Module build
+
+This version is only supported on modern browsers (no IE11) but offers a code style closer to what you would write with a module bundler.
+
+```html
+<iframe src="<url-to-presentation>" frameborder="0"></iframe>
+
+<script type="module">
+  import { PlayerSdk } from 'https://unpkg.com/@enghouse-qumu/player-sdk@0.0.0/dist/index.modern.mjs'
+
+  const iframe = document.querySelector('iframe');
+
+  const sdk = new PlayerSdk(iframe);
 
   sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
 
@@ -36,13 +59,15 @@ In order to control a Qumu Cloud presentation, you will need to add it to your w
 If you use a module bundler (like Webpack or rollup), you will first need to install the dependency.
 
 ```shell
-npm install @qumu/player-sdk
+npm install @enghouse-qumu/player-sdk
 ```
 
 ```js
+import { PlayerSdk } from '@enghouse-qumu/player-sdk';
+
 const iframe = document.querySelector('iframe');
 
-const sdk = new window.playerSdk.PlayerSdk(iframe);
+const sdk = new PlayerSdk(iframe);
 
 sdk.addEventListener('timeupdate', (newTime) => console.log('timeupdate', newTime));
 
@@ -50,6 +75,10 @@ sdk.getDuration().then((duration) => console.log('duration', duration));
 
 sdk.play();
 ```
+
+### TypeScript support
+
+This library supports TypeScript by default.
 
 ## API
 
