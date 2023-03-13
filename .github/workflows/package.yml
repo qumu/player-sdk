@@ -43,9 +43,11 @@ jobs:
           scope: '@qumu'
 
       - name: Install dependencies
-        run: npm ci & npm run build
+        run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
+
+      - run: npm run build
 
       - name: Use Node.js 16.14
         uses: actions/setup-node@v3
