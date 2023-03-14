@@ -250,6 +250,6 @@ Sets the volume in the player.
 
 ## Generate a new package
 
-To generate a new GitHub package, all you have to do is run npm version <major|minor|patch on the master branch.
+To generate a new package, all you have to do is run npm version <major|minor|patch on the master branch.
 
-This will generate a new tag that will then trigger the Package github action and create a release and publish to Github package.
+This will generate a new tag that will then trigger the Package GitHub action and create a release and publish to NPM.
