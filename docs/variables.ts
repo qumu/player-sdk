@@ -66,6 +66,6 @@ export const SIDEBAR: SidebarBlock[] = [
         text: 'Migration guide',
       },
     ],
-    title: 'Legacy',
+    title: 'v2.0 (Legacy)',
   },
 ];
