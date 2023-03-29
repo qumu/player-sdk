@@ -20,15 +20,15 @@ const currentPage = Astro.url.pathname;
   </head>
   <body>
     <Header/>
-    <div class="qi-container qi-container--fixed qi-my--6@md qi-my--3">
-      <div class="qi-row">
-        <aside class="qi-col qi-col--12 qi-col--4@sm qi-col--3@md">
-          <Sidebar currentPage={currentPage}/>
-        </aside>
-        <main class="qi-col">
+    <div class="app-container">
+      <aside>
+        <Sidebar currentPage={currentPage}/>
+      </aside>
+      <main>
+        <section>
           <slot/>
-        </main>
-      </div>
+        </section>
+      </main>
     </div>
   </body>
 </html>
