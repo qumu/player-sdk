@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>Installation</title>
-  <link rel="stylesheet" href="/player-sdk/_astro/_...slug_.02626325.css" /><script type="module">
+  <link rel="stylesheet" href="/player-sdk/_astro/_...slug_.f0c41d6c.css" /><script type="module">
 </script></head>
   <body>
     <header>
@@ -16,10 +16,9 @@
     </div>
   </nav>
 </header>
-    <div class="qi-container qi-container--fixed qi-my--6@md qi-my--3">
-      <div class="qi-row">
-        <aside class="qi-col qi-col--12 qi-col--4@sm qi-col--3@md">
-          <nav>
+    <div class="app-container">
+      <aside>
+        <nav>
   <section class="qi-mb--5">
         <h5 class="qi-h5 qi--display">General</h5>
         <ul class="qi-list--unstyled qi-mb--0">
@@ -67,7 +66,7 @@
               </li>
         </ul>
       </section><section class="qi-mb--5">
-        <h5 class="qi-h5 qi--display">Legacy</h5>
+        <h5 class="qi-h5 qi--display">v2.0 (Legacy)</h5>
         <ul class="qi-list--unstyled qi-mb--0">
           <li>
                 <a href="/player-sdk/legacy/usage" class="qi-btn qi-btn--transparent qi-btn--block qi-text--left qi-btn--secondary">
@@ -81,8 +80,9 @@
         </ul>
       </section>
 </nav>
-        </aside>
-        <main class="qi-col">
+      </aside>
+      <main>
+        <section>
           <h1>Installation</h1><h2 id="via-cdn-easiest">via CDN (easiest)<a class="anchor-link" href="#via-cdn-easiest">#</a></h2>
 <p>The simplest way to use the SDK is to load it via the CDN.</p>
 <h3 id="using-umd-build">Using UMD build<a class="anchor-link" href="#using-umd-build">#</a></h3>
@@ -91,7 +91,7 @@
 <p>In order to control a Qumu Cloud presentation, you will need to add it to your webpage via an iframe.</p>
 <pre class="astro-code" style="background-color:#FFFFFF;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"><code><span class="line"><span style="color:#800000">&lt;iframe</span><span style="color:#000000"> </span><span style="color:#FF0000">src</span><span style="color:#000000">=</span><span style="color:#0000FF">&quot;</span><span style="color:#CD3131">&lt;</span><span style="color:#0000FF">url-to-presentation&gt;&quot;</span><span style="color:#000000"> </span><span style="color:#FF0000">frameborder</span><span style="color:#000000">=</span><span style="color:#0000FF">&quot;0&quot;</span><span style="color:#800000">&gt;&lt;/iframe&gt;</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#800000">&lt;script</span><span style="color:#000000FF"> </span><span style="color:#FF0000">src</span><span style="color:#000000FF">=</span><span style="color:#0000FF">&quot;https://unpkg.com/@enghouse-qumu/player-sdk@1.0.0/dist/index.umd.js&quot;</span><span style="color:#800000">&gt;&lt;/script&gt;</span></span>
+<span class="line"><span style="color:#800000">&lt;script</span><span style="color:#000000FF"> </span><span style="color:#FF0000">src</span><span style="color:#000000FF">=</span><span style="color:#0000FF">&quot;https://unpkg.com/@enghouse-qumu/player-sdk@3.0.0/dist/index.umd.js&quot;</span><span style="color:#800000">&gt;&lt;/script&gt;</span></span>
 <span class="line"><span style="color:#800000">&lt;script&gt;</span></span>
 <span class="line"><span style="color:#000000FF">  </span><span style="color:#0000FF">const</span><span style="color:#000000FF"> </span><span style="color:#0070C1">iframe</span><span style="color:#000000FF"> </span><span style="color:#000000">=</span><span style="color:#000000FF"> </span><span style="color:#001080">document</span><span style="color:#000000FF">.</span><span style="color:#795E26">querySelector</span><span style="color:#000000FF">(</span><span style="color:#A31515">&#39;iframe&#39;</span><span style="color:#000000FF">);</span></span>
 <span class="line"></span>
@@ -108,7 +108,7 @@
 <pre class="astro-code" style="background-color:#FFFFFF;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word"><code><span class="line"><span style="color:#800000">&lt;iframe</span><span style="color:#000000"> </span><span style="color:#FF0000">src</span><span style="color:#000000">=</span><span style="color:#0000FF">&quot;</span><span style="color:#CD3131">&lt;</span><span style="color:#0000FF">url-to-presentation&gt;&quot;</span><span style="color:#000000"> </span><span style="color:#FF0000">frameborder</span><span style="color:#000000">=</span><span style="color:#0000FF">&quot;0&quot;</span><span style="color:#800000">&gt;&lt;/iframe&gt;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#800000">&lt;script</span><span style="color:#000000FF"> </span><span style="color:#FF0000">type</span><span style="color:#000000FF">=</span><span style="color:#0000FF">&quot;module&quot;</span><span style="color:#800000">&gt;</span></span>
-<span class="line"><span style="color:#000000FF">  </span><span style="color:#AF00DB">import</span><span style="color:#000000FF"> { </span><span style="color:#001080">PlayerSdk</span><span style="color:#000000FF"> } </span><span style="color:#AF00DB">from</span><span style="color:#000000FF"> </span><span style="color:#A31515">&#39;https://unpkg.com/@enghouse-qumu/player-sdk@1.0.0/dist/index.modern.mjs&#39;</span></span>
+<span class="line"><span style="color:#000000FF">  </span><span style="color:#AF00DB">import</span><span style="color:#000000FF"> { </span><span style="color:#001080">PlayerSdk</span><span style="color:#000000FF"> } </span><span style="color:#AF00DB">from</span><span style="color:#000000FF"> </span><span style="color:#A31515">&#39;https://unpkg.com/@enghouse-qumu/player-sdk@3.0.0/dist/index.modern.mjs&#39;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#000000FF">  </span><span style="color:#0000FF">const</span><span style="color:#000000FF"> </span><span style="color:#0070C1">iframe</span><span style="color:#000000FF"> </span><span style="color:#000000">=</span><span style="color:#000000FF"> </span><span style="color:#001080">document</span><span style="color:#000000FF">.</span><span style="color:#795E26">querySelector</span><span style="color:#000000FF">(</span><span style="color:#A31515">&#39;iframe&#39;</span><span style="color:#000000FF">);</span></span>
 <span class="line"></span>
@@ -136,7 +136,7 @@
 <span class="line"><span style="color:#001080">sdk</span><span style="color:#000000">.</span><span style="color:#795E26">play</span><span style="color:#000000">();</span></span></code></pre>
 <h2 id="typescript-support">TypeScript support<a class="anchor-link" href="#typescript-support">#</a></h2>
 <p>This library supports TypeScript by default.</p>
-        </main>
-      </div>
+        </section>
+      </main>
     </div>
   </body></html>
