@@ -61,7 +61,27 @@ export class PlayerSdk {
           return;
         }
 
-        if (message?.action === 'ready' || message?.action === 'handshake') {
+        if (message?.action === 'ready') {
+          const frame = window.document.querySelector(`iframe[src="${message.value}"]`) as HTMLIFrameElement;
+
+          if (!frame) {
+            // eslint-disable-next-line no-console
+            console.error(
+              '[Qumu Cloud Player SDK]',
+              'A Qumu Cloud player is ready but it is impossible to find the corresponding iFrame, the SDK will not work correctly. Incorrect URL is:',
+              message.value,
+            );
+          } else if (frame === this.iframe) {
+            // we provide the proper origin
+            // this allows us to send the cross window message to the proper origin and not broadcast to everybody
+            this.origin = event.origin;
+            resolve();
+          }
+
+          return;
+        }
+
+        if (message?.action === 'handshake') {
           // we provide the proper origin
           // this allows us to send the cross window message to the proper origin and not broadcast to everybody
           this.origin = event.origin;
@@ -78,10 +98,10 @@ export class PlayerSdk {
 
     // we send a request for a handshake
     // this one is useful in the event when the SDK is initialized after the player
-    this.postMessage({
+    this.postMessage<SdkHandshakeMessage>({
       action: 'handshake',
       guid: this.guid,
-    } as SdkHandshakeMessage);
+    });
   }
 
   /**
@@ -108,12 +128,12 @@ export class PlayerSdk {
     // This is the first time we subscribe to this event, we need to tell the Player to start a watcher
     if (callbacks.length === 0) {
       this.readyPromise.then(() => {
-        this.postMessage({
+        this.postMessage<SdkEventMessage>({
           action: 'event',
           guid: this.guid,
           name,
           value: 'add',
-        } as SdkEventMessage);
+        });
       });
     }
 
@@ -128,11 +148,11 @@ export class PlayerSdk {
       window.removeEventListener('message', this.messageHandler);
     }
 
-    this.postMessage({
+    this.postMessage<SdkCommandMessage>({
       action: 'command',
       guid: this.guid,
       name: 'destroy',
-    } as SdkCommandMessage);
+    });
   }
 
   /**
@@ -297,7 +317,7 @@ export class PlayerSdk {
    * @param name the event name to listen to
    * @param callback the callback to remove. If no callback is provided, all callbacks will be removed for the event name
    */
-  removeEventListener(name: string, callback?: Function): void {
+  removeEventListener(name: SdkEventMessage['name'], callback?: Function): void {
     if (!name) {
       throw new TypeError('You must pass an event name.');
     }
@@ -308,12 +328,12 @@ export class PlayerSdk {
 
     // Remove the watcher on the player's side if there are no subscribers for this event
     if (callbacks.length === 0) {
-      this.postMessage({
+      this.postMessage<SdkEventMessage>({
         action: 'event',
         guid: this.guid,
         name,
         value: 'remove',
-      } as SdkEventMessage);
+      });
     }
   }
 
@@ -437,11 +457,11 @@ export class PlayerSdk {
           resolve,
         });
 
-        this.postMessage({
+        this.postMessage<SdkGetSetMessage>({
           action: 'get',
           guid: this.guid,
           name,
-        } as SdkGetSetMessage);
+        });
       } catch (e) {
         reject(e);
       }
@@ -454,7 +474,7 @@ export class PlayerSdk {
    * @param message the message to send
    * @private
    */
-  private postMessage(message: Omit<SdkMessage, 'version'>): void {
+  private postMessage<T extends SdkMessage>(message: Omit<T, 'version'>): void {
     const messageString = JSON.stringify({
       ...message,
       version: this.version,
@@ -507,19 +527,19 @@ export class PlayerSdk {
    * @param value the value to send
    * @private
    */
-  private set(name: string, value: any): void {
+  private set(name: SdkGetSetMessage['name'], value: any): void {
     if (value === undefined) {
       throw new TypeError('A value must be set.');
     }
 
     this.readyPromise
       .then(() => {
-        this.postMessage({
+        this.postMessage<SdkGetSetMessage>({
           action: 'set',
           guid: this.guid,
           name,
           value,
-        } as SdkGetSetMessage);
+        });
       });
   }
 }
