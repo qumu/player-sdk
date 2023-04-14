@@ -427,11 +427,11 @@ export class PlayerSdk {
    * @param name the event name to send
    * @private
    */
-  private get<T>(name: SdkGetSetMessage['name']): Promise<T> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await this.readyPromise;
+  private async get<T>(name: SdkGetSetMessage['name']): Promise<T> {
+    await this.readyPromise;
 
+    return new Promise((resolve, reject) => {
+      try {
         this.callbackStore.storeCallback(`get:${name}`, {
           reject,
           resolve,
