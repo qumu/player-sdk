@@ -62,7 +62,9 @@ export class PlayerSdk {
         }
 
         if (message?.action === 'ready') {
-          const frame = window.document.querySelector(`iframe[src="${message.value}"]`) as HTMLIFrameElement;
+          const frame = message.value
+            ? window.document.querySelector(`iframe[src="${message.value}"]`) as HTMLIFrameElement
+            : this.iframe;
 
           if (!frame) {
             // eslint-disable-next-line no-console
