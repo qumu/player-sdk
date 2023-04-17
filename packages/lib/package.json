@@ -1,0 +1,35 @@
+{
+  "name": "lib",
+  "engines": {
+    "node": ">=18"
+  },
+  "source": "src/index.ts",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "umd:main": "./dist/index.umd.js",
+  "unpkg": "./dist/index.umd.js",
+  "module": "./dist/index.module.js",
+  "exports": {
+    "require": "./dist/index.js",
+    "default": "./dist/index.modern.mjs"
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle",
+    "dev:watch": "microbundle watch",
+    "prepublishOnly": "node scripts/prepublishOnly.js",
+    "test": "jest",
+    "test:cov": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "@types/jest": "29.4.0",
+    "jest": "29.5.0",
+    "jest-environment-jsdom": "29.5.0",
+    "microbundle": "0.15.1",
+    "ts-jest": "29.0.5"
+  }
+}

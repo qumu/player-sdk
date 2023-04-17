@@ -34,10 +34,10 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
-      - name: Use Node.js 16.14
+      - name: Use Node.js 18
         uses: actions/setup-node@v3
         with:
-          node-version: 16.14
+          node-version: 18
           cache: 'npm'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@qumu'
@@ -48,11 +48,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
 
       - name: Build package
-        run: npm run build
+        run: npm run build --workspace lib
 
       - name: Publish to NPM
         run: |
           npm config set //registry.npmjs.org/:_authToken ${NODE_AUTH_TOKEN}
-          npm publish
+          npm publish --workspace lib
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

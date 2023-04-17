@@ -1,0 +1,16 @@
+{
+  "name": "docs",
+  "private": true,
+  "scripts": {
+    "build": "astro build",
+    "dev:watch": "astro dev"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "2.1.0",
+    "@astrojs/mdx": "0.18.0",
+    "@qumu/ui-kit": "0.33.1",
+    "astro": "2.1.2",
+    "rehype-autolink-headings": "6.1.1",
+    "sass": "1.58.3"
+  }
+}

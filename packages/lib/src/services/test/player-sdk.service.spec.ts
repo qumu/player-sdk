@@ -445,6 +445,27 @@ describe('Service', () => {
     });
   });
 
+  describe('disableCaptionTrack', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = initSdk();
+
+      await sdk.disableCaptionTrack();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'set',
+          guid,
+          name: 'captionTrack',
+          value: null,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+  });
+
   describe('enableCaptionTrack', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');

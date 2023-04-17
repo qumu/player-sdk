@@ -27,6 +27,6 @@ export default defineConfig({
       wrap: true,
     },
   },
-  outDir: '.docs',
-  srcDir: './docs',
+  outDir: 'dist',
+  srcDir: './src',
 });
