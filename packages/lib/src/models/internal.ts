@@ -63,6 +63,7 @@ export interface SdkHandshakeMessage {
 
 export interface SdkReadyMessage {
   action: 'ready';
+  value: string;
   version: number;
 }
 
