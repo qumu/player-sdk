@@ -17,9 +17,9 @@
     "dist/"
   ],
   "scripts": {
-    "build": "microbundle",
-    "dev": "microbundle",
-    "dev:watch": "microbundle watch",
+    "build": "microbundle --name playerSdk",
+    "dev": "microbundle --name playerSdk",
+    "dev:watch": "microbundle watch --name playerSdk",
     "prepublishOnly": "node scripts/prepublishOnly.js",
     "test": "jest",
     "test:cov": "jest --coverage",
