@@ -19,6 +19,10 @@ export const SIDEBAR: SidebarBlock[] = [
         link: `${import.meta.env.BASE_URL}usage`,
         text: 'Usage',
       },
+      {
+        link: `${import.meta.env.BASE_URL}integration`,
+        text: 'Integration with Qumu Widgets',
+      },
     ],
     title: 'General',
   },
