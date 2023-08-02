@@ -8,4 +8,8 @@ updates:
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/packages/lib" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    # Disable version updates for npm dependencies
+    # This makes sure we ONLY have security updates
+    # https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates#overriding-the-default-behavior-with-a-configuration-file
+    open-pull-requests-limit: 0
