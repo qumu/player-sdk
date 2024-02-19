@@ -1,5 +1,5 @@
 # Player SDK
-a
+
 ## Structure
 
 This repository consists of two packages:
