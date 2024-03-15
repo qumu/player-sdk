@@ -26,7 +26,7 @@ jobs:
             });
 
   publish-package:
-    name: Release package to Github packages
+    name: Release package to NPM
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
