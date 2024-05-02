@@ -1,4 +1,4 @@
-# Player SDK1
+# Player SDK
 
 ## Structure
 
