@@ -1,0 +1,41 @@
+---
+title: "Layout example"
+---
+
+import { Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+
+import code from 'code/layout.js?raw';
+
+## Example
+
+<Playground>
+  <Fragment slot="actions">
+    <PlaygroundButton type="get" command="getLayout">Get layout</PlaygroundButton>
+    <PlaygroundButton type="get" command="getPrimaryContent">Get primary content</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLayout" value="pip">Set layout to PiP</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLayout" value="sbs">Set layout to SbS</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPrimaryContent" value="media">Set primary content to media</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPrimaryContent" value="slides">Set primary content to slides</PlaygroundButton>
+    <hr/>
+    <PlaygroundButton type="get" command="getPictureInPicturePosition">Get PiP Position</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="bottom-left">Set PiP to bottom-left</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="bottom-right">Set PiP to bottom-right</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="top-left">Set PiP to top-left</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPictureInPicturePosition" value="top-right">Set PiP to top-right</PlaygroundButton>
+    <hr/>
+    <PlaygroundButton type="get" command="getSideBySideRatio">Get SbS ratio</PlaygroundButton>
+    <PlaygroundButton type="set" command="setSideBySideRatio" value={50}>Set SbS ratio to 50/50</PlaygroundButton>
+    <PlaygroundButton type="set" command="setSideBySideRatio" value={80}>Set SbS ratio to 80/20</PlaygroundButton>
+  </Fragment>
+  <Fragment slot="events">
+    <PlaygroundCheckbox checked={true} event="layoutchange">Listen for `layoutchange` events</PlaygroundCheckbox>
+    <PlaygroundCheckbox checked={true} event="primarycontentchange">Listen for `primarycontentchange` events</PlaygroundCheckbox>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>

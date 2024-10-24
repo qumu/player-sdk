@@ -1,0 +1,126 @@
+---
+title: "Installation"
+
+---
+import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+Which flow to choose?
+
+  * If you use a bundler (Webpack, Rollup, Vite), choose `With NPM`. This version supports all browsers.
+  * Otherwise, choose a CDN :
+    * If you do not need to support Internet Explorer 11, we recommend to use `via CDN (ESM)`.
+    * Otherwise, choose `Via CDN (UMD)`
+
+<Tabs>
+  <TabItem label="With NPM">
+    <Steps>
+      1. Install the library into your project
+
+          ```shell
+          npm install @enghouse-qumu/player-sdk
+          ```
+      2. Add your iframe on the HTML page
+
+          ```html
+          <iframe src="<url-to-presentation>" frameborder="0"></iframe>
+          ```
+      3. Add the logic to your application
+          ```js
+          import { PlayerSdk } from '@enghouse-qumu/player-sdk';
+
+          const iframe = document.querySelector('iframe');
+
+          const sdk = new PlayerSdk(iframe);
+
+          sdk.addEventListener('timeupdate', (newTime) => {
+            console.log('timeupdate', newTime);
+          });
+
+          sdk.getDuration().then((duration) => {
+            console.log('duration', duration);
+          });
+
+          sdk.play();
+          ```
+    </Steps>
+  </TabItem>
+  <TabItem label="Via CDN (UMD)">
+    <Steps>
+      1. Add your iframe on the HTML page
+          * Replace `<url-to-presentation>` with the URL of a Qumu presentation.
+
+          ```html
+          <iframe src="<url-to-presentation>" frameborder="0"></iframe>
+          ```
+      2. Load the JavaScript library
+          * Replace `<version>` with the version of the library you want to use. Get the latest version from [https://unpkg.com/@enghouse-qumu/player-sdk](https://unpkg.com/@enghouse-qumu/player-sdk)
+
+          ```html
+          <script src="https://unpkg.com/@enghouse-qumu/player-sdk@<version>/dist/index.umd.js"></script>
+          ```
+
+          <Aside type="caution">
+            You need to load the script BEFORE your code to interact with the SDK.
+          </Aside>
+
+      3. Add the logic to your application
+          ```html
+          <script>
+            const iframe = document.querySelector('iframe');
+
+            const sdk = new window.playerSdk.PlayerSdk(iframe);
+
+            sdk.addEventListener('timeupdate', (newTime) => {
+              console.log('timeupdate', newTime);
+            });
+
+            sdk.getDuration().then((duration) => {
+              console.log('duration', duration);
+            });
+
+            sdk.play();
+          </script>
+          ```
+    </Steps>
+
+  </TabItem>
+  <TabItem label="Via CDN (ESM)">
+    <Steps>
+      1. Add your iframe on the HTML page
+          * Replace `<url-to-presentation>` with the URL of a Qumu presentation.
+
+          ```html
+          <iframe src="<url-to-presentation>" frameborder="0"></iframe>
+          ```
+      2. Add the logic to your application
+          * Replace `<version>` with the version of the library you want to use. Get the latest version from [https://unpkg.com/@enghouse-qumu/player-sdk](https://unpkg.com/@enghouse-qumu/player-sdk)
+
+          ```html
+          <script type="module">
+            import { PlayerSdk } from 'https://unpkg.com/@enghouse-qumu/player-sdk@<version>/dist/index.modern.mjs'
+
+            const iframe = document.querySelector('iframe');
+
+            const sdk = new PlayerSdk(iframe);
+
+            sdk.addEventListener('timeupdate', (newTime) => {
+              console.log('timeupdate', newTime);
+            });
+
+            sdk.getDuration().then((duration) => {
+              console.log('duration', duration);
+            });
+
+            sdk.play();
+          </script>
+          ```
+    </Steps>
+  </TabItem>
+</Tabs>
+
+## TypeScript support
+
+This library supports TypeScript by default.

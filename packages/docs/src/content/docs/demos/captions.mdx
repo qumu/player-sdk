@@ -1,0 +1,31 @@
+---
+title: "Captions example"
+---
+
+import { Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+
+import code from 'code/captions.js?raw';
+
+## Example
+
+<Playground>
+  <Fragment slot="actions">
+    <PlaygroundButton type="get" command="getCaptionTracks">Get caption tracks</PlaygroundButton>
+    <PlaygroundButton type="get" command="getCurrentCaptionTrack">Get current caption track</PlaygroundButton>
+    <PlaygroundButton type="set" command="disableCaptionTrack" value={null}>Remove CC</PlaygroundButton>
+    <PlaygroundButton type="set" command="enableCaptionTrack" value="en">Set English</PlaygroundButton>
+    <PlaygroundButton type="set" command="enableCaptionTrack" value="fr">Set French</PlaygroundButton>
+    <PlaygroundButton type="set" command="enableCaptionTrack" value="it">Set Italian</PlaygroundButton>
+    <PlaygroundButton type="set" command="enableCaptionTrack" value="es">Set Spanish</PlaygroundButton>
+  </Fragment>
+  <Fragment slot="events">
+    <PlaygroundCheckbox checked={true} event="captiontrackchange">Listen for `captiontrackchange` events</PlaygroundCheckbox>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>

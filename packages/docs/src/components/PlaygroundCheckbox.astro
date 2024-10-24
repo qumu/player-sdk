@@ -1,6 +1,5 @@
 ---
-import { SdkEventMessage } from "../../src/models/internal";
-import { PlayerSdk } from "../../src";
+import { SdkEventMessage } from '../../src/models/internal';
 
 type Props = {
   checked: boolean;
@@ -8,15 +7,17 @@ type Props = {
   id: string;
 };
 
-const { checked, event, id }: Props = Astro.props;
+const { checked, event }: Props = Astro.props;
 ---
 
-<div className="qi-form-group">
-  <div className="qi-custom-control qi-custom-checkbox">
-    <input type="checkbox" className="qi-custom-control__input" id={id} data-type="event"
-           data-event={event} checked={checked}/>
-    <label className="qi-custom-control__label" for={id}>
-      <slot/>
-    </label>
-  </div>
+<div>
+  <label>
+    <input
+        type="checkbox"
+        data-type="event"
+        data-event={event}
+        checked={checked}
+    />
+    <slot/>
+  </label>
 </div>

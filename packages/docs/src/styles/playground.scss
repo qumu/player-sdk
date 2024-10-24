@@ -1,9 +1,0 @@
-@import '@qumu/ui-kit/scss/core/variables';
-
-.playground-actions {
-  .playground-actions-container {
-    display: flex;
-    gap: map-get($qi-spacers, 1);
-    flex-wrap: wrap;
-  }
-}

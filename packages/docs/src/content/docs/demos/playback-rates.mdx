@@ -1,0 +1,33 @@
+---
+title: "Playback rates example"
+---
+
+import { Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+
+import code from 'code/playback-rates.js?raw';
+
+## Example
+
+<Playground>
+  <Fragment slot="actions">
+    <PlaygroundButton type="get" command="getPlaybackRates">Get playback rates</PlaygroundButton>
+    <PlaygroundButton type="get" command="getPlaybackRate">Get current playback rate</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPlaybackRate" value={0.25}>0.25x</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPlaybackRate" value={0.5}>0.5x</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPlaybackRate" value={0.75}>0.75x</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPlaybackRate" value={1}>1x</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPlaybackRate" value={1.25}>1.25x</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPlaybackRate" value={1.5}>1.5x</PlaygroundButton>
+    <PlaygroundButton type="set" command="setPlaybackRate" value={2}>2x</PlaygroundButton>
+  </Fragment>
+  <Fragment slot="events">
+    <PlaygroundCheckbox checked={true} event="playbackratechange">Listen for `playbackratechange` events</PlaygroundCheckbox>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>

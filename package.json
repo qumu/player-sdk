@@ -22,7 +22,7 @@
     "serve": "npm run dev -w lib && (npm run dev:watch -w lib & npm run dev:watch -w docs)"
   },
   "devDependencies": {
-    "@qumu/code-conventions": "2.0.5",
+    "@enghouse-qumu/code-conventions": "2.0.6",
     "@typescript-eslint/eslint-plugin": "5.54.1",
     "@typescript-eslint/parser": "5.54.1",
     "eslint": "8.35.0",

@@ -1,0 +1,14 @@
+{
+  "extends": "../../node_modules/@enghouse-qumu/code-conventions/eslint/index.js",
+  "overrides": [
+    {
+      "files": [
+        "src/content/demos/code/*.js"
+      ],
+      "rules": {
+        "no-undef": "off",
+        "import/no-unresolved": "off"
+      }
+    }
+  ]
+}

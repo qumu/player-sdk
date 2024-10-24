@@ -22,7 +22,7 @@ In order to offer an API closer to the JavaScript standards, we rename the follo
 
 ```js
 // BEFORE
-sdk.bind('timeupdate', function (newTime) {
+sdk.bind('timeupdate', (newTime) => {
   console.log('new time', newTime);
 });
 
@@ -64,7 +64,7 @@ Those new methods return a promise instead of requiring a callback.
 
 ```js
 // BEFORE
-sdk.get('volume', function (newVolume) {
+sdk.get('volume', (newVolume) => {
   console.log('new volume', newVolume);
 });
 
