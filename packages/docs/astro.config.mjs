@@ -54,6 +54,10 @@ export default defineConfig({
               label: 'Volume',
               slug: 'demos/volume',
             },
+            {
+              label: 'Audience Reactions',
+              slug: 'demos/audience-reactions',
+            },
           ],
           label: 'Demos',
         },

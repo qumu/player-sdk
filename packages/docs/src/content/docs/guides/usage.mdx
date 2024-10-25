@@ -39,6 +39,10 @@ Sets the current caption track.
 
 * `language`: the language of the active track. Use null to disable captions.
 
+## getAudienceReactions(): Promise&lt;string[]&gt;
+
+Gets the available audience reactions for the live event.
+
 ## getCaptionTracks(): Promise&lt;SdkCaptionTrack[]&gt;
 
 Gets the available caption tracks.
@@ -125,6 +129,17 @@ Removes the callback for the provided event name.
 
 * `name`: the event name to listen to
 * `callback`: the callback to remove. If no callback is provided, all callbacks will be removed for the event name
+
+## sendAudienceReaction(reaction: string): void;
+
+Sends the Audience Reaction.
+
+* `reaction`: the reaction
+
+In order for the reaction to be visible in the player and analytics, you need to ensure the following:
+
+* The reaction must be available to the live event (see `sdk.getAudienceReactions()`)
+* The live event must be ongoing and the playback is visible in the player
 
 ## setCurrentTime(time: number): void;
 

@@ -1,0 +1,24 @@
+---
+title: "Audience Reactions example"
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+
+import code from 'code/audience-reactions.js?raw';
+
+<Aside title="Live Events only">
+  Audience Reactions are only supported on Live Events in Qumu Cloud.
+</Aside>
+
+<Playground>
+    <Fragment slot="actions">
+      <PlaygroundButton type="get" command="getAudienceReactions">Get Audience Reactions</PlaygroundButton>
+      <PlaygroundButton type="set" command="sendAudienceReaction" value='2764'>Send &#10084;&#65039;</PlaygroundButton>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>

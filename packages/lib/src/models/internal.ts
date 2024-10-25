@@ -12,7 +12,9 @@ type SdkEventListener =
   | 'volumechange';
 
 type SdkGetSetName =
-  'captionTrack'
+  'audienceReaction'
+  | 'audienceReactions'
+  | 'captionTrack'
   | 'captionTracks'
   | 'chapter'
   | 'chapters'
