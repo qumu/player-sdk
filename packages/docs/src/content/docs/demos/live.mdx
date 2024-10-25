@@ -2,12 +2,16 @@
 title: "Live states example"
 ---
 
-import { Code } from '@astrojs/starlight/components';
+import { Aside, Code } from '@astrojs/starlight/components';
 import Playground from '../../../components/Playground.astro';
 import PlaygroundButton from '../../../components/PlaygroundButton.astro';
 import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
 
 import code from 'code/live.js?raw';
+
+<Aside title="Live Events only">
+  Live states are only supported on Live Events in Qumu Cloud.
+</Aside>
 
 ## Example
 
