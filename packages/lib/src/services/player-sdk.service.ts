@@ -174,6 +174,13 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the available audience reactions
+   */
+  async getAudienceReactions(): Promise<string[]> {
+    return this.get('audienceReactions');
+  }
+
+  /**
    * Gets the available caption tracks
    */
   async getCaptionTracks(): Promise<SdkCaptionTrack[]> {
@@ -311,6 +318,15 @@ export class PlayerSdk {
    */
   play(): void {
     this.command('play');
+  }
+
+  /**
+   * Sends the Audience Reaction
+   *
+   * @param reaction the reaction
+   */
+  sendAudienceReaction(reaction: 'string'): void {
+    this.set('audienceReaction', reaction);
   }
 
   /**
