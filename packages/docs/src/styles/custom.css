@@ -1,0 +1,14 @@
+:root {
+  --sl-content-width: 80rem;
+}
+
+@media (min-width: 72rem) {
+  .right-sidebar-container {
+    width: var(--sl-sidebar-width);
+  }
+
+  [data-has-sidebar][data-has-toc] .main-pane {
+    --sl-content-margin-inline: auto;
+    width: 100%;
+  }
+}

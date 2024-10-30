@@ -1,0 +1,34 @@
+---
+title: "Playback example"
+---
+
+import { Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+
+import code from 'code/chapters.js?raw';
+
+## Example
+
+<Playground>
+  <Fragment slot="actions">
+    <PlaygroundButton type="command" command="play">Play</PlaygroundButton>
+    <PlaygroundButton type="command" command="pause">Pause</PlaygroundButton>
+    <PlaygroundButton type="command" command="destroy">Destroy</PlaygroundButton>
+    <PlaygroundButton type="get" command="getDuration">Get duration</PlaygroundButton>
+    <PlaygroundButton type="get" command="isPaused">Get is paused</PlaygroundButton>
+    <PlaygroundButton type="get" command="getCurrentTime">Get current time</PlaygroundButton>
+    <PlaygroundButton type="set" command="setCurrentTime" value={20000}>Seek to 20s</PlaygroundButton>
+  </Fragment>
+  <Fragment slot="events">
+    <PlaygroundCheckbox checked={true} event="play">Listen for `play` events</PlaygroundCheckbox>
+    <PlaygroundCheckbox checked={true} event="pause">Listen for `pause` events</PlaygroundCheckbox>
+    <PlaygroundCheckbox checked={true} event="ended">Listen for `ended` events</PlaygroundCheckbox>
+    <PlaygroundCheckbox checked={true} event="timeupdate">Listen for `timeupdate` events</PlaygroundCheckbox>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>

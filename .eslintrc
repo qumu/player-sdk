@@ -1,5 +1,5 @@
 {
-  "extends": "./node_modules/@qumu/code-conventions/eslint/index.js",
+  "extends": "./node_modules/@enghouse-qumu/code-conventions/eslint/index.js",
   "rules": {
     "@typescript-eslint/no-non-null-assertion": "off"
   },

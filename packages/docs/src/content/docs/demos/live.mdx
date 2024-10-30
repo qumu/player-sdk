@@ -1,0 +1,31 @@
+---
+title: "Live states example"
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+
+import code from 'code/live.js?raw';
+
+<Aside title="Live Events only">
+  Live states are only supported on Live Events in Qumu Cloud.
+</Aside>
+
+## Example
+
+<Playground>
+  <Fragment slot="actions">
+    <PlaygroundButton type="get" command="getLiveState">Get live state</PlaygroundButton>
+    <PlaygroundButton type="get" command="getLiveStartTime">Get start time of live event</PlaygroundButton>
+    <PlaygroundButton type="get" command="getLiveEndTime">Get end time of live event</PlaygroundButton>
+  </Fragment>
+  <Fragment slot="events">
+    <PlaygroundCheckbox checked={true} event="livestatechange">Listen for `livestatechange` events</PlaygroundCheckbox>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>

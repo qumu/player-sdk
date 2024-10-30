@@ -1,32 +1,87 @@
+// @ts-check
 import { defineConfig } from 'astro/config';
-import { rehypeHeadingIds } from '@astrojs/markdown-remark';
-import mdx from '@astrojs/mdx';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [
-    mdx(),
+    starlight({
+      customCss: [
+        // Relative path to your custom CSS file
+        './src/styles/custom.css',
+      ],
+      favicon: '/assets/favicon.svg',
+      sidebar: [
+        {
+          items: [
+            {
+              label: 'Installation',
+              slug: 'guides/installation',
+            },
+            {
+              label: 'Usage',
+              slug: 'guides/usage',
+            },
+          ],
+          label: 'Guides',
+        },
+        {
+          items: [
+            {
+              label: 'Playback',
+              slug: 'demos/playback',
+            },
+            {
+              label: 'Captions',
+              slug: 'demos/captions',
+            },
+            {
+              label: 'Chapters',
+              slug: 'demos/chapters',
+            },
+            {
+              label: 'Layout',
+              slug: 'demos/layout',
+            },
+            {
+              label: 'Live states',
+              slug: 'demos/live',
+            },
+            {
+              label: 'Playback Rates',
+              slug: 'demos/playback-rates',
+            },
+            {
+              label: 'Volume',
+              slug: 'demos/volume',
+            },
+          ],
+          label: 'Demos',
+        },
+        {
+          items: [
+            {
+              label: 'Usage',
+              slug: 'legacy/usage',
+            },
+            {
+              label: 'Migration Guide',
+              slug: 'legacy/migration',
+            },
+          ],
+          label: 'V2.0 (Legacy)',
+        },
+        {
+          items: [
+            {
+              label: 'Integration with Qumu Widgets',
+              slug: 'recipes/qumu-widgets',
+            },
+          ],
+          label: 'Recipes',
+        },
+      ],
+      title: 'Qumu',
+    }),
   ],
-  markdown: {
-    rehypePlugins: [rehypeHeadingIds, [rehypeAutolinkHeadings, {
-      behaviour: 'append',
-      content: {
-        type: 'text',
-        value: '#',
-      },
-      properties: {
-        className: 'anchor-link',
-      },
-    }]],
-    shikiConfig: {
-      // Choose from Shiki's built-in themes (or add your own)
-      // https://github.com/shikijs/shiki/blob/main/docs/themes.md
-      theme: 'light-plus',
-      // Enable word wrap to prevent horizontal scrolling
-      wrap: true,
-    },
-  },
-  outDir: 'dist',
-  srcDir: './src',
 });

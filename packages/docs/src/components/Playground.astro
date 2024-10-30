@@ -3,31 +3,59 @@ type Props = {
   url: string;
 };
 
-const { url }: Props = Astro.props;
+const defaultProps: Props = {
+  url: 'https://demo.qumucloud.com/view/player-sdk-example',
+};
+
+const { url }: Props = {
+  ...defaultProps,
+  ...Astro.props
+};
 ---
 
-<div class="qi-form-group">
-  <input type="text" class="qi-form-control" id="url" value={url} aria-label="Presentation URL">
-</div>
+<input type="text" id="url" value={url} aria-label="Presentation URL">
 
-<div class="qi-embed-responsive qi-embed-responsive--16by9 qi-mb--4">
-  <iframe
+<iframe
     src={url}
     name="iframe1"
-    frameborder="0"
     allow="fullscreen"
     title="Qumu Cloud Player"
-  ></iframe>
-</div>
+></iframe>
 
-<div class="playground-actions qi-mb--4">
+<div class="not-content playground__actions">
   <slot name="actions"/>
 </div>
 
-<details>
-  <summary>See the code</summary>
-  <slot name="code"/>
-</details>
+<div class="not-content">
+  <slot name="events"/>
+</div>
+
+<style>
+  input {
+    margin-block: 1rem;
+    width: 100%;
+  }
+
+  iframe {
+    aspect-ratio: 16/9;
+    border: none;
+    border-radius: 2px;
+    width: 100%;
+  }
+
+  .playground__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .playground__actions :global(hr) {
+    display: block;
+    width: 100%;
+    opacity: 25%;
+    margin: .5rem auto;
+  }
+</style>
 
 <script>
   // lib is the player SDK offered by the `lib` package

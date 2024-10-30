@@ -1,0 +1,26 @@
+---
+title: "Chapters example"
+---
+
+import { Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+
+import code from 'code/chapters.js?raw';
+
+## Example
+
+<Playground>
+  <Fragment slot="actions">
+    <PlaygroundButton type="get" command="getChapters">Get chapters list</PlaygroundButton>
+    <PlaygroundButton type="get" command="getCurrentChapter">Get current chapter</PlaygroundButton>
+  </Fragment>
+  <Fragment slot="events">
+    <PlaygroundCheckbox checked={true} event="chapterchange">Listen for `chapterchange` events</PlaygroundCheckbox>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>

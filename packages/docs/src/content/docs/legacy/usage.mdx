@@ -1,164 +1,135 @@
 ---
 title: "Legacy SDK"
 ---
+import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
 
-<div className="qi-alert qi-alert--warning qi-alert--rounded qi-mb--4">
-  <h3 class="qi-m--0">Heads up!</h3>
-  <p>This SDK is considered legacy. No new features will be added and we will retire the SDK on April 1<sup>st</sup>, 2024.</p>
-  <a href={`${import.meta.env.BASE_URL}migration#migration-from-v20-to-v30`}>Learn how to migrate to the new SDK &rarr;</a>
-</div>
+<Aside type="caution" title="Heads up!">
+  This SDK is considered legacy. No new features will be added and we will retire the SDK on April 1<sup>st</sup>, 2024.
+
+  [Learn how to migrate to the new SDK &rarr;](migration#migration-from-v20-to-v30)
+</Aside>
 
 The Qumu Player API allows you to programmatically interact with the player embedded in an iframe.
 
 You can send commands to the player, get and set properties, and bind to events from the player.
 
-```html
-<iframe name="player-iframe-name" width="900" height="467" frameborder="0" src="http://<QumuCloud_Domain>/view/guid-or-alias"></iframe>
-<script src="http://<QumuCloud_Domain>/client/application/api-v2.js"></script>
-
-<script>
-var api = new KV.Api('player-iframe-name');
-
-api.init(function(err) {
-  if (err) {
-    alert('Error initializing Player API. Code: ' + err);
-    return;
-  }
-
-  // You can bind to events
-  api.bind('ended', function() {
-    alert('Event: ended');
-  });
-
-  // Get properties
-  api.get('currentTime', function(currentTime) {
-    alert(currentTime);
-  });
-
-  // Set properties
-  api.set('currentTime', 1000);
-
-  // And issue commands
-  api.command('play');
-});
-</script>
-```
-
 ## Basics
 
 The Player API is a separate JavaScript file that sets up a cross domain communication channel with a Qumu player embedded in an iframe.
 
-### Include the Player API script
+<Steps>
+1. Include the Player API script in your HTML page
+    * Replace `<qumu-cloud-domain>` with the URL of your Qumu Cloud instance.
 
-```html
-<!-- Include the Player API script. This can be included before or after the Player iframe. -->
-<script src="http://<QumuCloud_Domain>/client/application/api-v2.js"></script>
-```
+   ```html
+    <script src="http://<qumu-cloud-domain>/client/application/api-v2.js"></script>
+    ```
+2. Include the Player iframe
+    * Replace `<qumu-cloud-domain>` with the URL of your Qumu Cloud instance.
+    * Replace `<guid-or-alias>` with the guid or the alias of a Qumu Cloud presentation.
 
-### Include the Player iframe
+    ```html
+    <!--
+    Include the Player iframe.
+    You must set the name attribute so that the API knows which iframe to talk to.
+    -->
+    <iframe name="player-iframe-name" width="900" height="467" frameborder="0" src="http://<qumu-cloud-domain>/view/<guid-or-alias>"></iframe>
+    ```
+3. Create the API object
+    ```html
+    <script>
+     // Now we create the Api object.
+     // Each Api object connects to a single Player iframe. You must pass the name of the iframe as the first parameter.
+     // The second parameter is a collection of options.
+     // Currently the only option you can set is the timeout in milliseconds.
+     const api = new KV.Api('player-iframe-name', {
+       // The maximum amount of time to wait for the initialization.
+       // The default is 20000 (20 seconds).
+       timeout: 15000,
+      });
+    </script>
+    ```
+4. Initialize the API
+    ```html
+    <script>
+     // The API must be initialized before it can be used.
+     // The 'init' mehtod takes a callback which will be called when the initialization is complete.
+     // If the initialization fails the 'err' parameter will be set.
+     api.init((err) => {
+       if (err === 'NO_IFRAME') {
+         alert('Unable to find iframe with name: ' + api.iframe());
+         return;
+       }
 
-```html
-<!--
-Include the Player iframe.
-You must set the name attribute so that the API knows which iframe to talk to.
--->
-<iframe name="player-iframe-name" width="900" height="467" frameborder="0" src="http://<QumuCloud_Domain>/view/guid-or-alias"></iframe>
-```
+       if (err === 'TIMED_OUT') {
+         alert('Timed out waiting for Player to connect');
+         return;
+       }
 
-### Create the API object
+       if (err) {
+         alert('Unknown error initializing Player API. Code: ' + err);
+         return;
+       }
 
-```js
-<script>
-// Now we create the Api object.
-// Each Api object connects to a single Player iframe. You must pass the name of the iframe as the first parameter.
-// The second parameter is a collection of options.
-// Currently the only option you can set is the timeout in milliseconds.
-var api = new KV.Api('player-iframe-name', {
-  // The maximum amount of time to wait for the initialization.
-  // The default is 20000 (20 seconds).
-  timeout: 15000
-});
-</script>
-```
+       // API was initialized successfully.
+       // Bind events and issue commands here.
+    });
+    </script>
+    ```
 
-### Initialize the API
+   The `err` parameter will be set if the initialization fails. There are currently only two possible values it can be set to:
 
-```js
-<script>
-// The API must be initialized before it can be used.
-// The 'init' mehtod takes a callback which will be called when the initialization is complete.
-// If the initialization fails the 'err' parameter will be set.
-api.init(function(err) {
-  if (err === 'NO_IFRAME') {
-    alert('Unable to find iframe with name: ' + api.iframe());
-    return;
-  } else if (err === 'TIMED_OUT') {
-    alert('Timed out waiting for Player to connect');
-    return;
-  } else if (err) {
-    alert('Unknown error initializing Player API. Code: ' + err);
-    return;
-  }
+   * `NO_IFRAME` - Used if the player iframe cannot be found. Check that you have created the Api with the correct iframe name, and that the iframe is in the page before you initialize the Api.
+   * `TIMED_OUT` - Used when the Api is unable to establish a connection to the Player within the timeout period. This covers all other errors that could occur.
 
-  // API was initialized successfully.
-  // Bind events and issue commands here.
-});
-</script>
-```
+5. Bind to events, get and set properties, and send commands
+    ```html
+    <script>
+     api.init((err) => {
+     // Assuming error handling occurs here.
 
-The `err` parameter will be set if the initialization fails. There are currently only two possible values it can be set to:
+     const playHandler = () => {
+       alert('Event: play');
+     };
 
- * `NO_IFRAME` - Used if the player iframe cannot be found. Check that you have created the Api with the correct iframe name, and that the iframe is in the page before you initialize the Api.
- * `TIMED_OUT` - Used when the Api is unable to establish a connection to the Player within the timeout period. This covers all other errors that could occur.
+     // Use 'bind' to register an event handler
+     api.bind('play', playHandler);
 
-### Bind to events, get and set properties, and send commands
+     // Use 'command' to issue a command to the player
+     api.command('play');
 
-```js
-<script>
-api.init(function(err) {
-  // Assuming error handling occurs here.
+     // Use 'get' to get a property from the player
+     // Values are always returned in a callback (due to iframe communication)
+     api.get('currentTime', (currentTime) => {
+       alert(currentTime);
+     });
 
-  var playHandler = function() {
-      alert('Event: play');
-  };
+     // Use 'set' to set a property on the player
+     api.set('currentTime', 1000);
 
-  // Use 'bind' to register an event handler
-  api.bind('play', playHandler);
+     // Use 'unbind' to remove a specific event handler
+     api.unbind('play', playHandler);
 
+     // or remove all handlers for an event.
+     api.unbind('play');
+    });
+    </script>
+    ```
+</Steps>
 
-  // Use 'command' to issue a command to the player
-  api.command('play');
-
-  // Use 'get' to get a property from the player
-  // Values are always returned in a callback (due to iframe communication)
-  api.get('currentTime', function(currentTime) {
-    alert(currentTime);
-  });
-
-  // Use 'set' to set a property on the player
-  api.set('currentTime', 1000);
-
-  // Use 'unbind' to remove a specific event handler
-  api.unbind('play', playHandler);
-
-  // or remove all handlers for an event.
-  api.unbind('play');
-});
-</script>
-```
-
-### Destroy the API and Player
+## Destroy the API and Player
 
 You only need to issue the `destroy` command if you wish to remove the API and Player while the user is still on the page. It does NOT need to be called when the user navigates away from the page.
 
-```js
+```html
 <script>
-api.init(function(err) {
+api.init((err) => {
   // Assuming error handling occurs here.
 
   // Start destroying the API.
   // No more events will be sent, and no more commands can be issued.
-  api.command('destroy', [], function() {
+  api.command('destroy', [], () => {
 
     // Once the callback is executed the destroy is complete.
     // and you can remove the Player iframe from the page.
