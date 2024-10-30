@@ -10,6 +10,7 @@ export default defineConfig({
         // Relative path to your custom CSS file
         './src/styles/custom.css',
       ],
+      favicon: '/assets/favicon.svg',
       sidebar: [
         {
           items: [
