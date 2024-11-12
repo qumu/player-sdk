@@ -39,11 +39,11 @@ Qumu Cloud uses [HLS.js](https://github.com/video-dev/hls.js) under the hood so 
     <PlaygroundButton type="get" command="getLevel">Get requested level</PlaygroundButton>
     <PlaygroundButton type="get" command="getPlaybackLevel">Get playback level</PlaygroundButton>
     <hr/>
-    <PlaygroundButton type="get" command="setLevel" value={-1}>Auto</PlaygroundButton>
-    <PlaygroundButton type="get" command="setLevel" value={4}>1080p</PlaygroundButton>
-    <PlaygroundButton type="get" command="setLevel" value={3}>720p</PlaygroundButton>
-    <PlaygroundButton type="get" command="setLevel" value={2}>480p</PlaygroundButton>
-    <PlaygroundButton type="get" command="setLevel" value={1}>240p</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={-1}>Auto</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={4}>1080p</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={3}>720p</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={2}>480p</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={1}>240p</PlaygroundButton>
   </Fragment>
   <Fragment slot="events">
     <PlaygroundCheckbox checked={true} event="levelchange">Listen for `levelchange` events</PlaygroundCheckbox>
