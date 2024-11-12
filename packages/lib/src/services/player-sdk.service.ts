@@ -230,6 +230,22 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the requested level by the user
+   *
+   * The values can differ from `.getPlaybackLevel()` for automatic level switching
+   */
+  async getLevel(): Promise<number> {
+    return this.get('level');
+  }
+
+  /**
+   * Gets the available levels
+   */
+  async getLevels(): Promise<Array<{key: string; value: number}>> {
+    return this.get('levels');
+  }
+
+  /**
    * Gets the presentation's duration in milliseconds
    */
   async getLiveEndTime(): Promise<string | null> {
@@ -255,6 +271,15 @@ export class PlayerSdk {
    */
   async getPictureInPicturePosition(): Promise<number> {
     return this.get('pipPosition');
+  }
+
+  /**
+   * Gets the actual playback level
+   *
+   * The values can differ from `.getLevel()` for automatic level switching
+   */
+  async getPlaybackLevel(): Promise<number> {
+    return this.get('playbackLevel');
   }
 
   /**
@@ -375,6 +400,19 @@ export class PlayerSdk {
    */
   setLayout(layout: SdkLayout): void {
     this.set('layout', layout);
+  }
+
+  /**
+   * Sets the level
+   *
+   * @param level the new level, use -1 for automatic level switching
+   */
+  setLevel(level: number): void {
+    if (level < -1 || level === 0) {
+      throw new Error('The level must set to -1 for automatic switching or be superior to 0');
+    }
+
+    this.set('level', level);
   }
 
   /**

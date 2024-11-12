@@ -1036,6 +1036,118 @@ describe('Service', () => {
     });
   });
 
+  describe('getLevel', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = initSdk();
+
+      sdk.getLevel();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'level',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const sdk = initSdk();
+
+      sdk.getLevel()
+        .then((level) => {
+          expect(level).toEqual(1);
+        });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer<SdkGetSetMessage>({
+        action: 'get',
+        guid,
+        name: 'level',
+        value: 1,
+      });
+    });
+  });
+
+  describe('getLevels', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = initSdk();
+
+      sdk.getLevels();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'levels',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const sdk = initSdk();
+
+      sdk.getLevels()
+        .then((levels) => {
+          expect(levels).toEqual([
+            {
+              key: '240p',
+              value: 1,
+            },
+            {
+              key: '480p',
+              value: 2,
+            },
+            {
+              key: '720p',
+              value: 3,
+            },
+          ]);
+        });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer<SdkGetSetMessage>({
+        action: 'get',
+        guid,
+        name: 'levels',
+        value: [
+          {
+            key: '240p',
+            value: 1,
+          },
+          {
+            key: '480p',
+            value: 2,
+          },
+          {
+            key: '720p',
+            value: 3,
+          },
+        ],
+      });
+    });
+  });
+
   describe('getPictureInPicturePosition', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
@@ -1075,6 +1187,49 @@ describe('Service', () => {
         guid,
         name: 'pipPosition',
         value: 'top-left',
+      });
+    });
+  });
+
+  describe('getPlaybackLevel', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const sdk = initSdk();
+
+      sdk.getPlaybackLevel();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'playbackLevel',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const sdk = initSdk();
+
+      sdk.getPlaybackLevel()
+        .then((level) => {
+          expect(level).toEqual(1);
+        });
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer<SdkGetSetMessage>({
+        action: 'get',
+        guid,
+        name: 'playbackLevel',
+        value: 1,
       });
     });
   });
@@ -1540,6 +1695,45 @@ describe('Service', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setLayout((undefined as any))).toThrow('A value must be set.');
+    });
+  });
+
+  describe('setLevel', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+
+      const sdk = initSdk();
+
+      await sdk.setLevel(2);
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'set',
+          guid,
+          name: 'level',
+          value: 2,
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should send an error if the value is below -1', async () => {
+      const sdk = initSdk();
+
+      expect(() => sdk.setLevel(-2)).toThrow('The level must set to -1 for automatic switching or be superior to 0');
+    });
+
+    it('should send an error if the value is 0', async () => {
+      const sdk = initSdk();
+
+      expect(() => sdk.setLevel(0)).toThrow('The level must set to -1 for automatic switching or be superior to 0');
+    });
+
+    it('should throw an error if no value is provided', async () => {
+      const sdk = initSdk();
+
+      expect(() => sdk.setLevel((undefined as any))).toThrow('A value must be set.');
     });
   });
 
