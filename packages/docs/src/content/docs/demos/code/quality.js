@@ -21,11 +21,6 @@ document.getElementById('getPlaybackLevel').addEventListener('click', () => {
   });
 });
 
-
-document.getElementById('disableTextTracks').addEventListener('click', () => {
-  sdk.disableTextTracks();
-});
-
 document.getElementById('setLevelAuto').addEventListener('click', () => {
   sdk.setLevel(-1);
 });
