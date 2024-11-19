@@ -1,0 +1,57 @@
+---
+title: "Quality example"
+---
+
+import { Aside, Code } from '@astrojs/starlight/components';
+import Playground from '../../../components/Playground.astro';
+import PlaygroundButton from '../../../components/PlaygroundButton.astro';
+import PlaygroundCheckbox from '../../../components/PlaygroundCheckbox.astro';
+
+import code from 'code/quality.js?raw';
+
+## Explanation
+
+While HLS's main concept is automatic quality level switching, we still allow for a user to manually choose a video quality.
+Qumu Cloud uses [HLS.js](https://github.com/video-dev/hls.js) under the hood so our methods are proxying HLS.js behaviour.
+
+<Aside type="caution" title="Does not work on iOS">
+  Our iOS player uses Apple's native HLS player. As Apple does not provide any way to define a fixed level, the methods
+  described below will not work on iOS.
+</Aside>
+
+| Method                                             | Description                                                                                                                                                    |
+|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `getLevel(): number`                               | Returns -1 for automatic level switching or returns the level requested by the user in the player.                                                             |
+| `getLevels(): Array<{key: string; value: number}>` | Returns the available levels.                                                                                                                                  |
+| `getPlaybackLevel(): number`                       | Returns the actual level used by HLS.js for playback. The value will be equal to getLevel() for fixed levels and different if the requested level is -1 (auto) |
+| `setLevel(level: number): void`                    | Update the requested level. Send `-1` if you want to use automatic level switching from HLS.js or use a level from the `.getLevels()` method                   |
+
+| Event                 | Description                                           |
+|-----------------------|-------------------------------------------------------|
+| `levelchange`         | Triggered every time the level is changed by the user |
+| `playbacklevelchange` | Triggered every time the level is updated by HLS.js   |
+
+## Example
+
+<Playground>
+  <Fragment slot="actions">
+    <PlaygroundButton type="get" command="getLevels">Get levels</PlaygroundButton>
+    <PlaygroundButton type="get" command="getLevel">Get requested level</PlaygroundButton>
+    <PlaygroundButton type="get" command="getPlaybackLevel">Get playback level</PlaygroundButton>
+    <hr/>
+    <PlaygroundButton type="set" command="setLevel" value={-1}>Auto</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={4}>1080p</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={3}>720p</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={2}>480p</PlaygroundButton>
+    <PlaygroundButton type="set" command="setLevel" value={1}>240p</PlaygroundButton>
+  </Fragment>
+  <Fragment slot="events">
+    <PlaygroundCheckbox checked={true} event="levelchange">Listen for `levelchange` events</PlaygroundCheckbox>
+    <PlaygroundCheckbox checked={true} event="playbacklevelchange">Listen for `playbacklevelchange`
+      events</PlaygroundCheckbox>
+  </Fragment>
+</Playground>
+
+## Code
+
+<Code code={code} lang="js"/>
