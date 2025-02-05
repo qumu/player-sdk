@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "astro build",
-    "dev:watch": "astro dev"
+    "dev:watch": "astro dev --base player-sdk/"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",

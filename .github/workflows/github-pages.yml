@@ -32,7 +32,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
 
       - name: Build documentation website
-        run: npm run build --workspace lib && npm run build --workspace docs -- --base player-sdk --site https://qumu.github.io
+        run: npm run build --workspace lib && npm run build --workspace docs -- --base player-sdk/ --site https://qumu.github.io
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3.9.2
