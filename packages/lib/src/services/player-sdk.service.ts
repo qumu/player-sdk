@@ -112,7 +112,7 @@ export class PlayerSdk {
    * @param name the event name to listen to
    * @param callback the callback to run when the event is triggered
    */
-  addEventListener(name: SdkEventMessage['name'], callback: Function): void {
+  addEventListener(name: SdkEventMessage['name'] | 'ready', callback: Function): void {
     if (!name) {
       throw new TypeError('You must pass an event name.');
     }
@@ -123,6 +123,14 @@ export class PlayerSdk {
 
     if (typeof callback !== 'function') {
       throw new TypeError('The callback must be a function.');
+    }
+
+    if (name === 'ready') {
+      this.readyPromise.then(() => {
+        callback();
+      });
+
+      return;
     }
 
     const callbacks = this.callbackStore.getCallbacks(`event:${name}`);

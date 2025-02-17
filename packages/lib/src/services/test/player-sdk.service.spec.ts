@@ -402,6 +402,23 @@ describe('Service', () => {
       });
     });
 
+    describe('ready', () => {
+      it('should execute when sdk is ready', async () => {
+        expect.assertions(1);
+
+        const sdk = new PlayerSdk(iframe);
+
+        sdk.addEventListener('ready', () => {
+          expect(true).toBeTruthy();
+        });
+
+        postMessageFromPlayer<SdkReadyMessage>({
+          action: 'ready',
+          value: url.toString(),
+        });
+      });
+    });
+
     describe('timeupdate', () => {
       it('should listen to events', async () => {
         expect.assertions(1);
