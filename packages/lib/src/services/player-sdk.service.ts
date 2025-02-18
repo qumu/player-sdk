@@ -126,8 +126,13 @@ export class PlayerSdk {
     }
 
     if (name === 'ready') {
+      this.callbackStore.storeCallback(`event:${name}`, callback);
+
       this.readyPromise.then(() => {
-        callback();
+        // check if callback was not removed
+        if (this.callbackStore.getCallbacks(`event:${name}`).includes(callback)) {
+          callback();
+        }
       });
 
       return;

@@ -418,19 +418,44 @@ describe('Service', () => {
         });
       });
 
-      it('should execute when handshake is done', () => {
-        expect.assertions(1);
+      it('should execute when handshake is done', async () => {
+        expect.assertions(2);
+
+        const callback = jest.fn().mockImplementation(() => {
+          expect(true).toBeTruthy();
+        });
 
         const sdk = new PlayerSdk(iframe);
 
-        sdk.addEventListener('ready', () => {
-          expect(true).toBeTruthy();
-        });
+        sdk.addEventListener('ready', callback);
 
         postMessageFromPlayer<SdkHandshakeMessage>({
           action: 'handshake',
           guid,
         });
+
+        await Promise.resolve();
+
+        expect(callback).toHaveBeenCalled();
+      });
+
+      it('should not execute when listener was removed', async () => {
+        const callback = jest.fn();
+
+        const sdk = new PlayerSdk(iframe);
+
+        sdk.addEventListener('ready', callback);
+
+        sdk.removeEventListener('ready', callback);
+
+        postMessageFromPlayer<SdkReadyMessage>({
+          action: 'ready',
+          value: url.toString(),
+        });
+
+        await Promise.resolve();
+
+        expect(callback).not.toHaveBeenCalled();
       });
     });
 
