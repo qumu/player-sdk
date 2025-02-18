@@ -439,7 +439,7 @@ describe('Service', () => {
         expect(callback).toHaveBeenCalled();
       });
 
-      it('should not execute when listener was removed', async () => {
+      it('should not execute when listener was removed before the promise got resolved', async () => {
         const callback = jest.fn();
 
         const sdk = new PlayerSdk(iframe);
