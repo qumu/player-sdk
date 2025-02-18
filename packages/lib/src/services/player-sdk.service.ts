@@ -112,7 +112,7 @@ export class PlayerSdk {
    * @param name the event name to listen to
    * @param callback the callback to run when the event is triggered
    */
-  addEventListener(name: SdkEventMessage['name'] | 'ready', callback: Function): void {
+  addEventListener(name: SdkEventMessage['name'], callback: Function): void {
     if (!name) {
       throw new TypeError('You must pass an event name.');
     }

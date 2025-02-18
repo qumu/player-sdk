@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { PlayerSdk } from '../player-sdk.service';
-import { SdkEventMessage, SdkGetSetMessage, SdkMessage, SdkReadyMessage } from '../../models/internal';
+import { SdkEventMessage, SdkGetSetMessage, SdkHandshakeMessage, SdkMessage, SdkReadyMessage } from '../../models/internal';
 
 const url = new URL('https://knowledge.qumucloud.com/view/abcd1234');
 
@@ -403,7 +403,7 @@ describe('Service', () => {
     });
 
     describe('ready', () => {
-      it('should execute when sdk is ready', async () => {
+      it('should execute when sdk is ready', () => {
         expect.assertions(1);
 
         const sdk = new PlayerSdk(iframe);
@@ -415,6 +415,21 @@ describe('Service', () => {
         postMessageFromPlayer<SdkReadyMessage>({
           action: 'ready',
           value: url.toString(),
+        });
+      });
+
+      it('should execute when handshake is done', () => {
+        expect.assertions(1);
+
+        const sdk = new PlayerSdk(iframe);
+
+        sdk.addEventListener('ready', () => {
+          expect(true).toBeTruthy();
+        });
+
+        postMessageFromPlayer<SdkHandshakeMessage>({
+          action: 'handshake',
+          guid,
         });
       });
     });
