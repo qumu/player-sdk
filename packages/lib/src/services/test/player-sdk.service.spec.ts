@@ -118,6 +118,26 @@ describe('Service', () => {
         'https://knowledge.qumucloud.com/view/efgh5678',
       );
     });
+
+    it('should match escaped and unescaped URLs', async () => {
+      expect.assertions(1);
+
+      iframe.src = 'https://knowledge.qumucloud.com/view/sample-id?abc%7E1';
+      const callback = jest.fn();
+
+      const sdk = new PlayerSdk(iframe);
+
+      sdk.addEventListener('ready', callback);
+
+      postMessageFromPlayer<SdkReadyMessage>({
+        action: 'ready',
+        value: 'https://knowledge.qumucloud.com/view/sample-id?abc~1',
+      });
+
+      await Promise.resolve();
+
+      expect(callback).toHaveBeenCalled();
+    });
   });
 
   describe('addEventListener', () => {
