@@ -62,9 +62,7 @@ export class PlayerSdk {
         }
 
         if (message?.action === 'ready') {
-          const frame = message.value
-            ? window.document.querySelector(`iframe[src="${message.value}"]`) as HTMLIFrameElement
-            : this.iframe;
+          const frame = this.findIframe(message.value);
 
           if (!frame) {
             // eslint-disable-next-line no-console
@@ -508,6 +506,35 @@ export class PlayerSdk {
     }
 
     this.postMessage(message);
+  }
+
+  /**
+   * Finds the iframe in the document matching the url
+   */
+  private findIframe(url?: string): HTMLIFrameElement | undefined {
+    if (!url) {
+      return this.iframe;
+    }
+
+    const iframeMatching = window.document.querySelector(`iframe[src="${url}"]`) as HTMLIFrameElement;
+
+    if (iframeMatching) {
+      return iframeMatching;
+    }
+
+    // In case url from the message contains non encoded characters
+    // while iframe's src contains encoded characters then we need to decode them
+    // for example `<iframe src="https://example.com?abc%7E1"></iframe>` will result in
+    // url being `https://example.com?abc~1`
+    const iframes = window.document.querySelectorAll('iframe');
+
+    const decodedUrl = decodeURIComponent(url);
+
+    for (const iframe of iframes) {
+      if (decodedUrl === decodeURIComponent(iframe.src)) {
+        return iframe;
+      }
+    }
   }
 
   /**
