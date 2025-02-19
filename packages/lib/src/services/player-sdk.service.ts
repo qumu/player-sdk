@@ -125,6 +125,19 @@ export class PlayerSdk {
       throw new TypeError('The callback must be a function.');
     }
 
+    if (name === 'ready') {
+      this.callbackStore.storeCallback(`event:${name}`, callback);
+
+      this.readyPromise.then(() => {
+        // check if callback was not removed
+        if (this.callbackStore.getCallbacks(`event:${name}`).includes(callback)) {
+          callback();
+        }
+      });
+
+      return;
+    }
+
     const callbacks = this.callbackStore.getCallbacks(`event:${name}`);
 
     // This is the first time we subscribe to this event, we need to tell the Player to start a watcher

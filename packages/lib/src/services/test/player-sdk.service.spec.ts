@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { PlayerSdk } from '../player-sdk.service';
-import { SdkEventMessage, SdkGetSetMessage, SdkMessage, SdkReadyMessage } from '../../models/internal';
+import { SdkEventMessage, SdkGetSetMessage, SdkHandshakeMessage, SdkMessage, SdkReadyMessage } from '../../models/internal';
 
 const url = new URL('https://knowledge.qumucloud.com/view/abcd1234');
 
@@ -399,6 +399,63 @@ describe('Service', () => {
           name: 'primarycontentchange',
           value: 'slides',
         });
+      });
+    });
+
+    describe('ready', () => {
+      it('should execute when sdk is ready', () => {
+        expect.assertions(1);
+
+        const sdk = new PlayerSdk(iframe);
+
+        sdk.addEventListener('ready', () => {
+          expect(true).toBeTruthy();
+        });
+
+        postMessageFromPlayer<SdkReadyMessage>({
+          action: 'ready',
+          value: url.toString(),
+        });
+      });
+
+      it('should execute when handshake is done', async () => {
+        expect.assertions(2);
+
+        const callback = jest.fn().mockImplementation(() => {
+          expect(true).toBeTruthy();
+        });
+
+        const sdk = new PlayerSdk(iframe);
+
+        sdk.addEventListener('ready', callback);
+
+        postMessageFromPlayer<SdkHandshakeMessage>({
+          action: 'handshake',
+          guid,
+        });
+
+        await Promise.resolve();
+
+        expect(callback).toHaveBeenCalled();
+      });
+
+      it('should not execute when listener was removed before the promise got resolved', async () => {
+        const callback = jest.fn();
+
+        const sdk = new PlayerSdk(iframe);
+
+        sdk.addEventListener('ready', callback);
+
+        sdk.removeEventListener('ready', callback);
+
+        postMessageFromPlayer<SdkReadyMessage>({
+          action: 'ready',
+          value: url.toString(),
+        });
+
+        await Promise.resolve();
+
+        expect(callback).not.toHaveBeenCalled();
       });
     });
 

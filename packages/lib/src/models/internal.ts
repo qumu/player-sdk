@@ -8,6 +8,7 @@ type SdkEventListener =
   | 'play'
   | 'playbackratechange'
   | 'primarycontentchange'
+  | 'ready'
   | 'timeupdate'
   | 'volumechange';
 
