@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@enghouse-qumu/player-sdk",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "JavaScript SDK to interact with the player ",
   "engines": {
     "node": ">=18"
