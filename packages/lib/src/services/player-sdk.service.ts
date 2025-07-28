@@ -590,6 +590,10 @@ export class PlayerSdk {
       version: this.version,
     });
 
+    document.dispatchEvent(new CustomEvent('__QC_SDK_FROM_SDK__', {
+      detail: messageString,
+    }));
+
     this.iframe.contentWindow?.postMessage(messageString, this.origin);
   }
 

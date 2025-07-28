@@ -1,0 +1,35 @@
+{
+  "name": "Qumu Cloud SDK",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "Inspect events sent and received by the Qumu Cloud SDK",
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "injected.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "devtools_page": "devtools.html"
+}
