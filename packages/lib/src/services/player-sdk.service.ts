@@ -241,7 +241,7 @@ export class PlayerSdk {
   /**
    * Gets the available levels
    */
-  async getLevels(): Promise<Array<{key: string; value: number}>> {
+  async getLevels(): Promise<Array<{ key: string; value: number }>> {
     return this.get('levels');
   }
 
@@ -535,6 +535,10 @@ export class PlayerSdk {
       ...message,
       version: this.version,
     });
+
+    document.dispatchEvent(new CustomEvent('__QC_SDK_FROM_SDK__', {
+      detail: messageString,
+    }));
 
     this.iframe.contentWindow?.postMessage(messageString, this.origin);
   }
