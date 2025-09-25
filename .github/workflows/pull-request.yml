@@ -18,10 +18,10 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
-      - name: Use Node.js 18
-        uses: actions/setup-node@v4
+      - name: Use Node.js 24
+        uses: actions/setup-node@v5
         with:
-          node-version: 18
+          node-version: 24
           cache: 'npm'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@qumu'
@@ -38,6 +38,6 @@ jobs:
         run: npm run test:cov --workspace lib
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v6.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
