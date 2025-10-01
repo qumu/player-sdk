@@ -1,4 +1,6 @@
 name: "Generate release & new package to NPM"
+permissions:
+  contents: read
 
 on:
   push:
@@ -8,6 +10,8 @@ on:
 jobs:
   create-release:
     name: Create new release
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
