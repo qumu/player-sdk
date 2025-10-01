@@ -38,6 +38,7 @@ jobs:
         run: npm run test:cov --workspace lib
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6.0.0
+        # Pinned to v6.0.0 but using SHA for safety - https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
