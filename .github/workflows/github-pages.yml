@@ -11,6 +11,8 @@ on:
 jobs:
   github-pages:
     name: Deploy to Github Pages
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
