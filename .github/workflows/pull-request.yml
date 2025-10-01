@@ -1,4 +1,6 @@
 name: "Lint, test and scan"
+permissions:
+  contents: read
 
 on:
   push:
