@@ -1,12 +1,17 @@
 import { randomUUID } from 'crypto';
 import { PlayerSdk } from '../player-sdk.service';
-import { SdkEventMessage, SdkGetSetMessage, SdkHandshakeMessage, SdkMessage, SdkReadyMessage } from '../../models/internal';
+import {
+  SdkEventMessage,
+  SdkGetSetMessage,
+  SdkHandshakeMessage,
+  SdkMessage,
+  SdkReadyMessage,
+} from '../../models/internal';
 
 const url = new URL('https://knowledge.qumucloud.com/view/abcd1234');
 
 function createIFrame(name = `iframe${randomUUID()}`, src = url.toString()): HTMLIFrameElement {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const iframe = document.createElement('iframe')!;
+  const iframe = document.createElement('iframe');
 
   iframe.name = name;
   iframe.src = src;
@@ -64,7 +69,7 @@ describe('Service', () => {
 
   describe('constructor', () => {
     it('should send handshake message', () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       // eslint-disable-next-line no-new
       new PlayerSdk(iframe);
@@ -82,6 +87,7 @@ describe('Service', () => {
     it('should save the origin for the next communications', async () => {
       const sdk = new PlayerSdk(iframe);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((sdk as any).origin).toEqual('*');
 
       postMessageFromPlayer<SdkReadyMessage>({
@@ -92,6 +98,7 @@ describe('Service', () => {
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((sdk as any).origin).toEqual(url.origin);
     });
 
@@ -102,6 +109,7 @@ describe('Service', () => {
 
       const sdk = new PlayerSdk(iframe);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((sdk as any).origin).toEqual('*');
 
       postMessageFromPlayer<SdkReadyMessage>({
@@ -141,27 +149,28 @@ describe('Service', () => {
   });
 
   describe('addEventListener', () => {
-    it('should throw an error if no event name is passed', async () => {
+    it('should throw an error if no event name is passed', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.addEventListener((undefined as any), () => {
+      expect(() => sdk.addEventListener(undefined as never, () => {
       })).toThrow('You must pass an event name.');
     });
 
-    it('should throw an error if no callback is passed', async () => {
+    it('should throw an error if no callback is passed', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.addEventListener('volumechange', (undefined as any))).toThrow('You must pass a callback function.');
+      expect(() => sdk.addEventListener('volumechange', undefined as never))
+        .toThrow('You must pass a callback function.');
     });
 
-    it('should throw an error if the callback is not a function', async () => {
+    it('should throw an error if the callback is not a function', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.addEventListener('volumechange', ('foo' as any))).toThrow('The callback must be a function.');
+      expect(() => sdk.addEventListener('volumechange', 'foo' as never)).toThrow('The callback must be a function.');
     });
 
     it('should send a message to the player for the first subscribe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
@@ -184,7 +193,7 @@ describe('Service', () => {
     });
 
     it('should only send a message to the player for the first subscribe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
@@ -261,7 +270,7 @@ describe('Service', () => {
 
         const sdk = initSdk();
 
-        sdk.addEventListener('chapterchange', (c: any) => {
+        sdk.addEventListener('chapterchange', (c) => {
           expect(c).toEqual(chapter);
         });
 
@@ -385,7 +394,7 @@ describe('Service', () => {
     });
 
     describe('playbackratechange', () => {
-      it('should listen to the event', async () => {
+      it('should listen to the event', () => {
         expect.assertions(1);
 
         const sdk = initSdk();
@@ -404,7 +413,7 @@ describe('Service', () => {
     });
 
     describe('primarycontentchange', () => {
-      it('should listen to the event', async () => {
+      it('should listen to the event', () => {
         expect.assertions(1);
 
         const sdk = initSdk();
@@ -525,7 +534,7 @@ describe('Service', () => {
   });
 
   describe('destroy', () => {
-    it('should remove the message event listener', async () => {
+    it('should remove the message event listener', () => {
       const spy = jest.spyOn(window, 'removeEventListener');
       const sdk = initSdk();
 
@@ -534,8 +543,8 @@ describe('Service', () => {
       expect(spy).toHaveBeenCalledWith('message', expect.any(Function));
     });
 
-    it('should send a destroy message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+    it('should send a destroy message to the iframe', () => {
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
       sdk.destroy();
@@ -554,11 +563,13 @@ describe('Service', () => {
 
   describe('disableCaptionTrack', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.disableCaptionTrack();
+      sdk.disableCaptionTrack();
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -575,11 +586,13 @@ describe('Service', () => {
 
   describe('enableCaptionTrack', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.enableCaptionTrack('en');
+      sdk.enableCaptionTrack('en');
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -594,11 +607,13 @@ describe('Service', () => {
     });
 
     it('should send the appropriate message to the iframe #2', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.enableCaptionTrack(null);
+      sdk.enableCaptionTrack(null);
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -615,10 +630,10 @@ describe('Service', () => {
 
   describe('getCaptionTracks', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getCaptionTracks();
+      void sdk.getCaptionTracks();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -639,23 +654,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getCaptionTracks()
-        .then((captionTracks) => {
-          expect(captionTracks).toEqual([
-            {
-              guid: 'caption1',
-              languageCode: 'en',
-              source: 'AUTOGENERATED',
-              title: 'English',
-            },
-            {
-              guid: 'caption2',
-              languageCode: 'fr',
-              source: 'UPLOADED',
-              title: 'French',
-            },
-          ]);
-        });
+      const promise = sdk.getCaptionTracks();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -679,15 +678,32 @@ describe('Service', () => {
           },
         ],
       });
+
+      const captionTracks = await promise;
+
+      expect(captionTracks).toEqual([
+        {
+          guid: 'caption1',
+          languageCode: 'en',
+          source: 'AUTOGENERATED',
+          title: 'English',
+        },
+        {
+          guid: 'caption2',
+          languageCode: 'fr',
+          source: 'UPLOADED',
+          title: 'French',
+        },
+      ]);
     });
   });
 
   describe('getChapters', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getChapters();
+      void sdk.getChapters();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -731,10 +747,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getChapters()
-        .then((c) => {
-          expect(c).toEqual(chapters);
-        });
+      const promise = sdk.getChapters();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -745,15 +758,19 @@ describe('Service', () => {
         name: 'chapters',
         value: chapters,
       });
+
+      const chaptersFromPromise = await promise;
+
+      expect(chaptersFromPromise).toEqual(chapters);
     });
   });
 
   describe('getCurrentChapter', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getCurrentChapter();
+      void sdk.getCurrentChapter();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -785,10 +802,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getCurrentChapter()
-        .then((c) => {
-          expect(c).toEqual(chapter);
-        });
+      const promise = sdk.getCurrentChapter();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -799,15 +813,19 @@ describe('Service', () => {
         name: 'chapter',
         value: chapter,
       });
+
+      const c = await promise;
+
+      expect(c).toEqual(chapter);
     });
   });
 
   describe('getCurrentCaptionTrack', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getCurrentCaptionTrack();
+      void sdk.getCurrentCaptionTrack();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -828,15 +846,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getCurrentCaptionTrack()
-        .then((captionTrack) => {
-          expect(captionTrack).toEqual({
-            guid: 'caption1',
-            languageCode: 'en',
-            source: 'AUTOGENERATED',
-            title: 'English',
-          });
-        });
+      const promise = sdk.getCurrentCaptionTrack();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -852,15 +862,24 @@ describe('Service', () => {
           title: 'English',
         },
       });
+
+      const captionTrack = await promise;
+
+      expect(captionTrack).toEqual({
+        guid: 'caption1',
+        languageCode: 'en',
+        source: 'AUTOGENERATED',
+        title: 'English',
+      });
     });
   });
 
   describe('getCurrentTime', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getCurrentTime();
+      void sdk.getCurrentTime();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -881,10 +900,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getCurrentTime()
-        .then((currentTime) => {
-          expect(currentTime).toEqual(1000);
-        });
+      const promise = sdk.getCurrentTime();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -895,15 +911,19 @@ describe('Service', () => {
         name: 'currentTime',
         value: 1000,
       });
+
+      const currentTime = await promise;
+
+      expect(currentTime).toEqual(1000);
     });
   });
 
   describe('getDuration', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getDuration();
+      void sdk.getDuration();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -924,10 +944,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getDuration()
-        .then((duration) => {
-          expect(duration).toEqual(1000);
-        });
+      const promise = sdk.getDuration();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -938,15 +955,19 @@ describe('Service', () => {
         name: 'duration',
         value: 1000,
       });
+
+      const duration = await promise;
+
+      expect(duration).toEqual(1000);
     });
   });
 
   describe('getLiveEndTime', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getLiveEndTime();
+      void sdk.getLiveEndTime();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -967,10 +988,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getLiveEndTime()
-        .then((time) => {
-          expect(time).toEqual('2022-01-01T01:00:00.000Z');
-        });
+      const promise = sdk.getLiveEndTime();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -981,15 +999,19 @@ describe('Service', () => {
         name: 'liveEndTime',
         value: new Date('2022-01-01 01:00'),
       });
+
+      const liveEndTime = await promise;
+
+      expect(liveEndTime).toEqual('2022-01-01T01:00:00.000Z');
     });
   });
 
   describe('getLiveStartTime', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getLiveStartTime();
+      void sdk.getLiveStartTime();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1010,10 +1032,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getLiveStartTime()
-        .then((time) => {
-          expect(time).toEqual('2022-01-01T01:00:00.000Z');
-        });
+      const promise = sdk.getLiveStartTime();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1024,15 +1043,19 @@ describe('Service', () => {
         name: 'liveStartTime',
         value: new Date('2022-01-01 01:00'),
       });
+
+      const liveStartTime = await promise;
+
+      expect(liveStartTime).toEqual('2022-01-01T01:00:00.000Z');
     });
   });
 
   describe('getLiveState', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getLiveState();
+      void sdk.getLiveState();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1053,10 +1076,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getLiveState()
-        .then((state) => {
-          expect(state).toEqual('LIVE');
-        });
+      const promise = sdk.getLiveState();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1067,15 +1087,19 @@ describe('Service', () => {
         name: 'liveState',
         value: 'LIVE',
       });
+
+      const liveState = await promise;
+
+      expect(liveState).toEqual('LIVE');
     });
   });
 
   describe('getLayout', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getLayout();
+      void sdk.getLayout();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1096,10 +1120,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getLayout()
-        .then((layout) => {
-          expect(layout).toEqual('pip');
-        });
+      const promise = sdk.getLayout();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1110,15 +1131,19 @@ describe('Service', () => {
         name: 'layout',
         value: 'pip',
       });
+
+      const layout = await promise;
+
+      expect(layout).toEqual('pip');
     });
   });
 
   describe('getLevel', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getLevel();
+      void sdk.getLevel();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1139,10 +1164,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getLevel()
-        .then((level) => {
-          expect(level).toEqual(1);
-        });
+      const promise = sdk.getLevel();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1153,15 +1175,19 @@ describe('Service', () => {
         name: 'level',
         value: 1,
       });
+
+      const level = await promise;
+
+      expect(level).toEqual(1);
     });
   });
 
   describe('getLevels', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getLevels();
+      void sdk.getLevels();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1182,23 +1208,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getLevels()
-        .then((levels) => {
-          expect(levels).toEqual([
-            {
-              key: '240p',
-              value: 1,
-            },
-            {
-              key: '480p',
-              value: 2,
-            },
-            {
-              key: '720p',
-              value: 3,
-            },
-          ]);
-        });
+      const promise = sdk.getLevels();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1222,15 +1232,32 @@ describe('Service', () => {
           },
         ],
       });
+
+      const levels = await promise;
+
+      expect(levels).toEqual([
+        {
+          key: '240p',
+          value: 1,
+        },
+        {
+          key: '480p',
+          value: 2,
+        },
+        {
+          key: '720p',
+          value: 3,
+        },
+      ]);
     });
   });
 
   describe('getPictureInPicturePosition', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getPictureInPicturePosition();
+      void sdk.getPictureInPicturePosition();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1251,10 +1278,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getPictureInPicturePosition()
-        .then((value) => {
-          expect(value).toEqual('top-left');
-        });
+      const promise = sdk.getPictureInPicturePosition();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1265,15 +1289,19 @@ describe('Service', () => {
         name: 'pipPosition',
         value: 'top-left',
       });
+
+      const position = await promise;
+
+      expect(position).toEqual('top-left');
     });
   });
 
   describe('getPlaybackLevel', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getPlaybackLevel();
+      void sdk.getPlaybackLevel();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1294,10 +1322,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getPlaybackLevel()
-        .then((level) => {
-          expect(level).toEqual(1);
-        });
+      const promise = sdk.getPlaybackLevel();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1308,15 +1333,19 @@ describe('Service', () => {
         name: 'playbackLevel',
         value: 1,
       });
+
+      const level = await promise;
+
+      expect(level).toEqual(1);
     });
   });
 
   describe('getPlaybackRate', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getPlaybackRate();
+      void sdk.getPlaybackRate();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1337,10 +1366,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getPlaybackRate()
-        .then((playbackRate) => {
-          expect(playbackRate).toEqual(2);
-        });
+      const getPlaybackRatePromise = sdk.getPlaybackRate();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1351,15 +1377,19 @@ describe('Service', () => {
         name: 'playbackRate',
         value: 2,
       });
+
+      const playbackRate = await getPlaybackRatePromise;
+
+      expect(playbackRate).toEqual(2);
     });
   });
 
   describe('getPlaybackRates', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getPlaybackRates();
+      void sdk.getPlaybackRates();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1382,10 +1412,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getPlaybackRates()
-        .then((rates) => {
-          expect(rates).toEqual(playbackRates);
-        });
+      const getPlaybackRatesPromise = sdk.getPlaybackRates();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1396,15 +1423,19 @@ describe('Service', () => {
         name: 'playbackRates',
         value: playbackRates,
       });
+
+      const rates = await getPlaybackRatesPromise;
+
+      expect(rates).toEqual(playbackRates);
     });
   });
 
   describe('getPresentation', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getPresentation();
+      void sdk.getPresentation();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1429,10 +1460,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getPresentation()
-        .then((pres) => {
-          expect(pres).toEqual(presentation);
-        });
+      const getPresentationPromise = sdk.getPresentation();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1443,15 +1471,19 @@ describe('Service', () => {
         name: 'presentation',
         value: presentation,
       });
+
+      const pres = await getPresentationPromise;
+
+      expect(pres).toEqual(presentation);
     });
   });
 
   describe('getPrimaryContent', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getPrimaryContent();
+      void sdk.getPrimaryContent();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1472,10 +1504,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getPrimaryContent()
-        .then((primaryContent) => {
-          expect(primaryContent).toEqual('slides');
-        });
+      const promise = sdk.getPrimaryContent();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1486,15 +1515,19 @@ describe('Service', () => {
         name: 'primaryContent',
         value: 'slides',
       });
+
+      const primaryContent = await promise;
+
+      expect(primaryContent).toEqual('slides');
     });
   });
 
   describe('getSideBySideRatio', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getSideBySideRatio();
+      void sdk.getSideBySideRatio();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1515,10 +1548,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getSideBySideRatio()
-        .then((value) => {
-          expect(value).toEqual(60);
-        });
+      const promise = sdk.getSideBySideRatio();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1529,15 +1559,19 @@ describe('Service', () => {
         name: 'sideBySideRatio',
         value: 60,
       });
+
+      const sideBySideRatio = await promise;
+
+      expect(sideBySideRatio).toEqual(60);
     });
   });
 
   describe('getVolume', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
       const sdk = initSdk();
 
-      sdk.getVolume();
+      void sdk.getVolume();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1558,10 +1592,7 @@ describe('Service', () => {
 
       const sdk = initSdk();
 
-      sdk.getVolume()
-        .then((volume) => {
-          expect(volume).toEqual(80);
-        });
+      const promise = sdk.getVolume();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1572,16 +1603,20 @@ describe('Service', () => {
         name: 'volume',
         value: 80,
       });
+
+      const volume = await promise;
+
+      expect(volume).toEqual(80);
     });
   });
 
   describe('isPaused', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      sdk.isPaused();
+      void sdk.isPaused();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1601,11 +1636,7 @@ describe('Service', () => {
       expect.assertions(1);
 
       const sdk = initSdk();
-
-      sdk.isPaused()
-        .then((isPaused) => {
-          expect(isPaused).toEqual(false);
-        });
+      const promise = sdk.isPaused();
 
       // we need to wait for a tick to get the code inside the promise to be executed
       await nextTick();
@@ -1616,12 +1647,17 @@ describe('Service', () => {
         name: 'paused',
         value: false,
       });
+
+      // now await the result
+      const isPaused = await promise;
+
+      expect(isPaused).toEqual(false);
     });
   });
 
   describe('pause', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
@@ -1644,7 +1680,7 @@ describe('Service', () => {
 
   describe('play', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
@@ -1684,7 +1720,7 @@ describe('Service', () => {
     });
 
     it('should send a message to the player ', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
       const callback = jest.fn();
@@ -1707,21 +1743,22 @@ describe('Service', () => {
       );
     });
 
-    it('should throw an error if no event name is passed', async () => {
+    it('should throw an error if no event name is passed', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.removeEventListener((undefined as any), () => {
-      })).toThrow('You must pass an event name.');
+      expect(() => sdk.removeEventListener(undefined as never, () => {})).toThrow('You must pass an event name.');
     });
   });
 
   describe('setCurrentTime', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setCurrentTime(2000);
+      sdk.setCurrentTime(2000);
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1735,26 +1772,28 @@ describe('Service', () => {
       );
     });
 
-    it('should send an error if the time is below 0', async () => {
+    it('should send an error if the time is below 0', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setCurrentTime(-1)).toThrow('The current time must be superior or equal to 0');
     });
 
-    it('should throw an error if no value is provided', async () => {
+    it('should throw an error if no value is provided', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.setCurrentTime((undefined as any))).toThrow('A value must be set.');
+      expect(() => sdk.setCurrentTime(undefined as never)).toThrow('A value must be set.');
     });
   });
 
   describe('setLayout', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setLayout('sbs');
+      sdk.setLayout('sbs');
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1768,20 +1807,22 @@ describe('Service', () => {
       );
     });
 
-    it('should throw an error if no value is provided', async () => {
+    it('should throw an error if no value is provided', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.setLayout((undefined as any))).toThrow('A value must be set.');
+      expect(() => sdk.setLayout(undefined as never)).toThrow('A value must be set.');
     });
   });
 
   describe('setLevel', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setLevel(2);
+      sdk.setLevel(2);
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1795,32 +1836,34 @@ describe('Service', () => {
       );
     });
 
-    it('should send an error if the value is below -1', async () => {
+    it('should send an error if the value is below -1', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setLevel(-2)).toThrow('The level must set to -1 for automatic switching or be superior to 0');
     });
 
-    it('should send an error if the value is 0', async () => {
+    it('should send an error if the value is 0', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setLevel(0)).toThrow('The level must set to -1 for automatic switching or be superior to 0');
     });
 
-    it('should throw an error if no value is provided', async () => {
+    it('should throw an error if no value is provided', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.setLevel((undefined as any))).toThrow('A value must be set.');
+      expect(() => sdk.setLevel(undefined as never)).toThrow('A value must be set.');
     });
   });
 
   describe('setPictureInPicturePosition', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setPictureInPicturePosition('top-right');
+      sdk.setPictureInPicturePosition('top-right');
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1834,20 +1877,22 @@ describe('Service', () => {
       );
     });
 
-    it('should throw an error if no value is provided', async () => {
+    it('should throw an error if no value is provided', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.setPictureInPicturePosition((undefined as any))).toThrow('A value must be set.');
+      expect(() => sdk.setPictureInPicturePosition(undefined as never)).toThrow('A value must be set.');
     });
   });
 
   describe('setPlaybackRate', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setPlaybackRate(2);
+      sdk.setPlaybackRate(2);
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1861,32 +1906,34 @@ describe('Service', () => {
       );
     });
 
-    it('should send an error if the value is below 0', async () => {
+    it('should send an error if the value is below 0', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setPlaybackRate(-1)).toThrow('The playback rate must be superior or equal to 0');
     });
 
-    it('should send an error if the value is above 2', async () => {
+    it('should send an error if the value is above 2', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setPlaybackRate(3)).toThrow('The playback rate must be inferior or equal to 2');
     });
 
-    it('should throw an error if no value is provided', async () => {
+    it('should throw an error if no value is provided', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.setCurrentTime((undefined as any))).toThrow('A value must be set.');
+      expect(() => sdk.setCurrentTime(undefined as never)).toThrow('A value must be set.');
     });
   });
 
   describe('setPrimaryContent', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setPrimaryContent('slides');
+      sdk.setPrimaryContent('slides');
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1900,20 +1947,22 @@ describe('Service', () => {
       );
     });
 
-    it('should throw an error if no value is provided', async () => {
+    it('should throw an error if no value is provided', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.setPrimaryContent((undefined as any))).toThrow('A value must be set.');
+      expect(() => sdk.setPrimaryContent(undefined as never)).toThrow('A value must be set.');
     });
   });
 
   describe('setSideBySideRatio', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setSideBySideRatio(50);
+      sdk.setSideBySideRatio(50);
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1927,13 +1976,13 @@ describe('Service', () => {
       );
     });
 
-    it('should send an error if the ratio is below 50', async () => {
+    it('should send an error if the ratio is below 50', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setSideBySideRatio(40)).toThrow('The ratio must be between 50 and 80');
     });
 
-    it('should send an error if the ratio is above 80', async () => {
+    it('should send an error if the ratio is above 80', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setSideBySideRatio(90)).toThrow('The ratio must be between 50 and 80');
@@ -1942,11 +1991,13 @@ describe('Service', () => {
 
   describe('setVolume', () => {
     it('should send the appropriate message to the iframe', async () => {
-      const spy = jest.spyOn(iframe.contentWindow as any, 'postMessage');
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
 
       const sdk = initSdk();
 
-      await sdk.setVolume(100);
+      sdk.setVolume(100);
+
+      await nextTick();
 
       expect(spy).toHaveBeenCalledWith(
         JSON.stringify({
@@ -1960,22 +2011,22 @@ describe('Service', () => {
       );
     });
 
-    it('should send an error if the volume is below 0', async () => {
+    it('should send an error if the volume is below 0', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setVolume(-1)).toThrow('The volume must be between 0 and 100');
     });
 
-    it('should send an error if the volume is above 100', async () => {
+    it('should send an error if the volume is above 100', () => {
       const sdk = initSdk();
 
       expect(() => sdk.setVolume(101)).toThrow('The volume must be between 0 and 100');
     });
 
-    it('should throw an error if no value is provided', async () => {
+    it('should throw an error if no value is provided', () => {
       const sdk = initSdk();
 
-      expect(() => sdk.setVolume((undefined as any))).toThrow('A value must be set.');
+      expect(() => sdk.setVolume(undefined as never)).toThrow('A value must be set.');
     });
   });
 });

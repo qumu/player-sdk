@@ -1,5 +1,4 @@
-type SdkEventListener =
-  'captiontrackchange'
+type SdkEventListener = 'captiontrackchange'
   | 'chapterchange'
   | 'ended'
   | 'layoutchange'
@@ -12,8 +11,7 @@ type SdkEventListener =
   | 'timeupdate'
   | 'volumechange';
 
-type SdkGetSetName =
-  'audienceReaction'
+type SdkGetSetName = 'audienceReaction'
   | 'audienceReactions'
   | 'captionTrack'
   | 'captionTracks'
@@ -41,7 +39,7 @@ export interface SdkCommandMessage {
   action: 'command';
   guid: string;
   name: 'destroy' | 'pause' | 'play';
-  value?: any;
+  value?: unknown;
   version: number;
 }
 
@@ -49,7 +47,7 @@ export interface SdkEventMessage {
   action: 'event';
   guid: string;
   name: SdkEventListener;
-  value?: any;
+  value?: unknown;
   version: number;
 }
 
@@ -57,7 +55,7 @@ export interface SdkGetSetMessage {
   action: 'get' | 'set';
   guid: string;
   name: SdkGetSetName;
-  value?: any;
+  value?: unknown;
   version: number;
 }
 
@@ -73,8 +71,7 @@ export interface SdkReadyMessage {
   version: number;
 }
 
-export type SdkMessage =
-  SdkCommandMessage
+export type SdkMessage = SdkCommandMessage
   | SdkEventMessage
   | SdkGetSetMessage
   | SdkHandshakeMessage
