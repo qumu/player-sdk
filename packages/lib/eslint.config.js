@@ -1,10 +1,10 @@
 import { defineConfig } from 'eslint/config';
-import { typescript } from '@enghouse-qumu/eslint-config';
+import { astro, typescript } from '@enghouse-qumu/eslint-config';
 
 export default defineConfig([
   {
-    files: ['packages/lib/**/*.ts'],
     extends: [typescript],
+    files: ['**/*.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',

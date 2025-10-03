@@ -19,11 +19,10 @@
     "packages/*"
   ],
   "scripts": {
-    "lint": "eslint",
+    "lint": "npm run lint --workspaces --if-present",
     "serve": "npm run dev -w lib && (npm run dev:watch -w lib & npm run dev:watch -w docs)"
   },
   "devDependencies": {
-    "@enghouse-qumu/eslint-config": "file:.yalc/@enghouse-qumu/eslint-config",
     "stylelint": "13.9.0",
     "typescript": "5.9.2"
   },

@@ -14,10 +14,12 @@
   "files": [
     "dist/"
   ],
+  "type": "module",
   "scripts": {
     "build": "microbundle --name playerSdk",
     "dev": "microbundle --name playerSdk",
     "dev:watch": "microbundle watch --name playerSdk",
+    "lint": "eslint",
     "prepublishOnly": "node scripts/prepublishOnly.js",
     "test": "jest",
     "test:cov": "jest --coverage",
@@ -29,5 +31,8 @@
     "jest-environment-jsdom": "30.1.2",
     "microbundle": "0.15.1",
     "ts-jest": "29.4.4"
+  },
+  "dependencies": {
+    "@enghouse-qumu/eslint-config": "file:.yalc/@enghouse-qumu/eslint-config"
   }
 }
