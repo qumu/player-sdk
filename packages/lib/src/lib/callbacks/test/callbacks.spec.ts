@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CallbackStore } from '../callbacks';
 
 describe('CallbackStore', () => {
@@ -9,10 +10,8 @@ describe('CallbackStore', () => {
         (time: number) => console.log('time', time),
       ];
 
-      (store as any).map.set('event:timeupdate', callbacks);
-      (store as any).map.set('event:volume', [
-        (volume: number) => console.log('volume', volume),
-      ]);
+      store.storeCallback('event:timeupdate', callbacks[0]);
+      store.storeCallback('event:volume', (volume: number) => console.log('volume', volume));
 
       expect(store.getCallbacks('event:timeupdate')).toEqual(callbacks);
     });
@@ -20,12 +19,8 @@ describe('CallbackStore', () => {
     it('should return an empty array if the name does not have callbacks', () => {
       const store = new CallbackStore();
 
-      (store as any).map.set('event:timeupdate', [
-        (time: number) => console.log('time', time),
-      ]);
-      (store as any).map.set('event:volume', [
-        (volume: number) => console.log('volume', volume),
-      ]);
+      store.storeCallback('event:timeupdate', (time: number) => console.log('time', time));
+      store.storeCallback('event:volume', (volume: number) => console.log('volume', volume));
 
       expect(store.getCallbacks('does-not-exist')).toEqual([]);
     });
@@ -38,14 +33,12 @@ describe('CallbackStore', () => {
       const callback1 = (time: number) => console.log('time', time);
       const callback2 = (volume: number) => console.log('volume', volume);
 
-      (store as any).map.set('event:timeupdate', [
-        callback1,
-        callback2,
-      ]);
+      store.storeCallback('event:timeupdate', callback1);
+      store.storeCallback('event:timeupdate', callback2);
 
       store.removeCallback('event:timeupdate', callback1);
 
-      expect((store as any).map.get('event:timeupdate')).toEqual([
+      expect(store.getCallbacks('event:timeupdate')).toEqual([
         callback2,
       ]);
     });
@@ -56,14 +49,12 @@ describe('CallbackStore', () => {
       const callback1 = (time: number) => console.log('time', time);
       const callback2 = (volume: number) => console.log('volume', volume);
 
-      (store as any).map.set('event:timeupdate', [
-        callback1,
-        callback2,
-      ]);
+      store.storeCallback('event:timeupdate', callback1);
+      store.storeCallback('event:timeupdate', callback2);
 
       store.removeCallback('event:timeupdate');
 
-      expect((store as any).map.has('event:timeupdate')).toBeFalsy();
+      expect(store.getCallbacks('event:timeupdate')).toEqual([]);
     });
 
     it('should empty the map when the removed callback is the last one for the said event', () => {
@@ -71,13 +62,11 @@ describe('CallbackStore', () => {
 
       const callback1 = (time: number) => console.log('time', time);
 
-      (store as any).map.set('event:timeupdate', [
-        callback1,
-      ]);
+      store.storeCallback('event:timeupdate', callback1);
 
       store.removeCallback('event:timeupdate', callback1);
 
-      expect((store as any).map.has('event:timeupdate')).toBeFalsy();
+      expect(store.getCallbacks('event:timeupdate')).toEqual([]);
     });
   });
 
@@ -97,10 +86,8 @@ describe('CallbackStore', () => {
       const callback1 = (time: number) => console.log('time', time);
       const callback2 = (volume: number) => console.log('volume', volume);
 
-      (store as any).map.set('event:timeupdate', [
-        callback1,
-        callback2,
-      ]);
+      store.storeCallback('event:timeupdate', callback1);
+      store.storeCallback('event:timeupdate', callback2);
 
       const callback = store.shiftCallback('event:timeupdate');
 
@@ -116,7 +103,7 @@ describe('CallbackStore', () => {
 
       store.storeCallback('event:timeupdate', callback1);
 
-      expect((store as any).map.get('event:timeupdate')).toEqual([
+      expect(store.getCallbacks('event:timeupdate')).toEqual([
         callback1,
       ]);
     });
@@ -126,13 +113,10 @@ describe('CallbackStore', () => {
       const callback1 = (time: number) => console.log('time', time);
       const callback2 = (volume: number) => console.log('volume', volume);
 
-      (store as any).map.set('event:timeupdate', [
-        callback1,
-      ]);
-
+      store.storeCallback('event:timeupdate', callback1);
       store.storeCallback('event:timeupdate', callback2);
 
-      expect((store as any).map.get('event:timeupdate')).toEqual([
+      expect(store.getCallbacks('event:timeupdate')).toEqual([
         callback1,
         callback2,
       ]);

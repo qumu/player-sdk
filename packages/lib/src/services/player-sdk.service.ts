@@ -9,6 +9,12 @@ import {
 import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
 import { SdkCaptionTrack, SdkLayout, SdkPipPosition, SdkPrimaryContent } from '../models/external';
 
+const foo = {
+  b: true,
+  a: false,
+};
+
+
 export class PlayerSdk {
   // store used for the callbacks
   private readonly callbackStore: CallbackStore;
@@ -30,7 +36,7 @@ export class PlayerSdk {
 
   private readonly readyPromise: Promise<void>;
 
-  // Cross window communication format version
+  // Cross-window communication format version
   private readonly version = 3;
 
   constructor(
@@ -43,7 +49,7 @@ export class PlayerSdk {
 
     // create the promise that will be used to verify if the messages can be exchanged with the player
     this.readyPromise = new Promise((resolve) => {
-      this.messageHandler = (event: MessageEvent) => {
+      this.messageHandler = (event: MessageEvent<SdkMessage>) => {
         // ignore messages coming from another iframe
         if (event.origin !== this.originUrl) {
           return;
@@ -110,7 +116,8 @@ export class PlayerSdk {
    * @param name the event name to listen to
    * @param callback the callback to run when the event is triggered
    */
-  addEventListener(name: SdkEventMessage['name'], callback: Function): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addEventListener(name: SdkEventMessage['name'], callback: (args?: any) => void): void {
     if (!name) {
       throw new TypeError('You must pass an event name.');
     }
@@ -126,28 +133,36 @@ export class PlayerSdk {
     if (name === 'ready') {
       this.callbackStore.storeCallback(`event:${name}`, callback);
 
-      this.readyPromise.then(() => {
-        // check if callback was not removed
-        if (this.callbackStore.getCallbacks(`event:${name}`).includes(callback)) {
-          callback();
-        }
-      });
+      this.readyPromise
+        .then(() => {
+          // check if callback was not removed
+          if (this.callbackStore.getCallbacks(`event:${name}`).includes(callback)) {
+            callback();
+          }
+        })
+        .catch((err) => {
+          throw err;
+        });
 
       return;
     }
 
     const callbacks = this.callbackStore.getCallbacks(`event:${name}`);
 
-    // This is the first time we subscribe to this event, we need to tell the Player to start a watcher
+    // This is the first time we've subscribed to this event, we need to tell the Player to start a watcher
     if (callbacks.length === 0) {
-      this.readyPromise.then(() => {
-        this.postMessage<SdkEventMessage>({
-          action: 'event',
-          guid: this.guid,
-          name,
-          value: 'add',
+      this.readyPromise
+        .then(() => {
+          this.postMessage<SdkEventMessage>({
+            action: 'event',
+            guid: this.guid,
+            name,
+            value: 'add',
+          });
+        })
+        .catch((err) => {
+          throw err;
         });
-      });
     }
 
     this.callbackStore.storeCallback(`event:${name}`, callback);
@@ -201,14 +216,14 @@ export class PlayerSdk {
   /**
    * Gets the list of chapters for the presentation
    */
-  async getChapters(): Promise<any[]> {
+  async getChapters(): Promise<unknown[]> {
     return this.get('chapters');
   }
 
   /**
    * Gets the current chapter
    */
-  async getCurrentChapter(): Promise<any> {
+  async getCurrentChapter(): Promise<unknown> {
     return this.get('chapter');
   }
 
@@ -252,7 +267,10 @@ export class PlayerSdk {
   /**
    * Gets the available levels
    */
-  async getLevels(): Promise<Array<{key: string; value: number}>> {
+  async getLevels(): Promise<Array<{
+    key: string;
+    value: number;
+  }>> {
     return this.get('levels');
   }
 
@@ -310,7 +328,7 @@ export class PlayerSdk {
   /**
    * Gets the presentation
    */
-  async getPresentation(): Promise<any> {
+  async getPresentation(): Promise<unknown> {
     return this.get('presentation');
   }
 
@@ -361,7 +379,7 @@ export class PlayerSdk {
    *
    * @param reaction the reaction
    */
-  sendAudienceReaction(reaction: 'string'): void {
+  sendAudienceReaction(reaction: string): void {
     this.set('audienceReaction', reaction);
   }
 
@@ -371,7 +389,7 @@ export class PlayerSdk {
    * @param name the event name to listen to
    * @param callback the callback to remove. If no callback is provided, all callbacks will be removed for the event name
    */
-  removeEventListener(name: SdkEventMessage['name'], callback?: Function): void {
+  removeEventListener(name: SdkEventMessage['name'], callback?: () => unknown): void {
     if (!name) {
       throw new TypeError('You must pass an event name.');
     }
@@ -494,7 +512,7 @@ export class PlayerSdk {
    * @param args optional arguments to send
    * @private
    */
-  private command(name: SdkCommandMessage['name'], args?: any): void {
+  private command(name: SdkCommandMessage['name'], args?: unknown): void {
     const message: Omit<SdkCommandMessage, 'version'> = {
       action: 'command',
       guid: this.guid,
@@ -535,6 +553,8 @@ export class PlayerSdk {
         return iframe;
       }
     }
+
+    return undefined;
   }
 
   /**
@@ -559,7 +579,7 @@ export class PlayerSdk {
           name,
         });
       } catch (e) {
-        reject(e);
+        reject(new Error(e as string));
       }
     });
   }
@@ -585,13 +605,13 @@ export class PlayerSdk {
    * @param data the data to process
    * @private
    */
-  private processData(data: any): void {
+  private processData(data: unknown): void {
     const message = parseMessageData<SdkMessage>(data);
 
     let callbacks: FunctionOrPromise[] = [];
 
     // ignore messages that should not be for us
-    if (message?.version !== this.version || (message as any)?.guid !== this.guid) {
+    if (message?.version !== this.version || ('guid' in message && message?.guid !== this.guid)) {
       return;
     }
 
@@ -623,7 +643,7 @@ export class PlayerSdk {
    * @param value the value to send
    * @private
    */
-  private set(name: SdkGetSetMessage['name'], value: any): void {
+  private set(name: SdkGetSetMessage['name'], value: unknown): void {
     if (value === undefined) {
       throw new TypeError('A value must be set.');
     }
@@ -636,6 +656,10 @@ export class PlayerSdk {
           name,
           value,
         });
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(err);
       });
   }
 }

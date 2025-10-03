@@ -9,7 +9,7 @@ const defaultProps: Props = {
 
 const { url }: Props = {
   ...defaultProps,
-  ...Astro.props
+  ...Astro.props,
 };
 ---
 
@@ -62,27 +62,27 @@ const { url }: Props = {
   // Thanks to NPM workspaces, the packages are symlinked, so we can easily use them
   import { PlayerSdk } from 'lib';
 
-  const iframe = document.querySelector('iframe');
+  const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
 
-  let sdk;
-  let events = {};
+  let sdk: PlayerSdk | undefined = undefined;
+  let events: Record<string, (value: any) => void> = {};
 
   iframe.addEventListener('load', () => {
     sdk = initSdk();
   });
 
-  document.getElementById('url').addEventListener('input', (event) => {
+  document.getElementById('url')?.addEventListener('input', (event) => {
     sdk?.destroy();
     events = {};
 
-    iframe.setAttribute('src', event.target.value);
+    iframe.setAttribute('src', (event.target as HTMLInputElement).value);
   });
 
   function initSdk() {
     const playerSdk = new PlayerSdk(iframe);
 
-    document.querySelectorAll('[data-type="event"]').forEach((element) => {
-      const eventName = element.getAttribute('data-event');
+    document.querySelectorAll<HTMLInputElement>('[data-type="event"]').forEach((element) => {
+      const eventName = element.getAttribute('data-event')!;
 
       events[eventName] = (value) => {
         console.log(eventName, value);

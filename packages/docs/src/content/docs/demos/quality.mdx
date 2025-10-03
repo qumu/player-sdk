@@ -19,12 +19,12 @@ Qumu Cloud uses [HLS.js](https://github.com/video-dev/hls.js) under the hood so 
   described below will not work on iOS.
 </Aside>
 
-| Method                                             | Description                                                                                                                                                    |
-|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `getLevel(): number`                               | Returns -1 for automatic level switching or returns the level requested by the user in the player.                                                             |
-| `getLevels(): Array<{key: string; value: number}>` | Returns the available levels.                                                                                                                                  |
-| `getPlaybackLevel(): number`                       | Returns the actual level used by HLS.js for playback. The value will be equal to getLevel() for fixed levels and different if the requested level is -1 (auto) |
-| `setLevel(level: number): void`                    | Update the requested level. Send `-1` if you want to use automatic level switching from HLS.js or use a level from the `.getLevels()` method                   |
+|   | Method                                                      | Description                                                                                                                                                    |
+|:--|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|   | `getLevel(): Promise<number>`                               | Returns -1 for automatic level switching or returns the level requested by the user in the player.                                                             |
+|   | `getLevels(): Promise<Array<{key: string; value: number}>>` | Returns the available levels.                                                                                                                                  |
+|   | `getPlaybackLevel(): Promise<number>`                       | Returns the actual level used by HLS.js for playback. The value will be equal to getLevel() for fixed levels and different if the requested level is -1 (auto) |
+|   | `setLevel(level: number): void`                             | Update the requested level. Send `-1` if you want to use automatic level switching from HLS.js or use a level from the `.getLevels()` method                   |
 
 | Event                 | Description                                           |
 |-----------------------|-------------------------------------------------------|

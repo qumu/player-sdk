@@ -5,13 +5,13 @@ const sdk = new PlayerSdk(iframe);
 
 document.getElementById('getPlaybackRates').addEventListener('click', () => {
   sdk.getPlaybackRates().then((playbackRates) => {
-    console.log('Playback rates', playbackRates)
+    console.log('Playback rates', playbackRates);
   });
 });
 
 document.getElementById('getPlaybackRate').addEventListener('click', () => {
   sdk.getPlaybackRate().then((playbackRate) => {
-    console.log('Current playback rate', playbackRate)
+    console.log('Current playback rate', playbackRate);
   });
 });
 
