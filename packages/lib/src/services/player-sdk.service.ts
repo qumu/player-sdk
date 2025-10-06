@@ -9,12 +9,6 @@ import {
 import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
 import { SdkCaptionTrack, SdkLayout, SdkPipPosition, SdkPrimaryContent } from '../models/external';
 
-const foo = {
-  b: true,
-  a: false,
-};
-
-
 export class PlayerSdk {
   // store used for the callbacks
   private readonly callbackStore: CallbackStore;

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { CallbackStore } from '../callbacks';
 
 describe('CallbackStore', () => {
