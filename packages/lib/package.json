@@ -8,22 +8,25 @@
   "module": "./dist/index.module.js",
   "exports": {
     "require": "./dist/index.js",
-    "default": "./dist/index.modern.mjs",
-    "types": "./dist/index.d.ts"
+    "types": "./dist/index.d.ts",
+    "default": "./dist/index.modern.mjs"
   },
   "files": [
     "dist/"
   ],
+  "type": "module",
   "scripts": {
     "build": "microbundle --name playerSdk",
     "dev": "microbundle --name playerSdk",
     "dev:watch": "microbundle watch --name playerSdk",
+    "lint": "eslint",
     "prepublishOnly": "node scripts/prepublishOnly.js",
     "test": "jest",
     "test:cov": "jest --coverage",
     "test:watch": "jest --watch"
   },
   "devDependencies": {
+    "@enghouse-qumu/eslint-config": "1.0.0",
     "@types/jest": "30.0.0",
     "jest": "30.1.3",
     "jest-environment-jsdom": "30.1.2",

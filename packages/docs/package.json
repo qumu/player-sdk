@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "astro build",
-    "dev:watch": "astro dev --base player-sdk/"
+    "dev:watch": "astro dev --base player-sdk/",
+    "lint": "eslint"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
@@ -12,5 +13,8 @@
     "astro": "5.13.10",
     "sharp": "0.34.4",
     "typescript": "5.9.2"
+  },
+  "devDependencies": {
+    "@enghouse-qumu/eslint-config": "1.0.0"
   }
 }

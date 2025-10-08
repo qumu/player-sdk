@@ -16,6 +16,8 @@ describe('functions', () => {
     });
 
     it('should return an empty object if data is an non parsable string', () => {
+      // mock the console.error used in parseMessageData()
+      console.error = jest.fn();
       const data = parseMessageData('to');
 
       expect(data).toEqual({});
