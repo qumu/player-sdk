@@ -26,9 +26,13 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            const tag = process.env.GITHUB_REF.replace("refs/tags/", "");
+            const prerelease = /-(alpha|beta|rc)\./.test(tag);
+            
             await github.request(`POST /repos/${{ github.repository }}/releases`, {
-              tag_name: "${{ github.ref }}",
-              generate_release_notes: true
+              tag_name: tag,
+              generate_release_notes: true,
+              prerelease
             });
 
   publish-package:
@@ -58,5 +62,17 @@ jobs:
 
       - name: Publish to NPM
         run: |
+          VERSION_TAG="${GITHUB_REF#refs/tags/}"
+          
+          if [[ "$VERSION_TAG" == *"-alpha."* ]]; then
+            TAG="alpha"
+          elif [[ "$VERSION_TAG" == *"-beta."* ]]; then
+            TAG="beta"
+          elif [[ "$VERSION_TAG" == *"-rc."* ]]; then
+            TAG="next"
+          else
+            TAG="latest"
+          fi
+          
           npm config set //registry.npmjs.org/:_authToken ${NODE_AUTH_TOKEN}
-          npm publish --workspace lib
+          npm publish --workspace lib --tag $TAG
