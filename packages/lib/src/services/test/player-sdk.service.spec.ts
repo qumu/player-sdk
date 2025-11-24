@@ -899,7 +899,7 @@ describe('Service', () => {
           isAudioDescription: false,
           isOriginal: false,
           languageCode: 'en-GB',
-        }
+        },
       });
 
       const audioTrack = await promise;
