@@ -16,7 +16,7 @@ module.exports = {
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
 
-  globalSetup: './jest.setup.js',
+  globalSetup: './jest.setup.cjs',
 
   // A preset that is used as a base for Jest's configuration
   preset: 'ts-jest',
