@@ -8,11 +8,11 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@astrojs/check": "0.9.4",
-    "@astrojs/starlight": "0.36.0",
-    "astro": "5.15.9",
-    "sharp": "0.34.4",
-    "typescript": "5.9.2"
+    "@astrojs/check": "0.9.6",
+    "@astrojs/starlight": "0.37.4",
+    "astro": "5.16.16",
+    "sharp": "0.34.5",
+    "typescript": "5.9.3"
   },
   "devDependencies": {
     "@enghouse-qumu/eslint-config": "1.0.0"
