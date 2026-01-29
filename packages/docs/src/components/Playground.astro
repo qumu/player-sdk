@@ -96,6 +96,14 @@ const { url }: Props = {
     return playerSdk;
   }
 
+  function parseValue(rawValue: string) {
+    try {
+      return JSON.parse(rawValue);
+    } catch (error) {
+      return rawValue;
+    }
+  }
+
   document.querySelectorAll('[data-type="get"]').forEach((element) => {
     element.addEventListener('click', () => {
       const commandName = element.getAttribute('data-command');
@@ -107,7 +115,7 @@ const { url }: Props = {
   document.querySelectorAll('[data-type="set"]').forEach((element) => {
     element.addEventListener('click', () => {
       const commandName = element.getAttribute('data-command');
-      const value = JSON.parse(element.getAttribute('data-value') || '');
+      const value = parseValue(element.getAttribute('data-value') || '');
 
       sdk[commandName](value);
     });
