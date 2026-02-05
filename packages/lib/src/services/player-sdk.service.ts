@@ -224,7 +224,7 @@ export class PlayerSdk {
   /**
    * Gets the current audio track
    */
-  async getCurrentAudioTrack(): Promise<SdkAudioTrack[]> {
+  async getCurrentAudioTrack(): Promise<SdkAudioTrack> {
     return this.get('audioTrack');
   }
 
