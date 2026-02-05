@@ -136,7 +136,7 @@ Gets the list of chapters for the presentation.
 
 Gets the current audio track.
 
-### getCurrentChapter(): Promise&lt;Chapter%gt;
+### getCurrentChapter(): Promise&lt;Chapter&gt;
 
 Gets the current chapter.
 
