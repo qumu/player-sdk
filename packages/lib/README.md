@@ -93,6 +93,7 @@ Events you can listen to:
 
 | Event name             | Description                                         | 
 |------------------------|-----------------------------------------------------|
+| `audiotrackchange`     | Triggered when the current audio track is updated   |
 | `captiontrackchange`   | Triggered when the current caption track is updated |
 | `chapterchange`        | Triggered when the current chapter changes          |
 | `ended`                | Triggered when the playback ends                    |
@@ -119,6 +120,10 @@ Sets the current caption track.
 
 * `language`: the language of the active track. Use null to disable captions.
 
+### getAudioTracks(): Promise&lt;SdkAudioTrack[]&gt;
+
+Gets the available audio tracks.
+
 ### getCaptionTracks(): Promise&lt;SdkCaptionTrack[]&gt;
 
 Gets the available caption tracks.
@@ -127,7 +132,11 @@ Gets the available caption tracks.
 
 Gets the list of chapters for the presentation.
 
-### getCurrentChapter(): Promise&lt;Chapter%gt;
+### getCurrentAudioTrack(): Promise&lt;SdkAudioTrack&gt;
+
+Gets the current audio track.
+
+### getCurrentChapter(): Promise&lt;Chapter&gt;
 
 Gets the current chapter.
 
