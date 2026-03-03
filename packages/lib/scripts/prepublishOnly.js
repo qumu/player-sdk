@@ -1,6 +1,6 @@
-const { writeFile } = require('fs/promises');
-const rootPackage = require('../../../package.json');
-const libPackage = require('../package.json');
+import { writeFile } from 'node:fs/promises';
+import rootPackage from '../../../package.json' with { type: 'json' };
+import libPackage from '../package.json' with { type: 'json' };
 
 function preparePackageJsonFile(srcFile, destFile) {
   destFile.name = srcFile.name;
@@ -13,8 +13,6 @@ function preparePackageJsonFile(srcFile, destFile) {
   return destFile;
 }
 
-(async () => {
-  const pkg = preparePackageJsonFile(rootPackage, libPackage);
+const pkg = preparePackageJsonFile(rootPackage, libPackage);
 
-  await writeFile('package.json', JSON.stringify(pkg, null, 2));
-})();
+await writeFile('package.json', JSON.stringify(pkg, null, 2));
