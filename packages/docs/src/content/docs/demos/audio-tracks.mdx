@@ -15,7 +15,11 @@ import code from 'code/audio-tracks.js?raw';
   <Fragment slot="actions">
     <PlaygroundButton type="get" command="getAudioTracks">Get audio tracks</PlaygroundButton>
     <PlaygroundButton type="get" command="getCurrentAudioTrack">Get current audio track</PlaygroundButton>
+    <PlaygroundButton type="set" command="setAudioTrack" value="en">Set English</PlaygroundButton>
     <PlaygroundButton type="set" command="setAudioTrack" value="fr">Set French</PlaygroundButton>
+    <PlaygroundButton type="set" command="setAudioTrack" value="de">Set German</PlaygroundButton>
+    <PlaygroundButton type="set" command="setAudioTrack" value="ja">Set Japanese</PlaygroundButton>
+    <PlaygroundButton type="set" command="setAudioTrack" value="es">Set Spanish</PlaygroundButton>
   </Fragment>
   <Fragment slot="events">
     <PlaygroundCheckbox checked={true} event="audiotrackchange">Listen for `audiotrackchange` events</PlaygroundCheckbox>
