@@ -49,8 +49,6 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@qumu'
 
       - name: Install dependencies
         run: npm ci
