@@ -7,7 +7,7 @@ import {
   SdkMessage,
 } from '../models/internal';
 import { CallbackStore, FunctionOrPromise } from '../lib/callbacks/callbacks';
-import { SdkCaptionTrack, SdkLayout, SdkPipPosition, SdkPrimaryContent } from '../models/external';
+import { SdkAudioTrack, SdkCaptionTrack, SdkLayout, SdkPipPosition, SdkPrimaryContent } from '../models/external';
 
 export class PlayerSdk {
   // store used for the callbacks
@@ -201,6 +201,13 @@ export class PlayerSdk {
   }
 
   /**
+   * Gets the available audio tracks
+   */
+  async getAudioTracks(): Promise<SdkAudioTrack[]> {
+    return this.get('audioTracks');
+  }
+
+  /**
    * Gets the available caption tracks
    */
   async getCaptionTracks(): Promise<SdkCaptionTrack[]> {
@@ -212,6 +219,13 @@ export class PlayerSdk {
    */
   async getChapters(): Promise<unknown[]> {
     return this.get('chapters');
+  }
+
+  /**
+   * Gets the current audio track
+   */
+  async getCurrentAudioTrack(): Promise<SdkAudioTrack> {
+    return this.get('audioTrack');
   }
 
   /**
@@ -401,6 +415,15 @@ export class PlayerSdk {
         value: 'remove',
       });
     }
+  }
+
+  /**
+   * Sets the active audio track
+   *
+   * @param code the new audio track code
+   */
+  setAudioTrack(code: string): void {
+    this.set('audioTrack', code);
   }
 
   /**
