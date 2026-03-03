@@ -75,4 +75,4 @@ jobs:
             TAG="latest"
           fi
           
-          npm publish --workspace packages/lib --tag $TAG --access public
+          npm publish --workspace @enghouse-qumu/player-sdk --tag $TAG --access public
