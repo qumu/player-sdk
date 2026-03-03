@@ -55,6 +55,8 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.FE_CI_BOT_TOKEN }}
 
       - name: Build package
         run: npm run build --workspace packages/lib
