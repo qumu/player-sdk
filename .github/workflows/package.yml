@@ -72,5 +72,5 @@ jobs:
             TAG="latest"
           fi
           
-          npm config set //registry.npmjs.org/:_authToken ${NODE_AUTH_TOKEN}
-          npm publish --workspace lib --tag $TAG
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}    
+          npm publish --workspace lib --tag $TAG --access public
