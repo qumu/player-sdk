@@ -628,6 +628,100 @@ describe('Service', () => {
     });
   });
 
+  describe('getAudioTracks', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
+      const sdk = initSdk();
+
+      void sdk.getAudioTracks();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'audioTracks',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const sdk = initSdk();
+
+      const promise = sdk.getAudioTracks();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer<SdkGetSetMessage>({
+        action: 'get',
+        guid,
+        name: 'audioTracks',
+        value: [
+          {
+            code: 'fr_audiodescription',
+            isAudioDescription: true,
+            isOriginal: false,
+            languageCode: 'fr',
+          },
+          {
+            code: 'es',
+            isAudioDescription: false,
+            isOriginal: false,
+            languageCode: 'es',
+          },
+          {
+            code: 'en-GB',
+            isAudioDescription: false,
+            isOriginal: false,
+            languageCode: 'en-GB',
+          },
+          {
+            code: 'en-US_original',
+            isAudioDescription: false,
+            isOriginal: true,
+            languageCode: 'en-US',
+          },
+        ],
+      });
+
+      const audioTracks = await promise;
+
+      expect(audioTracks).toEqual([
+        {
+          code: 'fr_audiodescription',
+          isAudioDescription: true,
+          isOriginal: false,
+          languageCode: 'fr',
+        },
+        {
+          code: 'es',
+          isAudioDescription: false,
+          isOriginal: false,
+          languageCode: 'es',
+        },
+        {
+          code: 'en-GB',
+          isAudioDescription: false,
+          isOriginal: false,
+          languageCode: 'en-GB',
+        },
+        {
+          code: 'en-US_original',
+          isAudioDescription: false,
+          isOriginal: true,
+          languageCode: 'en-US',
+        },
+      ]);
+    });
+  });
+
   describe('getCaptionTracks', () => {
     it('should send the appropriate message to the iframe', async () => {
       const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
@@ -762,6 +856,60 @@ describe('Service', () => {
       const chaptersFromPromise = await promise;
 
       expect(chaptersFromPromise).toEqual(chapters);
+    });
+  });
+
+  describe('getCurrentAudioTrack', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
+      const sdk = initSdk();
+
+      void sdk.getCurrentAudioTrack();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'get',
+          guid,
+          name: 'audioTrack',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should return the value from the iframe', async () => {
+      expect.assertions(1);
+
+      const sdk = initSdk();
+
+      const promise = sdk.getCurrentAudioTrack();
+
+      // we need to wait for a tick to get the code inside the promise to be executed
+      await nextTick();
+
+      postMessageFromPlayer<SdkGetSetMessage>({
+        action: 'get',
+        guid,
+        name: 'audioTrack',
+        value: {
+          code: 'en-GB',
+          isAudioDescription: false,
+          isOriginal: false,
+          languageCode: 'en-GB',
+        },
+      });
+
+      const audioTrack = await promise;
+
+      expect(audioTrack).toEqual({
+        code: 'en-GB',
+        isAudioDescription: false,
+        isOriginal: false,
+        languageCode: 'en-GB',
+      });
     });
   });
 
@@ -1747,6 +1895,35 @@ describe('Service', () => {
       const sdk = initSdk();
 
       expect(() => sdk.removeEventListener(undefined as never, () => {})).toThrow('You must pass an event name.');
+    });
+  });
+
+  describe('setAudioTrack', () => {
+    it('should send the appropriate message to the iframe', async () => {
+      const spy = jest.spyOn(iframe.contentWindow!, 'postMessage');
+
+      const sdk = initSdk();
+
+      sdk.setAudioTrack('en-GB');
+
+      await nextTick();
+
+      expect(spy).toHaveBeenCalledWith(
+        JSON.stringify({
+          action: 'set',
+          guid,
+          name: 'audioTrack',
+          value: 'en-GB',
+          version: 3,
+        }),
+        url.origin,
+      );
+    });
+
+    it('should throw an error if no value is provided', () => {
+      const sdk = initSdk();
+
+      expect(() => sdk.setAudioTrack(undefined as never)).toThrow('A value must be set.');
     });
   });
 
