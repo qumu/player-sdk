@@ -36,6 +36,10 @@ export default defineConfig({
               slug: 'demos/quality',
             },
             {
+              label: 'Audio Tracks',
+              slug: 'demos/audio-tracks',
+            },
+            {
               label: 'Captions',
               slug: 'demos/captions',
             },
